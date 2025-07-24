@@ -8,12 +8,12 @@
   "theme_color": "#ca3c4a",
   "icons": [
     {
-      "src": "https://busland.neocities.org/hobopad.png",
+      "src": "https://dizzyhobo.github.io/Hobopad/images/hobopad.png",
       "sizes": "400x400",
       "type": "image/png"
     },
     {
-      "src": "https://busland.neocities.org/hobopad.png",
+      "src": "https://dizzyhobo.github.io/Hobopad/images/hobopad.png",
       "sizes": "400x400",
       "type": "image/png"
     }
