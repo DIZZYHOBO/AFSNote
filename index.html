@@ -365,7 +365,7 @@
 
     </style>
 </head>
-<body class="theme-android"> <div id="app-window">
+<body class="theme-win95"> <div id="app-window">
     <div class="title-bar">
         <div class="title-bar-text">Hobopad</div>
         <div class="title-bar-controls">
@@ -566,6 +566,20 @@
     </div>
 </div>
 
+<!--
+    HOBOPAD VERSIONING PROTOCOL REMINDER:
+
+    1.  **INCREMENT VERSION:** For EVERY subsequent code write that modifies the application logic or appearance, increment the version number by 0.0.1.
+        -   Location: HTML comment at the top of the <script> tag.
+        -   Location: Inside the .version-display div within the #about-modal.
+        -   Example: If current is 1.0.7, the next version is 1.0.8.
+
+    2.  **UPDATE CODENAME:** For EACH version increment, assign a NEW, RANDOM Futurama character as the codename. This can be any character, major or minor.
+        -   Location: Inside the .version-display div, in the format [Version X.X.X](Codename).
+        -   Example: [Version 1.0.7](Donbot) becomes [Version 1.0.8](Clamps).
+
+    FAILURE TO COMPLY WILL RESULT IN A STERN TALKING-TO FROM THE HYPNOTOAD. ALL GLORY TO THE HYPNOTOAD.
+-->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const getEl = id => document.getElementById(id);
@@ -650,12 +664,12 @@
         getEl('theme-macos-btn').addEventListener('click', () => setTheme('theme-macos'));
         getEl('theme-ios-btn').addEventListener('click', () => setTheme('theme-ios'));
         getEl('theme-android-btn').addEventListener('click', () => setTheme('theme-android'));
-        const savedTheme = localStorage.getItem('hobopad_theme') || 'theme-android';
+        const savedTheme = localStorage.getItem('hobopad_theme') || 'theme-win95';
         setTheme(savedTheme);
 
         // --- Dark Mode Logic ---
         const setDarkMode = (isDark) => {
-            const currentTheme = localStorage.getItem('hobopad_theme') || 'theme-android';
+            const currentTheme = localStorage.getItem('hobopad_theme') || 'theme-win95';
             if (isDark) {
                 document.body.classList.add('dark-mode');
                 darkModeToggle.textContent = 'Dark Mode';
