@@ -30,21 +30,12 @@ It opens directly to a blank note, not a list of your previous work, because who
 
 ---
 ## Screenshots
+**Main**
+![Main](https://raw.githubusercontent.com/DIZZYHOBO/Hobopad/main/screenshots/Main.png)
 
-<div align="center">
-<table style="border: none;">
-<tr style="border: none;">
-<td style="border: none; padding: 10px;" valign="top">
-<p align="center"><strong>Main</strong></p>
-<img src="https://www.google.com/search?q=https://raw.githubusercontent.com/DIZZYHOBO/Hobopad/main/screenshots/Main.png" alt="Main editor view" width="400">
-</td>
-<td style="border: none; padding: 10px;" valign="top">
-<p align="center"><strong>Saved Notes</strong></p>
-<img src="https://www.google.com/search?q=https://raw.githubusercontent.com/DIZZYHOBO/Hobopad/main/screenshots/Saved.png" alt="Saved notes manager" width="400">
-</td>
-</tr>
-</table>
-</div>
+**Saved Notes**
+![Main](https://raw.githubusercontent.com/DIZZYHOBO/Hobopad/main/screenshots/Saved.png
+)
 
 ## How to Use
 
