@@ -29,6 +29,22 @@ It opens directly to a blank note, not a list of your previous work, because who
 -   **PWA Ready:** It's a Progressive Web App, so you can "install" it on your desktop or mobile device for an offline, app-like experience.
 
 ---
+## Screenshots
+
+<div align="center">
+<table style="border: none;">
+<tr style="border: none;">
+<td style="border: none; padding: 10px;" valign="top">
+<p align="center"><strong>Main</strong></p>
+<img src="https://www.google.com/search?q=https://raw.githubusercontent.com/DIZZYHOBO/Hobopad/main/screenshots/Main.png" alt="Main editor view" width="400">
+</td>
+<td style="border: none; padding: 10px;" valign="top">
+<p align="center"><strong>Saved Notes</strong></p>
+<img src="https://www.google.com/search?q=https://raw.githubusercontent.com/DIZZYHOBO/Hobopad/main/screenshots/Saved.png" alt="Saved notes manager" width="400">
+</td>
+</tr>
+</table>
+</div>
 
 ## How to Use
 
@@ -39,3 +55,5 @@ It opens directly to a blank note, not a list of your previous work, because who
 ---
 
 > "Modern software is a mess. Hobopad is a reaction to that. It doesn't need your email, it doesn't need a server, and it sure as hell doesn't need to be complicated. Get better, you fucking weirdos."
+
+> "Oh yeah, any lost notes are 100% on you bud, don't blame me, dumbass."
