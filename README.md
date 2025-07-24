@@ -31,11 +31,15 @@ It opens directly to a blank note, not a list of your previous work, because who
 ---
 ## Screenshots
 **Main**
+
 ![Main](https://raw.githubusercontent.com/DIZZYHOBO/Hobopad/main/screenshots/Main.png)
 
 **Saved Notes**
+
 ![Main](https://raw.githubusercontent.com/DIZZYHOBO/Hobopad/main/screenshots/Saved.png
 )
+
+---
 
 ## How to Use
 
