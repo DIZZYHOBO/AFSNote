@@ -1,0 +1,21 @@
+{
+  "name": "Hobopad",
+  "short_name": "Hobopad",
+  "description": "A fucking simple notepad.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ca3c4a",
+  "theme_color": "#ca3c4a",
+  "icons": [
+    {
+      "src": "https://busland.neocities.org/hobopad.png",
+      "sizes": "400x400",
+      "type": "image/png"
+    },
+    {
+      "src": "https://busland.neocities.org/hobopad.png",
+      "sizes": "400x400",
+      "type": "image/png"
+    }
+  ]
+}
