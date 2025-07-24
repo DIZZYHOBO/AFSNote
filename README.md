@@ -13,7 +13,7 @@ It opens directly to a blank note, not a list of your previous work, because who
 
 **Install PWA**
 
-<a href="https://dizzyhobo.github.io/hobopad"><img src="images/pwa.svg" height="45"></a>
+<a href="https://dizzyhobo.github.io/Hobopad"><img src="images/pwa.svg" height="45"></a>
 ---
 
 ## Features
