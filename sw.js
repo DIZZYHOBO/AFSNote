@@ -1,46 +1,59 @@
-// This is the service worker file for the Hobopad PWA.
-// It handles caching the app so it can work offline.
-
-// Define the name of the cache and the files to be cached.
-const CACHE_NAME = 'hobopad-v1';
-const urlsToCache = [
-  '/', // Caches the root URL (e.g., your main page)
-  'index.html', // Caches the main HTML file directly
-  // NOTE: Since the CSS and JS are inside index.html, we don't need to list them separately.
-  // If you had a separate stylesheet like 'dedust.css', you would add it here:
-  // 'dedust.css' 
+const CACHE_NAME = 'hobopad-cache-v1.0.8'; // Increment this on each update
+const URLS_TO_CACHE = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/hobopad.ico',
+  '/about.png'
+  // NOTE: You can add specific CSS and JS files here if you ever split them out.
 ];
 
-// The 'install' event is fired when the service worker is first installed.
+// Install the service worker and cache the app shell
 self.addEventListener('install', event => {
-  // We use event.waitUntil to ensure the service worker doesn't move on
-  // from the installing phase until it has finished executing this code.
   event.waitUntil(
-    // Open the cache with the name we defined.
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('Opened cache');
-        // Add all the files we specified in urlsToCache to the cache.
-        return cache.addAll(urlsToCache);
+        return cache.addAll(URLS_TO_CACHE);
       })
   );
 });
 
-// The 'fetch' event is fired for every network request the page makes.
+// Activate event: clean up old caches
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+  return self.clients.claim();
+});
+
+// Fetch event: serve from cache first, then network
 self.addEventListener('fetch', event => {
-  // We use event.respondWith to hijack the request and provide our own response.
   event.respondWith(
-    // Check if the request matches anything in our cache.
     caches.match(event.request)
       .then(response => {
-        // If a matching response is found in the cache, return it.
+        // Cache hit - return response
         if (response) {
           return response;
         }
-        // If the request is not in the cache, fetch it from the network.
+        // Not in cache - fetch from network
         return fetch(event.request);
-      }
-    )
+      })
   );
 });
 
+// Listen for a message from the client to skip waiting
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
