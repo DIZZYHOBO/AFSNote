@@ -13,11 +13,6 @@ It opens directly to a blank note, not a list of your previous work, because who
 
 ---
 
-## **Install PWA**
-
-<a href="https://dizzyhobo.github.io/Hobopad"><img src="images/pwa.svg" height="45"></a>
----
-
 ## Features
 
 -   **Multiple Themes:** Make it look how you want. Comes with several themes to satisfy your nostalgia or modern design sensibilities:
@@ -51,6 +46,11 @@ It opens directly to a blank note, not a list of your previous work, because who
 1.  Download the `index.html` file.
 2.  Open it in any modern web browser.
 3.  That's it. Start writing.
+
+Or install the PWA
+
+<a href="https://dizzyhobo.github.io/Hobopad"><img src="images/pwa.svg" height="45"></a>
+---
 
 ---
 
