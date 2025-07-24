@@ -16,8 +16,8 @@ It opens directly to a blank note, not a list of your previous work, because who
 ## Features
 
 -   **Multiple Themes:** Make it look how you want. Comes with several themes to satisfy your nostalgia or modern design sensibilities:
-    -   Material
-    -   Android & iOS
+    -   Android
+    -   iOS
     -   Mac OS X
     -   Windows 95 & XP
 -   **Light & Dark Mode:** For when you're coding in a dark basement or a bright, sunlit park.
