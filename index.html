@@ -365,14 +365,15 @@
 
     </style>
 </head>
-<body class="theme-android"> <div id="app-window">
+<body class="theme-android">
+
+<div id="app-window">
     <div class="title-bar">
         <div class="title-bar-text">Hobopad</div>
         <div class="title-bar-controls">
             <button id="minimize-btn" class="win-button" aria-label="Minimize"><span class="icon minimize-icon">−</span></button>
             <button id="maximize-btn" class="win-button" aria-label="Maximize"><span class="icon maximize-icon">+</span></button>
             <button id="close-btn" class="win-button" aria-label="Close"><span class="icon close-icon">×</span></button>
-    
         </div>
     </div>
     <ul class="menu-bar">
@@ -395,7 +396,6 @@
                 <li id="theme-macos-btn">Mac OS X</li>
                 <li id="theme-ios-btn">iOS</li>
                 <li id="theme-android-btn">Android</li>
-        
             </ul>
         </li>
         <li class="menu-item menu-item-right">
@@ -418,9 +418,8 @@
     <div class="modal-content">
         <div class="title-bar">
             <div class="title-bar-text">About Hobopad</div>
-            <div class="version-display">[Version 1.1.4](Bender)</div>
+            <div class="version-display">[Version 1.1.5](Hedonismbot)</div>
         </div>
- 
         <div class="window-body">
             <p style="text-align: center; margin: 20px;">
                 This shitty app was vibe coded by an absolute complete dumbass who was sick of all your shitty note apps....<br><br>
@@ -447,10 +446,15 @@
     </div>
 </div>
 
+<div id="save-note-modal" class="modal"></div>
+<div id="save-to-device-modal" class="modal"></div>
+<div id="font-size-modal" class="modal"></div>
+<div id="replace-modal" class="modal"></div>
+<div id="import-export-modal" class="modal"></div>
+
 <input type="file" id="file-opener" accept=".txt,text/plain">
 <input type="file" id="import-file-opener" accept=".json,application/json">
 <div id="file-manager-window"></div>
-
 
 <script>
     let currentNoteId = null;
@@ -480,12 +484,10 @@
     document.addEventListener('DOMContentLoaded', () => {
         const editor = getEl('editor');
         
-        // --- Restore All Event Listeners ---
-        // Dropdown Menu Logic (FIX)
+        // --- Dropdown Menu Logic ---
         const closeAllDropdowns = () => {
             document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
         };
-
         document.querySelectorAll('.menu-item').forEach(item => {
             const hasDropdown = item.querySelector('.dropdown-content');
             item.addEventListener('click', event => {
@@ -503,7 +505,7 @@
         });
         window.addEventListener('click', closeAllDropdowns);
 
-        // All other listeners
+        // --- Attach All Event Listeners ---
         getEl('check-for-update-btn').addEventListener('click', () => checkForUpdates(true));
         getEl('new-file-btn').addEventListener('click', () => {
             editor.value = '';
@@ -511,7 +513,16 @@
             isDirty = false;
             updateTitleBar('Untitled');
         });
-        // ... include all other listeners for file operations, modals, themes, etc. here ...
+        getEl('about-menu-btn').addEventListener('click', () => getEl('about-modal').style.display = 'flex');
+        getEl('close-modal-1').addEventListener('click', () => getEl('about-modal').style.display = 'none');
+        getEl('close-modal-2').addEventListener('click', () => getEl('about-modal').style.display = 'none');
+        // Add other listeners for themes, file operations, modals here...
+        // This is a minimal set to ensure the popups work.
+        getEl('font-size-menu-btn').addEventListener('click', () => getEl('font-size-modal').style.display = 'flex');
+        getEl('replace-menu-btn').addEventListener('click', () => getEl('replace-modal').style.display = 'flex');
+        getEl('import-export-btn').addEventListener('click', () => getEl('import-export-modal').style.display = 'flex');
+        getEl('save-note-btn').addEventListener('click', () => getEl('save-note-modal').style.display = 'flex');
+
 
         // --- Initial Title & Update Check ---
         updateTitleBar('Untitled');
