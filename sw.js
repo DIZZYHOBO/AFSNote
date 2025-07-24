@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hobopad-cache-v1.1.4'; // Increment this on each update
+const CACHE_NAME = 'hobopad-cache-v1.1.5'; // Increment this on each update
 const URLS_TO_CACHE = [
   '/',
   '/index.html',
