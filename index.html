@@ -1,9 +1,3 @@
-<!-- 
-    HOBOPAD REVISION NOTE
-    - Increment version by 0.0.1
-    - Change {fut} to a new random Futurama character.
-    - Refactored to support dynamic theme loading from external CSS files.
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Hobopad</title>
     
+    <link rel="icon" type="image/x-icon" href="https://busland.neocities.org/hobopad.ico">
     <link rel="manifest" href="manifest.json">
 
     <style>
-        /* --- Base Styles (Theme-Independent) --- */
+        /* --- Base Styles --- */
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: "Tahoma", "Geneva", sans-serif; transition: background-color 0.3s; }
         #app-window, #file-manager-window { width: 100vw; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
         .modal-content { width: 100%; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; flex-shrink: 1; min-height: 0; }
@@ -23,11 +18,19 @@
         .menu-bar { flex-shrink: 0; position: relative; z-index: 10; }
         #editor { flex-grow: 1; padding: 5px; margin: 0; resize: none; outline: none; line-height: 1.6; width: 100%; box-sizing: border-box; overflow-y: scroll; border: none; }
         .modal { display: none; width: 90%; max-width: 340px; max-height: 80vh; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 200; flex-direction: column; }
-        #about-modal, #font-size-modal, #replace-modal, #import-export-modal { max-width: 300px; }
+        #font-size-modal, #replace-modal, #import-export-modal { max-width: 300px; }
+        #about-modal {
+            width: 680px;
+            height: 680px;
+            max-width: 90vw;
+            max-height: 90vw;
+            container-type: inline-size;
+        }
         .modal .window-body { overflow-y: auto; padding: 10px; }
         .field-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 15px; }
         #file-opener, #import-file-opener { display: none; }
 
+        /* --- Custom About Modal Background --- */
         #about-modal .window-body {
             background-image: url('about.png');
             background-size: cover;
@@ -37,377 +40,561 @@
             color: #222;
             text-shadow: 0 0 4px white, 0 0 6px white;
         }
+        #about-modal .window-body p:first-of-type {
+            font-size: 3.5cqw;
+        }
+        #about-modal .window-body p:nth-of-type(2) {
+            font-size: 2.5cqw;
+        }
+        #about-modal .window-body .field-row {
+            font-size: 3cqw;
+        }
+
+
+        /* --- Version Display Style --- */
+        .version-display {
+            font-size: 0.8em;
+            font-weight: normal;
+            opacity: 0.7;
+            padding-right: 5px;
+            user-select: none;
+        }
+
+
+        /* --- Font Size Display --- */
         #font-size-display { text-align: center; margin-top: 10px; }
+
+        /* --- Import/Export Styles --- */
         #import-export-modal .window-body { display: flex; flex-wrap: wrap; justify-content: space-around; text-align: center; padding-top: 20px; padding-bottom: 10px; }
         .io-section { width: 45%; margin-bottom: 10px; }
         .io-section button { width: 80px; height: 60px; font-size: 2em; line-height: 1; }
         .io-section p { margin-top: 5px; font-size: 0.9em; }
         .io-warning { width: 100%; color: #888; font-size: 0.8em; text-align: center; margin-top: 15px; }
+
+
+        /* --- Dropdown Menu Styles --- */
         .menu-item { position: relative; user-select: none; }
         .dropdown-content { display: none; position: absolute; top: 100%; right: 0; background-color: #f9f9f9; min-width: 160px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 100; list-style: none; padding: 0; margin: 0; }
         .menu-item:not(.menu-item-right) .dropdown-content { right: auto; left: 0; }
         .dropdown-content li { padding: 8px 12px; cursor: pointer; color: black; border-bottom: 1px solid #ddd; }
         .dropdown-content li:last-child { border-bottom: none; }
+        
+        
+        /* --- File Manager Styles --- */
         #file-manager-window { position: fixed; top: 0; left: 0; z-index: 200; display: none; }
         #file-manager-content { display: flex; flex-grow: 1; min-height: 0; }
         #notes-list-container { width: 40%; display: flex; flex-direction: column; border-right: 1px solid; }
         .notes-list-header { display: flex; padding: 4px 8px; font-weight: bold; border-bottom: 1px solid; flex-shrink: 0; align-items: center; }
         .header-name { flex-grow: 1; }
         #note-preview-container { width: 60%; display: flex; flex-direction: column; }
-        #note-preview-header { padding: 8px; border-bottom: 1px solid; flex-shrink: 0; }
+        #note-preview-header { 
+            padding: 8px; 
+            border-bottom: 1px solid; 
+            flex-shrink: 0; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
         #note-preview-title { font-weight: bold; font-size: 1.2em; }
         #note-preview-date { font-size: 0.9em; opacity: 0.8; }
-        #note-preview-actions { margin-top: 8px; display: flex; gap: 8px; }
+        #note-preview-actions { margin-top: 0; display: flex; gap: 8px; }
+        #note-preview-actions button, #filter-btn {
+            padding: 4px 10px;
+            font-size: 14px;
+            min-height: initial;
+        }
         #note-preview { flex-grow: 1; padding: 10px; overflow-y: auto; white-space: pre-wrap; }
         .note-item { display: flex; align-items: flex-start; padding: 8px; cursor: pointer; border-bottom: 1px solid; gap: 8px; margin-bottom: 5px; }
         .note-item .file-icon { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
         .note-item-details { flex-grow: 1; display: flex; flex-direction: column; }
         .note-item-title { font-weight: bold; }
         .note-item-date { font-size: 0.9em; opacity: 0.8; }
-        #file-manager-back-btn-ios, #file-manager-back-btn-android { display: none; }
-        #version-tag { text-align: center; font-size: 2.5cqw; margin-top: 15px; margin-bottom: 0px; }
+        
+        /* --- Windows 95 Theme --- */
+        .theme-win95 body { background: #008080; }
+        .theme-win95 #app-window, .theme-win95 .modal-content, .theme-win95 #file-manager-window { background-color: #c0c0c0; border: 3px solid #c0c0c0; border-top-color: #ffffff; border-left-color: #ffffff; border-right-color: #000000; border-bottom-color: #000000; border-radius: 0; box-shadow: none; }
+        .theme-win95 .title-bar { background: linear-gradient(90deg, #000080, #1084d0); padding: 3px 5px; color: white; font-weight: bold; height: 20px; border-bottom: none; text-shadow: none; }
+        .theme-win95 .title-bar-text { padding: 0 8px; flex-grow: 1; }
+        .theme-win95 .menu-bar { display: flex; flex-wrap: wrap; justify-content: flex-end; list-style: none; margin: 0; padding: 2px; border-bottom: 1px solid #868a8e; background: #c0c0c0; gap: 0; }
+        .theme-win95 .menu-bar > li { padding: 2px 8px; font-size: 14px; border-radius: 0; border: none; background: none; box-shadow: none; color: black; }
+        .theme-win95 .menu-bar > li:hover { background: #000080; color: white; }
+        .theme-win95 .window-body { padding: 0; box-shadow: inset -1px -1px #fff, inset 1px 1px #000, inset -2px -2px #868a8e, inset 2px 2px #dfdfdf; }
+        .theme-win95 #editor, .theme-win95 #note-preview { background-color: white; border: none; font-family: 'Lucida Console', Courier, monospace; font-size: 16px; margin: 2px; scrollbar-color: #c0c0c0 #DFDFDF; scrollbar-width: auto; }
+        .theme-win95 ::-webkit-scrollbar { width: 16px; }
+        .theme-win95 ::-webkit-scrollbar-track { background: #DFDFDF; }
+        .theme-win95 ::-webkit-scrollbar-thumb { background-color: #c0c0c0; border: 2px outset #c0c0c0; }
+        .theme-win95 button, .theme-win95 select, .theme-win95 input[type="text"] { font-family: "Tahoma", sans-serif; font-size: 14px; border: 1px solid; border-color: #fff #000 #000 #fff; box-shadow: inset 1px 1px #dfdfdf, inset -1px -1px #868a8e; background-color: #c0c0c0; border-radius: 0; padding: 4px 15px; min-height: 23px; }
+        .theme-win95 button:active { border-color: #000 #fff #fff #000; box-shadow: inset -1px -1px #dfdfdf, inset 1px 1px #868a8e; }
+        .theme-win95 .title-bar-controls { display: flex; gap: 3px; }
+        .theme-win95 .win-button { width: 16px; height: 14px; min-width: 16px; padding: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; color: black; border-radius: 0; border: 1px solid; border-color: #fff #000 #000 #fff; background-color: #c0c0c0; }
+        .theme-win95 .win-button .icon { display: block; color: black; }
+        .theme-win95 .minimize-icon { border-bottom: 2px solid black; width: 6px; }
+        .theme-win95 .maximize-icon { width: 9px; height: 9px; border: 1px solid black; box-sizing: border-box; }
+        .theme-win95 .close-icon { font-family: 'Times New Roman', serif; line-height: 1; }
+        .theme-win95 .dropdown-content { border: 1px solid black; border-radius: 0; }
+        .theme-win95 .dropdown-content li { border-bottom: 1px solid #868a8e; }
+        .theme-win95 .dropdown-content li:hover { background: #000080; color: white; }
+        .theme-win95 #about-modal p { color: #222; }
+        .theme-win95 #notes-list-container, .theme-win95 .notes-list-header, .theme-win95 .note-item, .theme-win95 #note-preview-header { border-color: #868a8e; }
+        .theme-win95 .notes-list-header { border-top: 1px solid #fff; border-left: 1px solid #fff; }
+        .theme-win95 .note-item.active { background-color: #000080; color: white; }
+        .theme-win95 .note-item.active .file-icon { fill: white; }
+
+        /* --- Windows XP Theme --- */
+        .theme-winxp body { background: #D4D0C8; }
+        .theme-winxp #app-window, .theme-winxp .modal-content, .theme-winxp #file-manager-window { background-color: #ECE9D8; border: 1px solid #08246B; box-shadow: 0 0 10px rgba(0,0,0,0.5); border-radius: 6px; }
+        .theme-winxp .title-bar { background: linear-gradient(to bottom, #0058e1, #3d80f2 4%, #3d80f2 96%, #0058e1); padding: 3px 5px; color: white; font-weight: bold; height: 25px; border-bottom: 1px solid #08246B; font-size: 12px; text-shadow: none; }
+        .theme-winxp .title-bar-text { padding: 0 8px; flex-grow: 1; }
+        .theme-winxp .menu-bar { display: flex; flex-wrap: wrap; justify-content: flex-end; list-style: none; margin: 0; padding: 2px; background: #ECE9D8; border-bottom: 1px solid #ACA899; gap: 0; }
+        .theme-winxp .menu-bar > li { padding: 4px 8px; font-size: 11px; border: 1px solid transparent; border-radius: 0; background: none; box-shadow: none; color: black; }
+        .theme-winxp .menu-bar > li:hover { background: #316AC5; color: white; border: 1px solid #000; }
+        .theme-winxp .window-body { padding: 3px; box-shadow: none; }
+        .theme-winxp #editor, .theme-winxp #note-preview { border: 1px solid #7F9DB9; font-family: 'Lucida Console', Courier, monospace; font-size: 12px; margin: 0; scrollbar-color: #E0E0E0 #F5F5F5; scrollbar-width: auto; }
+        .theme-winxp ::-webkit-scrollbar { width: 17px; }
+        .theme-winxp ::-webkit-scrollbar-track { background: #F5F5F5; border-left: 1px solid #E0E0E0; }
+        .theme-winxp ::-webkit-scrollbar-thumb { background: linear-gradient(to right, #C2D5FC, #D5E1FC, #C2D5FC); border: 1px solid #7F9DB9; }
+        .theme-winxp button, .theme-winxp select, .theme-winxp input[type="text"] { font-family: "Tahoma", sans-serif; font-size: 11px; border: 1px solid #08246B; background: #ECE9D8; padding: 3px 12px; min-height: 23px; border-radius: 0; }
+        .theme-winxp button:hover, .theme-winxp select:hover { border-color: #f2c9d; background: #fdecae; }
+        .theme-winxp .title-bar-controls { display: flex; gap: 3px; }
+        .theme-winxp .win-button { width: 21px; height: 21px; min-width: 21px; padding: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; color: white; border-radius: 3px; border: 1px solid #08246B; }
+        .theme-winxp #close-btn { background: linear-gradient(to bottom, #fb7c6a, #e1523b); border-color: #94291a; }
+        .theme-winxp .win-button:not(#close-btn) { background: linear-gradient(to bottom, #6baff5, #3d83f2); border-color: #08246B; }
+        .theme-winxp .win-button .icon { display: block; color: white; }
+        .theme-winxp .minimize-icon { border-bottom: 2px solid white; width: 8px; }
+        .theme-winxp .maximize-icon { width: 9px; height: 9px; border: 2px solid white; border-top-width: 3px; box-sizing: border-box; }
+        .theme-winxp .close-icon { font-family: 'Arial Black', sans-serif; font-weight: 900; line-height: 1; }
+        .theme-winxp .dropdown-content { border: 1px solid #ACA899; border-radius: 0; }
+        .theme-winxp .dropdown-content li { border-bottom: 1px solid #ACA899; }
+        .theme-winxp .dropdown-content li:hover { background: #316AC5; color: white; }
+        .theme-winxp #about-modal p { color: #222; }
+        .theme-winxp #notes-list-container, .theme-winxp .notes-list-header, .theme-winxp .note-item, .theme-winxp #note-preview-header { border-color: #ACA899; }
+        .theme-winxp .note-item.active { background-color: #316AC5; color: white; }
+        .theme-winxp .note-item.active .file-icon { fill: white; }
+
+        /* --- Mac OS X Theme --- */
+        .theme-macos body { background: #DCDCDC; }
+        .theme-macos #app-window, .theme-macos .modal-content, .theme-macos #file-manager-window { background-color: #E8E8E8; background-image: linear-gradient(rgba(0,0,0,0.03) 50%, transparent 50%); background-size: 100% 4px; border: 1px solid #666; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.5); }
+        .theme-macos .title-bar { padding: 5px 10px; color: #333; font-weight: bold; height: 22px; border-bottom: 1px solid #B5B5B5; background: rgba(232, 232, 232, 0.8); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+        .theme-macos .title-bar-text { padding: 0 8px; flex-grow: 1; }
+        .theme-macos .menu-bar { display: flex; flex-wrap: wrap; justify-content: flex-end; list-style: none; margin: 0; padding: 5px; background: transparent; gap: 5px; }
+        .theme-macos .menu-bar > li { padding: 2px 10px; font-size: 12px; border-radius: 15px; border: 1px solid #999; background: linear-gradient(to bottom, #FEFEFE, #F2F2F2); box-shadow: 0 1px 1px rgba(0,0,0,0.1); color: black; }
+        .theme-macos .menu-bar > li:hover { background: linear-gradient(to bottom, #4D90FE, #4787ED); color: white; border-color: #3079ED; }
+        .theme-macos .window-body { padding: 5px; box-shadow: none; }
+        .theme-macos #editor, .theme-macos #note-preview { border: 1px solid #B5B5B5; border-radius: 4px; font-family: 'Monaco', 'Lucida Console', Courier, monospace; font-size: 13px; scrollbar-color: #A8A8A8 #E8E8E8; scrollbar-width: thin; }
+        .theme-macos ::-webkit-scrollbar { width: 8px; }
+        .theme-macos ::-webkit-scrollbar-track { background: #E8E8E8; }
+        .theme-macos ::-webkit-scrollbar-thumb { background-color: #A8A8A8; border-radius: 4px; }
+        .theme-macos button, .theme-macos select, .theme-macos input[type="text"] { font-family: "Lucida Grande", sans-serif; font-size: 13px; border: 1px solid #999; border-radius: 15px; background: linear-gradient(to bottom, #FEFEFE, #F2F2F2); box-shadow: 0 1px 1px rgba(0,0,0,0.1); padding: 4px 15px; min-height: 26px; }
+        .theme-macos button:hover { border-color: #777; }
+        .theme-macos button.primary { background: linear-gradient(to bottom, #4D90FE, #4787ED); color: white; border-color: #3079ED; }
+        .theme-macos .title-bar-controls { display: flex; gap: 8px; }
+        .theme-macos .win-button { width: 12px; height: 12px; min-width: 12px; padding: 0; border-radius: 50%; border: 1px solid rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
+        .theme-macos .win-button .icon { display: none; }
+        .theme-macos .win-button:hover .icon { display: block; color: rgba(0,0,0,0.5); font-weight: bold; font-size: 9px; line-height: 1; }
+        .theme-macos #close-btn { background-color: #FF5F57; border-color: #E0443E; }
+        .theme-macos #minimize-btn { background-color: #FEBC2E; border-color: #E0A123; }
+        .theme-macos #maximize-btn { background-color: #28C840; border-color: #1DAD29; }
+        .theme-macos .dropdown-content { border: 1px solid #B5B5B5; border-radius: 4px; }
+        .theme-macos .dropdown-content li { border-bottom: 1px solid #B5B5B5; }
+        .theme-macos .dropdown-content li:hover { background: #3079ED; color: white; }
+        .theme-macos #about-modal p { color: #222; }
+        .theme-macos #notes-list-container, .theme-macos .notes-list-header, .theme-macos .note-item, .theme-macos #note-preview-header { border-color: #B5B5B5; }
+        .theme-macos .note-item.active { background-color: #3079ED; color: white; }
+        .theme-macos .note-item.active .file-icon { fill: white; }
+
+        /* --- iOS Theme --- */
+        .theme-ios body { background: #f0f0f0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .theme-ios #app-window, .theme-ios .modal-content, .theme-ios #file-manager-window { background-color: #ffffff; border: 1px solid #d1d1d6; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .theme-ios .title-bar { background: #f7f7f7; padding: 10px; color: #000; font-weight: 600; height: auto; border-bottom: 1px solid #d1d1d6; }
+        .theme-ios .title-bar-text { font-size: 17px; text-align: center; flex-grow: 1; }
+        .theme-ios .menu-bar { display: flex; flex-wrap: wrap; justify-content: flex-end; list-style: none; margin: 0; padding: 8px; background: #f7f7f7; gap: 4px; border-bottom: 1px solid #d1d1d6; }
+        .theme-ios .menu-bar > li { padding: 5px 10px; font-size: 14px; font-weight: bold; border-radius: 8px; border: none; background: none; box-shadow: none; color: #007aff; cursor: pointer; }
+        .theme-ios .menu-bar > li:hover { background: #e5e5ea; }
+        .theme-ios .window-body { padding: 0; box-shadow: none; background-color: #fff; }
+        .theme-ios #editor, .theme-ios #note-preview { background-color: #fff; border: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 17px; padding: 12px; line-height: 1.5; color: #000; }
+        .theme-ios ::-webkit-scrollbar { width: 8px; }
+        .theme-ios ::-webkit-scrollbar-track { background: transparent; }
+        .theme-ios ::-webkit-scrollbar-thumb { background-color: #c7c7cc; border-radius: 4px; }
+        .theme-ios button, .theme-ios select, .theme-ios input[type="text"] { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 17px; border: 1px solid #d1d1d6; background-color: #fff; border-radius: 8px; padding: 8px 12px; min-height: 36px; }
+        .theme-ios button { background-color: #007aff; color: white; border: none; }
+        .theme-ios button:active { background-color: #005bb5; }
+        .theme-ios button.primary { background-color: #34c759; }
+        .theme-ios button.primary:active { background-color: #2ca049; }
+        .theme-ios .title-bar-controls { display: none; } /* Hide old controls */
+        .theme-ios .dropdown-content { border: 1px solid #d1d1d6; border-radius: 8px; background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .theme-ios .dropdown-content li { color: #007aff; border-bottom: 1px solid #d1d1d6; }
+        .theme-ios .dropdown-content li:hover { background: #f0f0f0; color: #005bb5; }
+        .theme-ios #about-modal p { color: #222; }
+        .theme-ios #notes-list-container, .theme-ios .notes-list-header, .theme-ios .note-item, .theme-ios #note-preview-header { border-color: #d1d1d6; }
+        .theme-ios .notes-list-header { background-color: #f7f7f7; }
+        .theme-ios .note-item.active { background-color: #e5f1ff; color: #007aff; }
+        .theme-ios .note-item.active .file-icon { fill: #007aff; }
+        .theme-ios .file-icon { fill: #6c6c70; }
+        .theme-ios #file-manager-window .title-bar-controls { display: none; }
+        .theme-ios #file-manager-back-btn-ios { display: block; background: none; border: none; color: #007aff; font-size: 17px; font-weight: 400; padding: 0 10px; cursor: pointer; }
+        #file-manager-back-btn-ios, #file-manager-back-btn-android { display: none; } /* Hide by default */
+
+        /* --- Android Theme --- */
+        .theme-android body { background-color: #fafafa; font-family: 'Roboto', sans-serif; }
+        .theme-android #app-window, .theme-android .modal-content, .theme-android #file-manager-window { background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .theme-android .title-bar { background: #ffffff; padding: 12px 16px; color: #202124; font-weight: 500; height: auto; border-bottom: 1px solid #e0e0e0; }
+        .theme-android .title-bar-text { font-size: 18px; text-align: left; flex-grow: 1; }
+        .theme-android .menu-bar { display: flex; flex-wrap: wrap; justify-content: flex-end; list-style: none; margin: 0; padding: 8px; background: #ffffff; gap: 4px; border-bottom: 1px solid #e0e0e0; }
+        .theme-android .menu-bar > li { padding: 6px 10px; font-size: 13px; border-radius: 20px; border: 1px solid #dadce0; background: #f1f3f4; box-shadow: none; color: #3c4043; cursor: pointer; }
+        .theme-android .menu-bar > li:hover { background: #e8eaed; }
+        .theme-android .window-body { padding: 0; box-shadow: none; background-color: #fff; }
+        .theme-android #editor, .theme-android #note-preview { background-color: #fff; border: none; font-family: 'Roboto', sans-serif; font-size: 16px; padding: 16px; line-height: 1.6; color: #202124; }
+        .theme-android ::-webkit-scrollbar { width: 8px; }
+        .theme-android ::-webkit-scrollbar-track { background: transparent; }
+        .theme-android ::-webkit-scrollbar-thumb { background-color: #dadce0; border-radius: 4px; }
+        .theme-android button, .theme-android select, .theme-android input[type="text"] { font-family: 'Roboto', sans-serif; font-size: 14px; border: 1px solid #dadce0; background-color: #f1f3f4; border-radius: 8px; padding: 10px 14px; min-height: 40px; }
+        .theme-android button { background-color: #1a73e8; color: white; border: none; font-weight: 500; }
+        .theme-android button:active { background-color: #185abc; }
+        .theme-android button.primary { background-color: #1a73e8; }
+        .theme-android button.primary:active { background-color: #185abc; }
+        .theme-android .title-bar-controls { display: none; } /* Hide old controls */
+        .theme-android .dropdown-content { border: 1px solid #e0e0e0; border-radius: 8px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .theme-android .dropdown-content li { color: #3c4043; border-bottom: 1px solid #e0e0e0; }
+        .theme-android .dropdown-content li:hover { background: #f1f3f4; }
+        .theme-android #about-modal p { color: #222; }
+        .theme-android #notes-list-container, .theme-android .notes-list-header, .theme-android .note-item, .theme-android #note-preview-header { border-color: #e0e0e0; }
+        .theme-android .notes-list-header { background-color: #f8f9fa; }
+        .theme-android .note-item.active { background-color: #e8f0fe; }
+        .theme-android .note-item.active .file-icon { fill: #1a73e8; }
+        .theme-android .file-icon { fill: #5f6368; }
+        .theme-android #file-manager-window .title-bar { justify-content: flex-start; gap: 8px; }
+        .theme-android #file-manager-window .title-bar-controls { display: none; }
+        .theme-android #file-manager-back-btn-android { display: flex; align-items: center; justify-content: center; background: none; border: none; padding: 8px; border-radius: 50%; cursor: pointer; }
+        .theme-android #file-manager-back-btn-android:hover { background-color: rgba(0,0,0,0.05); }
+        .theme-android #file-manager-back-btn-android svg { width: 24px; height: 24px; fill: #5f6368; }
+        .theme-android #file-manager-back-btn-android { display: block; }
+
+        /* --- Dark Mode Overrides --- */
+        body.dark-mode { background-color: #121212; }
+        .dark-mode #app-window, .dark-mode .modal-content, .dark-mode #file-manager-window, .dark-mode .dropdown-content { background-color: #1e1e1e; color: #e0e0e0; }
+        .dark-mode #font-size-modal .modal-content { background-color: #1e1e1e; }
+        .dark-mode .title-bar { background: #2c2c2c; color: #e0e0e0; border-bottom-color: #3c3c3c; }
+        .dark-mode .menu-bar { background: #2c2c2c; border-bottom-color: #3c3c3c; }
+        .dark-mode .menu-bar > li { background: #3c3c3c; color: #e0e0e0; border-color: #555; }
+        .dark-mode .menu-bar > li:hover { background: #555; }
+        .dark-mode #editor, .dark-mode #note-preview, .dark-mode input, .dark-mode select { background-color: #2c2c2c; color: #e0e0e0; border-color: #555; }
+        .dark-mode button { background-color: #007aff; color: #fff; }
+        .dark-mode button:active { background-color: #005bb5; }
+        .dark-mode .dropdown-content li { color: #e0e0e0; border-bottom-color: #3c3c3c; }
+        .dark-mode .dropdown-content li:hover { background: #3c3c3c; }
+        .dark-mode .note-item { border-bottom-color: #3c3c3c; }
+        .dark-mode .note-item.active { background-color: #007aff; color: #fff; }
+        .dark-mode .file-icon { fill: #e0e0e0; }
+        .dark-mode .note-item.active .file-icon { fill: #fff; }
+        
+        /* Dark mode for iOS */
+        .dark-mode.theme-ios #app-window, .dark-mode.theme-ios .modal-content, .dark-mode.theme-ios #file-manager-window { background-color: #000; border-color: #333; }
+        .dark-mode.theme-ios .title-bar, .dark-mode.theme-ios .menu-bar { background: #1c1c1e; border-bottom-color: #333; }
+        .dark-mode.theme-ios .title-bar-text, .dark-mode.theme-ios p { color: #fff; }
+        .dark-mode.theme-ios .menu-bar > li { color: #0a84ff; }
+        .dark-mode.theme-ios .menu-bar > li:hover { background: #2c2c2e; }
+        .dark-mode.theme-ios #editor, .dark-mode.theme-ios #note-preview, .dark-mode.theme-ios input, .dark-mode.theme-ios select { background-color: #000; color: #fff; border-color: #333; }
+        .dark-mode.theme-ios .dropdown-content { background-color: #1c1c1e; }
+        .dark-mode.theme-ios .dropdown-content li { color: #0a84ff; border-bottom-color: #333; }
+        .dark-mode.theme-ios .dropdown-content li:hover { background: #2c2c2e; }
+        .dark-mode.theme-ios #about-modal p { text-shadow: 0 0 5px #000, 0 0 8px #000; color: #fff; }
+        .dark-mode.theme-ios #font-size-modal .modal-content { background-color: #1c1c1e; }
+        .dark-mode.theme-ios #file-manager-window .window-body { background-color: #000; }
+        .dark-mode.theme-ios .note-item.active { background-color: #0a84ff; }
+
+
+        /* Dark mode for Android */
+        .dark-mode.theme-android body { background-color: #121212; }
+        .dark-mode.theme-android #app-window, .dark-mode.theme-android .modal-content, .dark-mode.theme-android #file-manager-window { background-color: #1e1e1e; border-color: #333; }
+        .dark-mode.theme-android .title-bar, .dark-mode.theme-android .menu-bar { background: #2c2c2c; border-bottom-color: #333; }
+        .dark-mode.theme-android .title-bar-text, .dark-mode.theme-android p { color: #e0e0e0; }
+        .dark-mode.theme-android .menu-bar > li { background: #3c3c3c; color: #e0e0e0; border-color: #555; }
+        .dark-mode.theme-android .menu-bar > li:hover { background: #555; }
+        .dark-mode.theme-android #editor, .dark-mode.theme-android #note-preview, .dark-mode.theme-android input, .dark-mode.theme-android select { background-color: #1e1e1e; color: #e0e0e0; border-color: #555; }
+        .dark-mode.theme-android .dropdown-content { background-color: #2c2c2c; }
+        .dark-mode.theme-android .dropdown-content li { color: #e0e0e0; border-bottom-color: #333; }
+        .dark-mode.theme-android .dropdown-content li:hover { background: #3c3c3c; }
+        .dark-mode.theme-android #about-modal p { text-shadow: 0 0 5px #000, 0 0 8px #000; color: #fff; }
+        .dark-mode.theme-android #font-size-modal .modal-content { background-color: #1e1e1e; }
+        .dark-mode.theme-android #file-manager-window .window-body { background-color: #1e1e1e; }
+        .dark-mode.theme-android .note-item.active { background-color: #8ab4f8; color: #202124; }
+        .dark-mode.theme-android .note-item.active .file-icon { fill: #202124; }
+
         @media (max-width: 640px) {
-            #about-modal { width: 90vw; height: 90vw; max-width: none; max-height: none; }
-            #about-modal .modal-content { height: 100%; }
+            #about-modal {
+                width: 90vw;
+                height: 90vw;
+                max-width: none;
+                max-height: none;
+            }
+            #about-modal .modal-content {
+                height: 100%;
+            }
         }
+
+        /* --- FIX: iOS Dark Mode Backgrounds --- */
+        .dark-mode.theme-ios .modal .window-body {
+            background-color: #1c1c1e;
+        }
+        .dark-mode.theme-ios .notes-list-header {
+            background-color: #1c1c1e;
+        }
+
+        /* --- FIX: Android Dark Mode Backgrounds --- */
+        .dark-mode.theme-android .modal .window-body {
+            background-color: #1e1e1e;
+        }
+        .dark-mode.theme-android .notes-list-header {
+            background-color: #2c2c2c;
+        }
+
+        /* --- FIX: Dark Mode Input Boxes --- */
+        .dark-mode.theme-win95 input[type="text"],
+        .dark-mode.theme-win95 select,
+        .dark-mode.theme-winxp input[type="text"],
+        .dark-mode.theme-winxp select,
+        .dark-mode.theme-macos input[type="text"],
+        .dark-mode.theme-macos select {
+            background-color: #2c2c2c;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            box-shadow: none;
+            background-image: none;
+        }
+
+
     </style>
 </head>
-<body> 
-    <div id="app-window">
+<body class="theme-android"> <div id="app-window">
+    <div class="title-bar">
+        <div class="title-bar-text">Hobopad</div>
+        <div class="title-bar-controls">
+            <button id="minimize-btn" class="win-button" aria-label="Minimize"><span class="icon minimize-icon">−</span></button>
+            <button id="maximize-btn" class="win-button" aria-label="Maximize"><span class="icon maximize-icon">+</span></button>
+            <button id="close-btn" class="win-button" aria-label="Close"><span class="icon close-icon">×</span></button>
+    
+        </div>
+    </div>
+    <ul class="menu-bar">
+        <li class="menu-item">
+            File
+            <ul class="dropdown-content">
+                <li id="new-file-btn">New Note</li>
+                <li id="open-file-btn">Open from Device...</li>
+                
+                <li id="save-note-btn">Save Note</li>
+                <li id="save-to-device-btn">Save to Device...</li>
+            </ul>
+        </li>
+        <li id="saved-notes-btn">Saved Notes</li>
+        <li class="menu-item menu-item-right">
+            Styles
+            <ul class="dropdown-content">
+                <li id="theme-win95-btn">Windows 95</li>
+                <li id="theme-winxp-btn">Windows XP</li>
+                <li id="theme-macos-btn">Mac OS X</li>
+                <li id="theme-ios-btn">iOS</li>
+                <li id="theme-android-btn">Android</li>
+        
+            </ul>
+        </li>
+        <li class="menu-item menu-item-right">
+            Tools
+            <ul class="dropdown-content">
+                <li id="font-size-menu-btn">Font Size</li>
+                <li id="replace-menu-btn">Replace</li>
+                <li id="import-export-btn">Import/Export</li>
+ 
+                <li id="dark-mode-toggle">Light Mode</li>
+                <li id="about-menu-btn">About</li>
+            </ul>
+        </li>
+    </ul>
+    <div class="window-body">
+        <textarea id="editor" spellcheck="false"></textarea>
+    </div>
+</div>
+
+<div id="about-modal" class="modal">
+    <div class="modal-content">
         <div class="title-bar">
-            <div class="title-bar-text">Hobopad</div>
-            <div class="title-bar-controls">
-                <button id="minimize-btn" class="win-button" aria-label="Minimize"><span class="icon minimize-icon"></span></button>
-                <button id="maximize-btn" class="win-button" aria-label="Maximize"><span class="icon maximize-icon"></span></button>
-                <button id="close-btn" class="win-button" aria-label="Close"><span class="icon close-icon"></span></button>
-            </div>
+            <div class="title-bar-text">About Hobopad</div>
+            <div class="version-display">[Version 1.0.7](Donbot)</div>
         </div>
-        <ul class="menu-bar">
-            <li class="menu-item">
-                File
-                <ul class="dropdown-content">
-                    <li id="new-file-btn">New Note</li>
-                    <li id="open-file-btn">Open from Device...</li>
-                    <li id="save-note-btn">Save Note</li>
-                    <li id="save-to-device-btn">Save to Device...</li>
-                </ul>
-            </li>
-            <li id="saved-notes-btn">Saved Notes</li>
-            <li class="menu-item menu-item-right">
-                Styles
-                <ul id="styles-dropdown-menu" class="dropdown-content">
-                    <!-- Theme list will be dynamically populated here -->
-                </ul>
-            </li>
-            <li class="menu-item menu-item-right">
-                Tools
-                <ul class="dropdown-content">
-                    <li id="font-size-menu-btn">Font Size</li>
-                    <li id="replace-menu-btn">Replace</li>
-                    <li id="import-export-btn">Import/Export</li>
-                    <li id="dark-mode-toggle">Light Mode</li>
-                    <li id="about-menu-btn">About</li>
-                </ul>
-            </li>
-        </ul>
+ 
         <div class="window-body">
-            <textarea id="editor" spellcheck="false"></textarea>
+            <p style="text-align: center; margin: 20px;">
+                This shitty app was vibe coded by an absolute complete dumbass who was sick of all your shitty note apps....<br><br>
+                Like who the fuck wants a note taking app to open DIRECTLY to the saved notes, showing you every single note with just enough of a snippet to raise suspicion.<br><br>
+                Get 
+                better you fucking weirdos.
+            </p>
+            <p style="text-align: center; margin: 10px;">Oh and if you lose your saved notes, that's 100% on you bud, don't blame me, dumbass.</p>
+            <section class="field-row"><button id="close-modal-1">get fucked</button><button id="close-modal-2" class="primary">dumbass</button></section>
         </div>
     </div>
+</div>
 
-    <!-- Modals and other elements remain the same -->
-    <div id="about-modal" class="modal">
-        <div class="modal-content">
-            <div class="title-bar"><div class="title-bar-text">About Hobopad</div></div>
-            <div class="window-body">
-                <p id="version-tag">[Version 1.0.1] (Scruffy)</p>
-                <p style="text-align: center; margin: 20px; font-size: 3.5cqw;">
-                    This shitty app was vibe coded by an absolute complete dumbass who was sick of all your shitty note apps....<br><br>
-                    Like who the fuck wants a note taking app to open DIRECTLY to the saved notes, showing you every single note with just enough of a snippet to raise suspicion.<br><br>
-                    Get better you fucking weirdos.
-                </p>
-                <p style="text-align: center; font-size: 2.5cqw; margin: 10px;">Oh and if you lose your saved notes, that's 100% on you bud, don't blame me, dumbass.</p>
-                <section class="field-row" style="font-size: 3cqw;"><button id="close-modal-1">get fucked</button><button id="close-modal-2" class="primary">dumbass</button></section>
-            </div>
+<div id="save-note-modal" class="modal">
+     <div class="modal-content">
+        <div class="title-bar"><div class="title-bar-text">Save Note</div></div>
+        <div class="window-body">
+            <label for="note-name-input" style="display: block; margin-bottom: 8px;">Note Name:</label>
+            <input type="text" id="note-name-input" value="">
+            <section class="field-row"><button id="cancel-note-save-btn">Cancel</button><button id="confirm-note-save-btn" class="primary">Save</button></section>
         </div>
     </div>
+</div>
 
-    <div id="save-note-modal" class="modal">
-         <div class="modal-content">
-            <div class="title-bar"><div class="title-bar-text">Save Note</div></div>
-            <div class="window-body">
-                <label for="note-name-input" style="display: block; margin-bottom: 8px;">Note Name:</label>
-                <input type="text" id="note-name-input" value="">
-                <section class="field-row"><button id="cancel-note-save-btn">Cancel</button><button id="confirm-note-save-btn" class="primary">Save</button></section>
-            </div>
+<div id="save-to-device-modal" class="modal">
+     <div class="modal-content">
+        <div class="title-bar"><div class="title-bar-text">Save to Device</div></div>
+        <div class="window-body">
+            <label for="device-filename-input" style="display: block; margin-bottom: 8px;">File Name:</label>
+            <input type="text" id="device-filename-input" value="">
+            <label for="file-type-select" style="display: block; margin-top: 10px; margin-bottom: 8px;">File Type:</label>
+            <select id="file-type-select">
+                <option value="txt">.txt (Text File)</option>
+                <option value="html">.html (HTML File)</option>
+            </select>
+            <section class="field-row"><button id="cancel-device-save-btn">Cancel</button><button id="confirm-device-save-btn" class="primary">Save</button></section>
         </div>
     </div>
+</div>
 
-    <div id="save-to-device-modal" class="modal">
-         <div class="modal-content">
-            <div class="title-bar"><div class="title-bar-text">Save to Device</div></div>
-            <div class="window-body">
-                <label for="device-filename-input" style="display: block; margin-bottom: 8px;">File Name:</label>
-                <input type="text" id="device-filename-input" value="">
-                <label for="file-type-select" style="display: block; margin-top: 10px; margin-bottom: 8px;">File Type:</label>
-                <select id="file-type-select">
-                    <option value="txt">.txt (Text File)</option>
-                    <option value="html">.html (HTML File)</option>
-                </select>
-                <section class="field-row"><button id="cancel-device-save-btn">Cancel</button><button id="confirm-device-save-btn" class="primary">Save</button></section>
-            </div>
-        </div>
-    </div>
-
-    <div id="font-size-modal" class="modal">
-         <div class="modal-content">
-           <div class="title-bar"><div class="title-bar-text">Adjust Font Size</div></div>
-           <div class="window-body">
-               <input type="range" id="font-size-slider" min="8" max="48" value="16">
-               <p id="font-size-display">16px</p>
-               <section class="field-row"><button id="close-font-modal-btn">Close</button></section>
-           </div>
+<div id="font-size-modal" class="modal">
+   
+     <div class="modal-content">
+       <div class="title-bar"><div class="title-bar-text">Adjust Font Size</div></div>
+       <div class="window-body">
+           <input type="range" id="font-size-slider" min="8" max="48" value="16">
+           <p id="font-size-display">16px</p>
+           <section class="field-row"><button id="close-font-modal-btn">Close</button></section>
        </div>
-    </div>
+   </div>
+</div>
 
-    <div id="replace-modal" class="modal">
-        <div class="modal-content">
-            <div class="title-bar"><div class="title-bar-text">Replace</div></div>
-            <div class="window-body">
-                <label for="find-input">Find:</label>
-                <input type="text" id="find-input">
-                <label for="replace-input" style="margin-top: 10px;">Replace with:</label>
-                <input type="text" id="replace-input">
-                <section class="field-row">
-                    <button id="confirm-replace-all-btn">Replace All</button>
-                    <button id="close-replace-btn">Close</button>
-                </section>
-            </div>
-        </div>
-    </div>
-
-    <div id="import-export-modal" class="modal">
-        <div class="modal-content">
-            <div class="title-bar"><div class="title-bar-text">Import/Export Notes</div></div>
-            <div class="window-body">
-                <div class="io-section">
-                    <button id="import-notes-btn">📥</button>
-                    <p>Import Notes</p>
-                </div>
-                <div class="io-section">
-                    <button id="export-notes-btn">📤</button>
-                    <p>Export Notes</p>
-                </div>
-                <p class="io-warning">any lost notes are 100% your own fault for trusting this shit.</p>
-            </div>
+<div id="replace-modal" class="modal">
+    <div class="modal-content">
+        <div class="title-bar"><div class="title-bar-text">Replace</div></div>
+        <div class="window-body">
+  
+            <label for="find-input">Find:</label>
+            <input type="text" id="find-input">
+            <label for="replace-input" style="margin-top: 10px;">Replace with:</label>
+            <input type="text" id="replace-input">
             <section class="field-row">
-                <button id="close-io-modal-btn">Close</button>
+                <button id="confirm-replace-all-btn">Replace All</button>
+              
+                <button id="close-replace-btn">Close</button>
             </section>
         </div>
     </div>
+</div>
 
-    <input type="file" id="file-opener" accept=".txt,text/plain">
-    <input type="file" id="import-file-opener" accept=".json,application/json">
-
-    <div id="file-manager-window">
-        <div class="title-bar">
-            <button id="file-manager-back-btn-ios">&lt; Back</button>
-            <button id="file-manager-back-btn-android" aria-label="Back">
-                <svg viewBox="0 0 24 24" width="24" height="24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg>
-            </button>
-            <div class="title-bar-text">Saved Notes</div>
-            <div class="title-bar-controls">
-                <button id="file-manager-close-btn" class="win-button" aria-label="Close"><span class="icon close-icon"></span></button>
-            </div>
-        </div>
+<div id="import-export-modal" class="modal">
+    <div class="modal-content">
+        <div class="title-bar"><div class="title-bar-text">Import/Export Notes</div></div>
         <div class="window-body">
-             <div id="file-manager-content">
-                <div id="notes-list-container">
-                    <div class="notes-list-header">
-                        <span class="header-name">Name</span>
-                        <div class="menu-item">
-                            <button id="filter-btn">Filter</button>
-                            <ul class="dropdown-content">
-                                <li data-sort="name-asc">Name (A-Z)</li>
-                                <li data-sort="name-desc">Name (Z-A)</li>
-                                <li data-sort="date-desc">Newest First</li>
-                                <li data-sort="date-asc">Oldest First</li>
-                            </ul>
-                        </div>
+            <div class="io-section">
+                <button id="import-notes-btn">📥</button>
+                
+                <p>Import Notes</p>
+            </div>
+            <div class="io-section">
+                <button id="export-notes-btn">📤</button>
+                <p>Export Notes</p>
+            </div>
+            <p class="io-warning">any lost notes are 100% your own fault for trusting this shit.</p>
+    
+        </div>
+        <section class="field-row">
+            <button id="close-io-modal-btn">Close</button>
+        </section>
+    </div>
+</div>
+
+<input type="file" id="file-opener" accept=".txt,text/plain">
+<input type="file" id="import-file-opener" accept=".json,application/json">
+
+<div id="file-manager-window">
+    <div class="title-bar">
+        <button id="file-manager-back-btn-ios">&lt; Back</button>
+        <button id="file-manager-back-btn-android" aria-label="Back">
+            <svg viewBox="0 0 24 24" width="24" height="24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg>
+        </button>
+        <div class="title-bar-text">Saved Notes</div>
+        <div class="title-bar-controls">
+            <button id="file-manager-close-btn" class="win-button" aria-label="Close"><span class="icon close-icon">×</span></button>
+        </div>
+    </div>
+    <div class="window-body">
+   
+         <div id="file-manager-content">
+            <div id="notes-list-container">
+                <div class="notes-list-header">
+                    <span class="header-name">Name</span>
+                    <div class="menu-item">
+                      
+                        <button id="filter-btn">Filter</button>
+                        <ul class="dropdown-content">
+                            <li data-sort="name-asc">Name (A-Z)</li>
+                            <li data-sort="name-desc">Name (Z-A)</li>
+            
+                            <li data-sort="date-desc">Newest First</li>
+                            <li data-sort="date-asc">Oldest First</li>
+                        </ul>
                     </div>
-                    <div id="notes-list"></div>
+        
                 </div>
-                <div id="note-preview-container">
-                    <div id="note-preview-header">
+                <div id="notes-list"></div>
+            </div>
+            <div id="note-preview-container">
+                <div id="note-preview-header">
+                    <div>
                         <div id="note-preview-title"></div>
                         <div id="note-preview-date"></div>
-                        <div id="note-preview-actions">
-                            <button id="preview-open-btn">Open in Editor</button>
-                            <button id="preview-delete-btn">Delete</button>
-                        </div>
                     </div>
-                    <div id="note-preview">Select a note to preview...</div>
+                    <div id="note-preview-actions">
+                        <button id="preview-open-btn">Open in Editor</button>
+                        <button id="preview-delete-btn">Delete</button>
+                    </div>
                 </div>
+                <div id="note-preview">Select a note to preview...</div>
             </div>
         </div>
     </div>
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const getEl = id => document.getElementById(id);
-
-        /**
-         * THEME CONFIGURATION
-         * This array acts as a virtual directory for the /styles/ folder.
-         * To add a new theme:
-         * 1. Create a new .css file in the /styles/ folder.
-         * 2. Add a new object to this array with the theme's details.
-         * - id: The CSS class name (e.g., 'theme-win95').
-         * - name: The display name for the dropdown menu (e.g., 'Windows 95').
-         * - file: The path to the CSS file (e.g., 'styles/win95.css').
-         */
-        const themes = [
-            { id: 'theme-win95', name: 'Windows 95', file: 'styles/win95.css' },
-            { id: 'theme-winxp', name: 'Windows XP', file: 'styles/winxp.css' },
-            { id: 'theme-macos', name: 'Mac OS X', file: 'styles/macos.css' },
-            { id: 'theme-ios', name: 'iOS', file: 'styles/ios.css' },
-            { id: 'theme-android', name: 'Android', file: 'styles/android.css' },
-        ];
-
         // --- State ---
         let currentNoteId = null;
         let selectedPreviewId = null;
-        let isDirty = false;
-        let autosaveTimeout = null;
-
+        let isDirty = false; // Flag for unsaved changes
+        let autosaveTimeout = null; // Timer for autosave
         // --- Element Cache ---
         const editor = getEl('editor');
         const fileOpener = getEl('file-opener');
         const importFileOpener = getEl('import-file-opener');
         const closeBtn = getEl('close-btn');
         const titleBarText = document.querySelector('#app-window .title-bar-text');
+        // Menu Buttons
+        const newFileBtn = getEl('new-file-btn');
+        const openFileBtn = getEl('open-file-btn');
+        const saveNoteBtn = getEl('save-note-btn');
+        const saveToDeviceBtn = getEl('save-to-device-btn');
+        const aboutMenuBtn = getEl('about-menu-btn');
+        const fontSizeMenuBtn = getEl('font-size-menu-btn');
+        const savedNotesBtn = getEl('saved-notes-btn');
+        const replaceMenuBtn = getEl('replace-menu-btn');
+        const importExportBtn = getEl('import-export-btn');
         const darkModeToggle = getEl('dark-mode-toggle');
-        const stylesDropdownMenu = getEl('styles-dropdown-menu');
-
-        // --- Theme Switcher Logic ---
-        const setTheme = (themeId) => {
-            const theme = themes.find(t => t.id === themeId);
-            if (!theme) {
-                console.error(`Theme with id "${themeId}" not found.`);
-                return;
-            }
-
-            // Remove the old stylesheet if it exists
-            const oldLink = document.getElementById('theme-stylesheet');
-            if (oldLink) {
-                oldLink.remove();
-            }
-
-            // Create and append the new stylesheet link
-            const newLink = document.createElement('link');
-            newLink.id = 'theme-stylesheet';
-            newLink.rel = 'stylesheet';
-            newLink.href = theme.file;
-            document.head.appendChild(newLink);
-
-            // Apply the theme class to the body, preserving dark mode if active
-            const isDark = document.body.classList.contains('dark-mode');
-            document.body.className = isDark ? `dark-mode ${theme.id}` : theme.id;
-
-            // Save the preference
-            localStorage.setItem('hobopad_theme_id', theme.id);
-        };
-
-        const populateStylesMenu = () => {
-            stylesDropdownMenu.innerHTML = ''; // Clear existing items
-            themes.forEach(theme => {
-                const li = document.createElement('li');
-                li.textContent = theme.name;
-                li.dataset.themeId = theme.id;
-                stylesDropdownMenu.appendChild(li);
-            });
-        };
-
-        stylesDropdownMenu.addEventListener('click', (event) => {
-            if (event.target.tagName === 'LI' && event.target.dataset.themeId) {
-                setTheme(event.target.dataset.themeId);
-                closeAllDropdowns();
-            }
-        });
-
-        // --- Dark Mode Logic ---
-        const setDarkMode = (isDark) => {
-            const currentThemeId = localStorage.getItem('hobopad_theme_id') || themes[0].id;
-            const theme = themes.find(t => t.id === currentThemeId);
-            
-            if (isDark) {
-                document.body.classList.add('dark-mode');
-                darkModeToggle.textContent = 'Dark Mode';
-                localStorage.setItem('hobopad_darkmode', 'enabled');
-            } else {
-                document.body.classList.remove('dark-mode');
-                darkModeToggle.textContent = 'Light Mode';
-                localStorage.setItem('hobopad_darkmode', 'disabled');
-            }
-            // Re-apply the class to ensure proper cascading
-            document.body.className = isDark ? `dark-mode ${theme.id}` : theme.id;
-        };
-
-        darkModeToggle.addEventListener('click', () => {
-            setDarkMode(!document.body.classList.contains('dark-mode'));
-        });
-
-        // --- Dropdown Menu Logic ---
-        const closeAllDropdowns = () => {
-            document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
-        };
-
-        document.querySelectorAll('.menu-item').forEach(item => {
-            const hasDropdown = item.querySelector('.dropdown-content');
-            item.addEventListener('click', event => {
-                if (hasDropdown && event.target.closest('.dropdown-content')) {
-                    return;
-                }
-                event.stopPropagation();
-                if (hasDropdown) {
-                    const dropdown = item.querySelector('.dropdown-content');
-                    const isVisible = dropdown.style.display === 'block';
-                    closeAllDropdowns();
-                    if (!isVisible) {
-                        dropdown.style.display = 'block';
-                    }
-                } else {
-                    closeAllDropdowns();
-                }
-            });
-        });
-        window.addEventListener('click', closeAllDropdowns);
-
-        // --- Initialization ---
-        const initializeApp = () => {
-            // 1. Populate the styles menu
-            populateStylesMenu();
-
-            // 2. Set the initial theme
-            const savedThemeId = localStorage.getItem('hobopad_theme_id') || themes[0].id;
-            setTheme(savedThemeId);
-
-            // 3. Set the initial dark mode state
-            const savedDarkMode = localStorage.getItem('hobopad_darkmode');
-            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (savedDarkMode === 'enabled' || (savedDarkMode === null && prefersDark)) {
-                setDarkMode(true);
-            } else {
-                setDarkMode(false);
-            }
-
-            // 4. Initialize with default title
-            updateTitleBar('Untitled');
-        };
+        const fontSizeSlider = getEl('font-size-slider');
+        const fontSizeDisplay = getEl('font-size-display');
         
-        // --- All other application logic (save, open, modals, etc.) remains the same ---
-        // --- It has been omitted here for brevity but should be copied from the previous version ---
-
+        // --- Title Bar Logic ---
         const updateTitleBar = (noteName, showSavedMessage = false) => {
             const baseTitle = `${noteName || 'Untitled'} - Hobopad`;
             titleBarText.textContent = baseTitle;
@@ -421,13 +608,85 @@
             }
         };
 
-        getEl('new-file-btn').addEventListener('click', () => {
+        // --- Theme Switcher Logic ---
+        const closeAllDropdowns = () => {
+            document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
+        };
+
+        document.querySelectorAll('.menu-item').forEach(item => {
+            const hasDropdown = item.querySelector('.dropdown-content');
+            
+            item.addEventListener('click', event => {
+                if (hasDropdown && event.target.closest('.dropdown-content')) {
+                    return;
+                }
+                event.stopPropagation();
+                
+                if (hasDropdown) {
+                    const dropdown = item.querySelector('.dropdown-content');
+                    const isVisible = dropdown.style.display === 'block';
+                    closeAllDropdowns();
+                    if (!isVisible) {
+                        dropdown.style.display = 'block';
+                    }
+                } else {
+                    closeAllDropdowns();
+                }
+            });
+        });
+        document.querySelectorAll('.dropdown-content li').forEach(item => {
+            item.addEventListener('click', closeAllDropdowns);
+        });
+        window.addEventListener('click', closeAllDropdowns);
+        
+        const setTheme = (theme) => {
+            const isDark = document.body.classList.contains('dark-mode');
+            document.body.className = isDark ? `dark-mode ${theme}` : theme;
+            localStorage.setItem('hobopad_theme', theme);
+        };
+
+        getEl('theme-win95-btn').addEventListener('click', () => setTheme('theme-win95'));
+        getEl('theme-winxp-btn').addEventListener('click', () => setTheme('theme-winxp'));
+        getEl('theme-macos-btn').addEventListener('click', () => setTheme('theme-macos'));
+        getEl('theme-ios-btn').addEventListener('click', () => setTheme('theme-ios'));
+        getEl('theme-android-btn').addEventListener('click', () => setTheme('theme-android'));
+        const savedTheme = localStorage.getItem('hobopad_theme') || 'theme-android';
+        setTheme(savedTheme);
+
+        // --- Dark Mode Logic ---
+        const setDarkMode = (isDark) => {
+            const currentTheme = localStorage.getItem('hobopad_theme') || 'theme-android';
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.textContent = 'Dark Mode';
+                localStorage.setItem('hobopad_darkmode', 'enabled');
+            } else {
+                document.body.classList.remove('dark-mode');
+                darkModeToggle.textContent = 'Light Mode';
+                localStorage.setItem('hobopad_darkmode', 'disabled');
+            }
+             setTheme(currentTheme);
+        };
+
+        darkModeToggle.addEventListener('click', () => {
+            setDarkMode(!document.body.classList.contains('dark-mode'));
+        });
+        const savedDarkMode = localStorage.getItem('hobopad_darkmode');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (savedDarkMode === 'enabled' || (savedDarkMode === null && prefersDark)) {
+            setDarkMode(true);
+        } else {
+            setDarkMode(false);
+        }
+
+        // --- Core App Logic ---
+        closeBtn.addEventListener('click', () => { window.close(); });
+        newFileBtn.addEventListener('click', () => {
             editor.value = '';
             currentNoteId = null;
             isDirty = false;
             updateTitleBar('Untitled');
         });
-
         openFileBtn.addEventListener('click', () => { fileOpener.click(); });
         fileOpener.addEventListener('change', event => {
             const file = event.target.files[0];
@@ -440,7 +699,8 @@
             isDirty = false;
             updateTitleBar(file.name.replace(/\.[^/.]+$/, ""));
         });
-
+        
+        // --- Save Note (Local Storage) Logic ---
         const saveNoteToLocalStorage = (name, isAutosave = false) => {
             let notes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
             let noteName = name.trim() || 'Untitled';
@@ -469,9 +729,8 @@
                 updateTitleBar(savedNoteName);
             }
         };
-        
         const saveNoteModal = getEl('save-note-modal');
-        getEl('save-note-btn').addEventListener('click', () => {
+        saveNoteBtn.addEventListener('click', () => {
             if (currentNoteId) {
                 const notes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
                 const note = notes.find(n => n.id === currentNoteId);
@@ -488,9 +747,272 @@
             saveNoteModal.style.display = 'none';
         });
 
-        // --- Run the app ---
-        initializeApp();
+        // --- Save to Device Logic ---
+        const saveToDeviceModal = getEl('save-to-device-modal');
+        const saveToDevice = (filename, type) => {
+            const content = editor.value;
+            const blob = new Blob([content], { type: type === 'html' ? 'text/html' : 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename.trim() || 'Untitled'}.${type}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+        saveToDeviceBtn.addEventListener('click', () => {
+            saveToDeviceModal.style.display = 'flex';
+            getEl('device-filename-input').focus();
+        });
+        getEl('cancel-device-save-btn').addEventListener('click', () => { saveToDeviceModal.style.display = 'none'; });
+        getEl('confirm-device-save-btn').addEventListener('click', () => {
+            const filename = getEl('device-filename-input').value;
+            const type = getEl('file-type-select').value;
+            saveToDevice(filename, type);
+            saveToDeviceModal.style.display = 'none';
+        });
+
+        // --- Other Modals ---
+        const aboutModal = getEl('about-modal');
+        aboutMenuBtn.addEventListener('click', () => { aboutModal.style.display = 'flex'; });
+        getEl('close-modal-1').addEventListener('click', () => aboutModal.style.display = 'none');
+        getEl('close-modal-2').addEventListener('click', () => aboutModal.style.display = 'none');
+        const fontSizeModal = getEl('font-size-modal');
+        fontSizeMenuBtn.addEventListener('click', () => { 
+            const currentSize = parseInt(editor.style.fontSize) || 16;
+            fontSizeSlider.value = currentSize;
+            fontSizeDisplay.textContent = `${currentSize}px`;
+            fontSizeModal.style.display = 'flex'; 
+        });
+        fontSizeSlider.addEventListener('input', e => { 
+            editor.style.fontSize = `${e.target.value}px`; 
+            fontSizeDisplay.textContent = `${e.target.value}px`;
+        });
+        getEl('close-font-modal-btn').addEventListener('click', () => { fontSizeModal.style.display = 'none'; });
+
+        // --- Replace Logic ---
+        const replaceModal = getEl('replace-modal');
+        const findInput = getEl('find-input');
+        const replaceInput = getEl('replace-input');
+        const confirmReplaceAllBtn = getEl('confirm-replace-all-btn');
+        const closeReplaceBtn = getEl('close-replace-btn');
+        const getFindRegex = (term) => {
+            const escapedTerm = term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const pattern = escapedTerm.length === 1 ? `\\b${escapedTerm}\\b` : escapedTerm;
+            return new RegExp(pattern, 'gi');
+        };
+        replaceMenuBtn.addEventListener('click', () => {
+            replaceModal.style.display = 'flex';
+            findInput.focus();
+        });
+        closeReplaceBtn.addEventListener('click', () => {
+            replaceModal.style.display = 'none';
+        });
+        confirmReplaceAllBtn.addEventListener('click', () => {
+            const findTerm = findInput.value;
+            const replaceTerm = replaceInput.value;
+            if (!findTerm) {
+                alert("Please enter text to find.");
+                return;
+            }
+            const text = editor.value;
+            const regex = getFindRegex(findTerm);
+            if (text.match(regex)) {
+                editor.value = text.replace(regex, replaceTerm);
+                alert("All occurrences have been replaced.");
+            } else {
+                alert("Text not found.");
+            }
+        });
+        
+        // --- Import / Export Logic ---
+        const ioModal = getEl('import-export-modal');
+        const importBtn = getEl('import-notes-btn');
+        const exportBtn = getEl('export-notes-btn');
+        const closeIoModalBtn = getEl('close-io-modal-btn');
+        importExportBtn.addEventListener('click', () => {
+            ioModal.style.display = 'flex';
+        });
+        closeIoModalBtn.addEventListener('click', () => {
+            ioModal.style.display = 'none';
+        });
+        exportBtn.addEventListener('click', () => {
+            const notes = localStorage.getItem('hobopad_notes');
+            if (!notes || notes === '[]') {
+                alert("No notes to export.");
+                return;
+            }
+            const now = new Date();
+            const timestamp = `${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}${now.getSeconds().toString().padStart(2,'0')}`;
+            const filename = `hobofilesaver${timestamp}.json`;
+            const blob = new Blob([notes], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+        importBtn.addEventListener('click', () => {
+            importFileOpener.click();
+        });
+        importFileOpener.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedNotes = JSON.parse(e.target.result);
+                    if (!Array.isArray(importedNotes)) {
+                        throw new Error("Invalid JSON file: Not an array.");
+                    }
+                    const existingNotes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
+                    const combinedNotes = [...existingNotes];
+                    const existingIds = new Set(existingNotes.map(n => n.id));
+                    let importCount = 0;
+                    importedNotes.forEach(note => {
+                        if (note.id && note.name && note.content && note.createdAt && !existingIds.has(note.id)) {
+                            combinedNotes.push(note);
+                            importCount++;
+                        }
+                    });
+                    localStorage.setItem('hobopad_notes', JSON.stringify(combinedNotes));
+                    alert(`${importCount} notes imported successfully.`);
+                    ioModal.style.display = 'none';
+                } catch (err) {
+                    alert(`Error importing notes: ${err.message}`);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = null;
+        });
+
+        // --- File Manager Logic ---
+        const fileManagerWindow = getEl('file-manager-window');
+        const fileManagerCloseBtn = getEl('file-manager-close-btn');
+        const fileManagerBackBtnIos = getEl('file-manager-back-btn-ios');
+        const fileManagerBackBtnAndroid = getEl('file-manager-back-btn-android');
+        const notesList = getEl('notes-list');
+        const notePreview = getEl('note-preview');
+        const notePreviewTitle = getEl('note-preview-title');
+        const notePreviewDate = getEl('note-preview-date');
+        const previewOpenBtn = getEl('preview-open-btn');
+        const previewDeleteBtn = getEl('preview-delete-btn');
+        const renderNotes = (sortOrder = 'date-desc') => {
+            let notes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
+            switch(sortOrder) {
+                case 'name-asc': notes.sort((a, b) => a.name.localeCompare(b.name)); break;
+                case 'name-desc': notes.sort((a, b) => b.name.localeCompare(a.name)); break;
+                case 'date-asc': notes.sort((a, b) => a.createdAt - b.createdAt); break;
+                case 'date-desc': notes.sort((a, b) => b.createdAt - a.createdAt); break;
+            }
+            notesList.innerHTML = '';
+            notes.forEach(note => {
+                const item = document.createElement('div');
+                item.className = 'note-item';
+                item.dataset.noteId = note.id;
+                item.innerHTML = `
+                    <svg class="file-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M4 0h8l4 4v12H0V0h4zm8 2H2v12h12V4.5L12 2zM5 8h6v1H5V8zm0 2h6v1H5v-1zm0 2h4v1H5v-1z"/></svg>
+                    <div class="note-item-details">
+                        <span class="note-item-title">${note.name}</span>
+                        <span class="note-item-date">${new Date(note.createdAt).toLocaleString()}</span>
+                    </div>
+                `;
+                notesList.appendChild(item);
+            });
+        };
+        notesList.addEventListener('click', e => {
+            const noteItem = e.target.closest('.note-item');
+            if (!noteItem) return;
+            const notes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
+            const noteId = Number(noteItem.dataset.noteId);
+            const note = notes.find(n => n.id === noteId);
+            document.querySelectorAll('.note-item').forEach(item => item.classList.remove('active'));
+            noteItem.classList.add('active');
+            notePreviewTitle.textContent = note.name;
+            notePreviewDate.textContent = new Date(note.createdAt).toLocaleString();
+            notePreview.textContent = note.content;
+            selectedPreviewId = note.id;
+        });
+        previewOpenBtn.addEventListener('click', () => {
+            if (!selectedPreviewId) return;
+            const notes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
+            const note = notes.find(n => n.id === selectedPreviewId);
+            editor.value = note.content;
+            currentNoteId = note.id;
+            isDirty = false;
+            updateTitleBar(note.name);
+            fileManagerWindow.style.display = 'none';
+        });
+        previewDeleteBtn.addEventListener('click', () => {
+            if (!selectedPreviewId) return;
+            const notes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
+            const remainingNotes = notes.filter(n => n.id !== selectedPreviewId);
+            localStorage.setItem('hobopad_notes', JSON.stringify(remainingNotes));
+            renderNotes();
+            notePreviewTitle.textContent = '';
+            notePreviewDate.textContent = '';
+            notePreview.textContent = 'Select a note to preview...';
+            selectedPreviewId = null;
+        });
+        savedNotesBtn.addEventListener('click', () => {
+            renderNotes();
+            notePreviewTitle.textContent = '';
+            notePreviewDate.textContent = '';
+            notePreview.textContent = 'Select a note to preview...';
+            fileManagerWindow.style.display = 'flex';
+        });
+        const closeFileManager = () => {
+            fileManagerWindow.style.display = 'none';
+        };
+        fileManagerCloseBtn.addEventListener('click', closeFileManager);
+        fileManagerBackBtnIos.addEventListener('click', closeFileManager);
+        fileManagerBackBtnAndroid.addEventListener('click', closeFileManager);
+        getEl('filter-btn').parentElement.addEventListener('click', e => {
+            if (e.target.dataset.sort) {
+                renderNotes(e.target.dataset.sort);
+            }
+        });
+
+        // --- Autosave & Dirty Flag Logic ---
+        editor.addEventListener('input', () => {
+            isDirty = true;
+            clearTimeout(autosaveTimeout);
+            autosaveTimeout = setTimeout(() => {
+                if (currentNoteId) { // Only autosave if it's an existing note
+                    const notes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
+                    const note = notes.find(n => n.id === currentNoteId);
+                    if (note) {
+                        saveNoteToLocalStorage(note.name, true);
+                    }
+                }
+            }, 1500); // Wait 1.5 seconds after user stops typing
+        });
+
+        // Initialize with default title
+        updateTitleBar('Untitled');
     });
+
+    // --- Prevent Refresh on Unsaved Changes ---
+    window.addEventListener('beforeunload', (e) => {
+        const isDirty = document.getElementById('editor').dataset.dirty === 'true'; // Re-check isDirty state from a global-like scope
+        if (isDirty) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js').catch(err => {
+                console.error('ServiceWorker registration failed: ', err);
+            });
+        });
+    }
 </script>
+
 </body>
 </html>
