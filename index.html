@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -387,7 +387,6 @@
             </ul>
         </li>
         <li id="saved-notes-btn">Saved Notes</li>
-        <li id="update-btn" style="display: none; background-color: #316AC5; color: white; cursor: pointer;">Update Available</li>
         <li class="menu-item menu-item-right">
             Styles
             <ul class="dropdown-content">
@@ -420,7 +419,7 @@
     <div class="modal-content">
         <div class="title-bar">
             <div class="title-bar-text">About Hobopad</div>
-            <div class="version-display">[Version 1.1.0](Fry)</div>
+            <div class="version-display">[Version 1.1.1](Scruffy)</div>
         </div>
  
         <div class="window-body">
@@ -512,6 +511,19 @@
         <section class="field-row">
             <button id="close-io-modal-btn">Close</button>
         </section>
+    </div>
+</div>
+
+<div id="update-modal" class="modal">
+    <div class="modal-content">
+        <div class="title-bar"><div class="title-bar-text">Update Available</div></div>
+        <div class="window-body">
+            <p id="update-modal-text" style="margin-bottom: 20px;">A new version of Hobopad is ready.</p>
+            <section class="field-row">
+                <button id="update-later-btn">Later</button>
+                <button id="update-now-btn" class="primary">Update Now</button>
+            </section>
+        </div>
     </div>
 </div>
 
@@ -992,58 +1004,98 @@
                 }
             }, 1500); // Wait 1.5 seconds after user stops typing
         });
+        
+        // --- Prevent Refresh on Unsaved Changes ---
+        window.addEventListener('beforeunload', (e) => {
+            const isDirty = document.getElementById('editor').dataset.dirty === 'true'; 
+            if (isDirty) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
 
         // Initialize with default title
         updateTitleBar('Untitled');
     });
 
-    // --- Prevent Refresh on Unsaved Changes ---
-    window.addEventListener('beforeunload', (e) => {
-        const isDirty = document.getElementById('editor').dataset.dirty === 'true'; // Re-check isDirty state from a global-like scope
-        if (isDirty) {
-            e.preventDefault();
-            e.returnValue = '';
-        }
-    });
-
-    // --- PWA Update Logic ---
+    // --- PWA Update & Version Check Logic ---
     let newWorker;
 
-    function showUpdateBar() {
-      const updateBtn = document.getElementById('update-btn');
-      if (updateBtn) {
-        updateBtn.style.display = 'list-item'; // Show the button
-        updateBtn.addEventListener('click', () => {
-          // Send a message to the waiting service worker to activate itself
-          newWorker.postMessage({ type: 'SKIP_WAITING' });
+    // This function is called when a new service worker is found and waiting.
+    function promptForUpdate(worker) {
+        newWorker = worker;
+        const updateModal = document.getElementById('update-modal');
+        const updateNowBtn = document.getElementById('update-now-btn');
+        const updateLaterBtn = document.getElementById('update-later-btn');
+
+        updateNowBtn.addEventListener('click', () => {
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
+            updateModal.style.display = 'none';
         });
-      }
+
+        updateLaterBtn.addEventListener('click', () => {
+            updateModal.style.display = 'none';
+        });
+
+        updateModal.style.display = 'flex';
+    }
+    
+    // This function checks the version.json on the server.
+    async function checkForUpdates() {
+        try {
+            const res = await fetch('/version.json', { cache: 'no-cache' });
+            const serverVersionData = await res.json();
+            const versionDisplay = document.querySelector('.version-display');
+            const match = versionDisplay.textContent.match(/\[Version ([\d\.]+)\]/);
+            const clientVersion = match ? match[1] : null;
+
+            if (clientVersion && serverVersionData.version > clientVersion) {
+                const reg = await navigator.serviceWorker.getRegistration();
+                // If there's a waiting worker, we can prompt to update immediately.
+                if (reg && reg.waiting) {
+                    document.getElementById('update-modal-text').textContent = `Version ${serverVersionData.version} (${serverVersionData.codename}) is ready to install.`;
+                    promptForUpdate(reg.waiting);
+                } else {
+                    // Otherwise, just update the registration. The 'updatefound' event will handle it.
+                    reg.update();
+                }
+            }
+        } catch (error) {
+            console.error("Could not check for updates:", error);
+        }
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').then(reg => {
-        reg.addEventListener('updatefound', () => {
-          // A new service worker is found and is installing.
-          newWorker = reg.installing;
-          newWorker.addEventListener('statechange', () => {
-            // The new service worker is waiting to be activated.
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              showUpdateBar();
-            }
-          });
-        });
-      }).catch(err => {
-          console.error('ServiceWorker registration failed: ', err);
-      });
+        // Register the service worker
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+            // This event fires when a new service worker is found and installed.
+            reg.addEventListener('updatefound', () => {
+                const installingWorker = reg.installing;
+                installingWorker.addEventListener('statechange', () => {
+                    if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        // New content is available and waiting.
+                        // We can prompt the user to update.
+                        promptForUpdate(installingWorker);
+                    }
+                });
+            });
 
-      // Listen for the controller change and reload the page
-      let refreshing;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (refreshing) return;
-        window.location.reload();
-        refreshing = true;
-      });
+            // After the DOM is loaded, check for updates.
+            document.addEventListener('DOMContentLoaded', checkForUpdates);
+
+        }).catch(err => {
+            console.error('ServiceWorker registration failed: ', err);
+        });
+
+        // This event fires when the new service worker has taken control.
+        let refreshing;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (refreshing) return;
+            window.location.reload();
+            refreshing = true;
+        });
     }
+
 </script>
 
 </body>
