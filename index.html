@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -32,7 +32,7 @@
 
         /* --- Custom About Modal Background --- */
         #about-modal .window-body {
-            background-image: url('https://dizzyhobo.github.io/hobopad/about.png');
+            background-image: url('about.png');
             background-size: cover;
             background-position: center;
         }
@@ -387,6 +387,7 @@
             </ul>
         </li>
         <li id="saved-notes-btn">Saved Notes</li>
+        <li id="update-btn" style="display: none; background-color: #316AC5; color: white; cursor: pointer;">Update Available</li>
         <li class="menu-item menu-item-right">
             Styles
             <ul class="dropdown-content">
@@ -1005,12 +1006,43 @@
         }
     });
 
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js').catch(err => {
-                console.error('ServiceWorker registration failed: ', err);
-            });
+    // --- PWA Update Logic ---
+    let newWorker;
+
+    function showUpdateBar() {
+      const updateBtn = document.getElementById('update-btn');
+      if (updateBtn) {
+        updateBtn.style.display = 'list-item'; // Show the button
+        updateBtn.addEventListener('click', () => {
+          // Send a message to the waiting service worker to activate itself
+          newWorker.postMessage({ type: 'SKIP_WAITING' });
         });
+      }
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(reg => {
+        reg.addEventListener('updatefound', () => {
+          // A new service worker is found and is installing.
+          newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            // The new service worker is waiting to be activated.
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              showUpdateBar();
+            }
+          });
+        });
+      }).catch(err => {
+          console.error('ServiceWorker registration failed: ', err);
+      });
+
+      // Listen for the controller change and reload the page
+      let refreshing;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        window.location.reload();
+        refreshing = true;
+      });
     }
 </script>
 
