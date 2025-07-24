@@ -12,7 +12,8 @@ Tired of note-taking apps that are bloated, slow, and want to sync your every th
 It opens directly to a blank note, not a list of your previous work, because who the hell wants their shit exposed the second they open an app? It saves your notes directly in your browser's local storage. No accounts, no cloud, no problem. If you lose your notes, it's **100% on you, dumbass.**
 
 **Install PWA**
-;<a href="https://DIZZYHOBO.github.io/hobopad"><img src="images/pwa.svg" height="45"></a
+
+<a href="https://dizzyhobo.github.io/hobopad"><img src="images/pwa.svg" height="45"></a>
 ---
 
 ## Features
