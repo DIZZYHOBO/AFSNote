@@ -15,11 +15,12 @@ It opens directly to a blank note, not a list of your previous work, because who
 
 ## Features
 
--   **Multiple Themes:** Make it look how you want. Comes with several themes to satisfy your nostalgia or modern design sensibilities:
+-   **Multiple Themes:** Make it look how you want. Comes with 4 themes to satisfy your nostalgia or modern design sensibilities:
     -   Android
     -   iOS
-    -   Mac OS X
-    -   Windows 95 & XP
+    -   Windows 95
+    -   Windows XP
+      
 -   **Light & Dark Mode:** For when you're coding in a dark basement or a bright, sunlit park.
 -   **Local Storage:** Saves your notes in the browser. It's fast, and it's private.
 -   **File Manager:** Actually see and manage the notes you've saved.
