@@ -17,7 +17,7 @@
         .window-body { display: flex; flex-direction: column; flex-grow: 1; margin: 0; padding: 0; min-height: 0; }
         .menu-bar { flex-shrink: 0; position: relative; z-index: 10; }
         #editor { flex-grow: 1; padding: 5px; margin: 0; resize: none; outline: none; line-height: 1.6; width: 100%; box-sizing: border-box; overflow-y: scroll; border: none; }
-        .modal { display: none; width: 90%; max-width: 340px; max-height: 80vh; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 200; flex-direction: column; }
+        .modal { display: none; width: 90%; max-width: 340px; max-height: 80vh; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 201; flex-direction: column; }
         #font-size-modal, #replace-modal, #import-export-modal { max-width: 300px; }
         #about-modal {
             width: 680px;
@@ -171,37 +171,6 @@
         .theme-winxp .note-item.active { background-color: #316AC5; color: white; }
         .theme-winxp .note-item.active .file-icon { fill: white; }
 
-        /* --- Mac OS X Theme --- */
-        .theme-macos body { background: #DCDCDC; }
-        .theme-macos #app-window, .theme-macos .modal-content, .theme-macos #file-manager-window { background-color: #E8E8E8; background-image: linear-gradient(rgba(0,0,0,0.03) 50%, transparent 50%); background-size: 100% 4px; border: 1px solid #666; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.5); }
-        .theme-macos .title-bar { padding: 5px 10px; color: #333; font-weight: bold; height: 22px; border-bottom: 1px solid #B5B5B5; background: rgba(232, 232, 232, 0.8); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
-        .theme-macos .title-bar-text { padding: 0 8px; flex-grow: 1; }
-        .theme-macos .menu-bar { display: flex; flex-wrap: wrap; justify-content: flex-end; list-style: none; margin: 0; padding: 5px; background: transparent; gap: 5px; }
-        .theme-macos .menu-bar > li { padding: 2px 10px; font-size: 12px; border-radius: 15px; border: 1px solid #999; background: linear-gradient(to bottom, #FEFEFE, #F2F2F2); box-shadow: 0 1px 1px rgba(0,0,0,0.1); color: black; }
-        .theme-macos .menu-bar > li:hover { background: linear-gradient(to bottom, #4D90FE, #4787ED); color: white; border-color: #3079ED; }
-        .theme-macos .window-body { padding: 5px; box-shadow: none; }
-        .theme-macos #editor, .theme-macos #note-preview { border: 1px solid #B5B5B5; border-radius: 4px; font-family: 'Monaco', 'Lucida Console', Courier, monospace; font-size: 13px; scrollbar-color: #A8A8A8 #E8E8E8; scrollbar-width: thin; }
-        .theme-macos ::-webkit-scrollbar { width: 8px; }
-        .theme-macos ::-webkit-scrollbar-track { background: #E8E8E8; }
-        .theme-macos ::-webkit-scrollbar-thumb { background-color: #A8A8A8; border-radius: 4px; }
-        .theme-macos button, .theme-macos select, .theme-macos input[type="text"] { font-family: "Lucida Grande", sans-serif; font-size: 13px; border: 1px solid #999; border-radius: 15px; background: linear-gradient(to bottom, #FEFEFE, #F2F2F2); box-shadow: 0 1px 1px rgba(0,0,0,0.1); padding: 4px 15px; min-height: 26px; }
-        .theme-macos button:hover { border-color: #777; }
-        .theme-macos button.primary { background: linear-gradient(to bottom, #4D90FE, #4787ED); color: white; border-color: #3079ED; }
-        .theme-macos .title-bar-controls { display: flex; gap: 8px; }
-        .theme-macos .win-button { width: 12px; height: 12px; min-width: 12px; padding: 0; border-radius: 50%; border: 1px solid rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
-        .theme-macos .win-button .icon { display: none; }
-        .theme-macos .win-button:hover .icon { display: block; color: rgba(0,0,0,0.5); font-weight: bold; font-size: 9px; line-height: 1; }
-        .theme-macos #close-btn { background-color: #FF5F57; border-color: #E0443E; }
-        .theme-macos #minimize-btn { background-color: #FEBC2E; border-color: #E0A123; }
-        .theme-macos #maximize-btn { background-color: #28C840; border-color: #1DAD29; }
-        .theme-macos .dropdown-content { border: 1px solid #B5B5B5; border-radius: 4px; }
-        .theme-macos .dropdown-content li { border-bottom: 1px solid #B5B5B5; }
-        .theme-macos .dropdown-content li:hover { background: #3079ED; color: white; }
-        .theme-macos #about-modal p { color: #222; }
-        .theme-macos #notes-list-container, .theme-macos .notes-list-header, .theme-macos .note-item, .theme-macos #note-preview-header { border-color: #B5B5B5; }
-        .theme-macos .note-item.active { background-color: #3079ED; color: white; }
-        .theme-macos .note-item.active .file-icon { fill: white; }
-
         /* --- iOS Theme --- */
         .theme-ios body { background: #f0f0f0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
         .theme-ios #app-window, .theme-ios .modal-content, .theme-ios #file-manager-window { background-color: #ffffff; border: 1px solid #d1d1d6; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
@@ -352,9 +321,7 @@
         .dark-mode.theme-win95 input[type="text"],
         .dark-mode.theme-win95 select,
         .dark-mode.theme-winxp input[type="text"],
-        .dark-mode.theme-winxp select,
-        .dark-mode.theme-macos input[type="text"],
-        .dark-mode.theme-macos select {
+        .dark-mode.theme-winxp select {
             background-color: #2c2c2c;
             color: #e0e0e0;
             border: 1px solid #555;
@@ -365,7 +332,7 @@
 
     </style>
 </head>
-<body class="theme-win95"> <div id="app-window">
+<body class="theme-android"> <div id="app-window">
     <div class="title-bar">
         <div class="title-bar-text">Hobopad</div>
         <div class="title-bar-controls">
@@ -392,7 +359,6 @@
             <ul class="dropdown-content">
                 <li id="theme-win95-btn">Windows 95</li>
                 <li id="theme-winxp-btn">Windows XP</li>
-                <li id="theme-macos-btn">Mac OS X</li>
                 <li id="theme-ios-btn">iOS</li>
                 <li id="theme-android-btn">Android</li>
         
@@ -511,6 +477,19 @@
         <section class="field-row">
             <button id="close-io-modal-btn">Close</button>
         </section>
+    </div>
+</div>
+
+<div id="delete-confirm-modal" class="modal">
+    <div class="modal-content">
+        <div class="title-bar"><div class="title-bar-text">Confirm Deletion</div></div>
+        <div class="window-body">
+            <p style="text-align: center; margin: 20px;">Are you sure you want to delete this note?</p>
+            <section class="field-row">
+                <button id="cancel-delete-btn">No</button>
+                <button id="confirm-delete-btn" class="primary">Yes</button>
+            </section>
+        </div>
     </div>
 </div>
 
@@ -647,7 +626,6 @@
 
         getEl('theme-win95-btn').addEventListener('click', () => setTheme('theme-win95'));
         getEl('theme-winxp-btn').addEventListener('click', () => setTheme('theme-winxp'));
-        getEl('theme-macos-btn').addEventListener('click', () => setTheme('theme-macos'));
         getEl('theme-ios-btn').addEventListener('click', () => setTheme('theme-ios'));
         getEl('theme-android-btn').addEventListener('click', () => setTheme('theme-android'));
         const savedTheme = localStorage.getItem('hobopad_theme') || 'theme-win95';
@@ -901,6 +879,10 @@
         const notePreviewDate = getEl('note-preview-date');
         const previewOpenBtn = getEl('preview-open-btn');
         const previewDeleteBtn = getEl('preview-delete-btn');
+        const deleteConfirmModal = getEl('delete-confirm-modal');
+        const confirmDeleteBtn = getEl('confirm-delete-btn');
+        const cancelDeleteBtn = getEl('cancel-delete-btn');
+
         const renderNotes = (sortOrder = 'date-desc') => {
             let notes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
             switch(sortOrder) {
@@ -947,7 +929,17 @@
             updateTitleBar(note.name);
             fileManagerWindow.style.display = 'none';
         });
+
         previewDeleteBtn.addEventListener('click', () => {
+            if (!selectedPreviewId) return;
+            deleteConfirmModal.style.display = 'flex';
+        });
+
+        cancelDeleteBtn.addEventListener('click', () => {
+            deleteConfirmModal.style.display = 'none';
+        });
+
+        confirmDeleteBtn.addEventListener('click', () => {
             if (!selectedPreviewId) return;
             const notes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
             const remainingNotes = notes.filter(n => n.id !== selectedPreviewId);
@@ -957,7 +949,9 @@
             notePreviewDate.textContent = '';
             notePreview.textContent = 'Select a note to preview...';
             selectedPreviewId = null;
+            deleteConfirmModal.style.display = 'none';
         });
+
         savedNotesBtn.addEventListener('click', () => {
             renderNotes();
             notePreviewTitle.textContent = '';
