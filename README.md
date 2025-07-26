@@ -32,7 +32,7 @@ It opens directly to a blank note, not a list of your previous work, because who
 ## Screenshots
 **Main**
 
-![Main](https://raw.githubusercontent.com/DIZZYHOBO/Hobopad/main/screenshots/Main.png)
+![Main](https://dizzyhobo.github.io/Hobopad/screenshots/Main.png)
 
 **Saved Notes**
 
@@ -55,5 +55,3 @@ Or install the PWA
 ---
 
 > "Modern software is a mess. Hobopad is a reaction to that. It doesn't need your email, it doesn't need a server, and it sure as hell doesn't need to be complicated. Get better, you fucking weirdos."
-
-> "Oh yeah, any lost notes are 100% on you bud, don't blame me, dumbass."
