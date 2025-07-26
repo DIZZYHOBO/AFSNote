@@ -152,7 +152,7 @@
         .theme-winxp .menu-bar > li { padding: 4px 8px; font-size: 11px; border: 1px solid transparent; border-radius: 0; background: none; box-shadow: none; color: black; }
         .theme-winxp .menu-bar > li:hover { background: #316AC5; color: white; border: 1px solid #000; }
         .theme-winxp .window-body { padding: 3px; box-shadow: none; }
-        .theme-winxp #editor, .theme-winxp #note-preview { border: 1px solid #7F9DB9; font-family: 'Lucida Console', Courier, monospace; font-size: 12px; margin: 0; scrollbar-color: #E0E0E0 #F5F5F5; scrollbar-width: auto; }
+        .theme-winxp #editor, .theme-winxp #note-preview, .theme-winxp input, .theme-winxp select { border: 1px solid #7F9DB9; font-family: 'Lucida Console', Courier, monospace; font-size: 12px; margin: 0; scrollbar-color: #E0E0E0 #F5F5F5; scrollbar-width: auto; }
         .theme-winxp ::-webkit-scrollbar { width: 17px; }
         .theme-winxp ::-webkit-scrollbar-track { background: #F5F5F5; border-left: 1px solid #E0E0E0; }
         .theme-winxp ::-webkit-scrollbar-thumb { background: linear-gradient(to right, #C2D5FC, #D5E1FC, #C2D5FC); border: 1px solid #7F9DB9; }
@@ -467,7 +467,7 @@
         }
     </style>
 </head>
-<body class="theme-win95">
+<body class="theme-android">
 <div id="app-window">
     <div class="title-bar">
         <div class="title-bar-text">AFSNote</div>
@@ -520,12 +520,23 @@
             <div class="version-display">[Version 1.0.0]</div>
         </div>
         <div class="window-body">
-            <p style="text-align: center; margin: 20px;">
-                A simple, no-nonsense note-taking app that gets out of your way.<br><br>
-                Lightweight, customizable, and focused on what matters - your notes.
+            <p style="text-align: center; margin: 20px; font-weight: bold;">
+                This shitty app was vibe coded by an absolute complete dumbass<br>
+                who was sick of all your shitty note apps.
             </p>
-            <p style="text-align: center; margin: 10px;">Your notes are stored locally in your browser.</p>
-            <section class="field-row"><button id="close-modal-1">Close</button><button id="close-modal-2" class="primary">OK</button></section>
+            <p style="text-align: center; margin: 20px; font-weight: bold;">
+                Like who the fuck wants a note taking app to open DIRECTLY<br>
+                to the saved notes, showing you every single note with just<br>
+                enough of a snippet to raise suspicion.
+            </p>
+            <p style="text-align: center; margin: 20px; font-weight: bold;">
+                Get better you fucking weirdos.
+            </p>
+            <p style="text-align: center; margin: 10px;">
+                Your notes are stored locally in your browser,<br>
+                so it's your fault if you lose them dumbass.
+            </p>
+            <section class="field-row"><button id="close-modal-1">Close</button></section>
         </div>
     </div>
 </div>
@@ -853,24 +864,52 @@
         const saveToDeviceModal = getEl('save-to-device-modal');
         const saveToDevice = (filename, type) => {
             let finalFilename = filename.trim() || 'Untitled';
-            finalFilename += `.${type}`;
-            const finalType = type === 'html' ? 'text/html' : 'text/plain';
+            let content = editor.value;
+            let mimeType = 'text/plain';
+            
+            // Remove extension if already present
+            finalFilename = finalFilename.replace(/\.(txt|html)$/i, '');
+            
+            // Add appropriate extension and set MIME type
+            if (type === 'html') {
+                finalFilename += '.html';
+                mimeType = 'text/html';
+                // Ensure basic HTML structure if saving as HTML
+                if (!content.includes('<html') && !content.includes('<HTML')) {
+                    content = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${finalFilename.replace('.html', '')}</title>
+</head>
+<body>
+${content}
+</body>
+</html>`;
+                }
+            } else {
+                finalFilename += '.txt';
+            }
 
-            const content = editor.value;
-            const blob = new Blob([content], { type: finalType });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = finalFilename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            try {
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = finalFilename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+            } catch (err) {
+                alert(`Error saving file: ${err.message}`);
+            }
         };
 
         saveToDeviceBtn.addEventListener('click', () => {
             saveToDeviceModal.style.display = 'flex';
             getEl('device-filename-input').focus();
+            getEl('device-filename-input').value = ''; // Clear previous input
         });
         getEl('cancel-device-save-btn').addEventListener('click', () => { saveToDeviceModal.style.display = 'none'; });
         getEl('confirm-device-save-btn').addEventListener('click', () => {
