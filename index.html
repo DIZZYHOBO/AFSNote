@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Hobopad</title>
-    
+    <title>AFSNote</title>
     <link rel="icon" type="image/x-icon" href="https://busland.neocities.org/hobopad.ico">
     <link rel="manifest" href="manifest.json">
 
@@ -17,13 +16,13 @@
         .window-body { display: flex; flex-direction: column; flex-grow: 1; margin: 0; padding: 0; min-height: 0; }
         .menu-bar { flex-shrink: 0; position: relative; z-index: 10; }
         #editor { flex-grow: 1; padding: 5px; margin: 0; resize: none; outline: none; line-height: 1.6; width: 100%; box-sizing: border-box; overflow-y: scroll; border: none; }
-        .modal { display: none; width: 90%; max-width: 340px; max-height: 80vh; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 201; flex-direction: column; }
+        .modal { display: none; width: 90%; max-width: 340px; max-height: 80vh; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 201; flex-direction: column; }
         #font-size-modal, #replace-modal, #import-export-modal { max-width: 300px; }
         #about-modal {
-            width: 680px;
-            height: 680px;
-            max-width: 90vw;
-            max-height: 90vw;
+            width: 90vmin;
+            height: 90vmin;
+            max-width: 680px;
+            max-height: 680px;
             container-type: inline-size;
         }
         .modal .window-body { : auto; padding: 10px; }
@@ -50,7 +49,6 @@
             font-size: 3cqw;
         }
 
-
         /* --- Version Display Style --- */
         .version-display {
             font-size: 0.8em;
@@ -59,7 +57,6 @@
             padding-right: 5px;
             user-select: none;
         }
-
 
         /* --- Font Size Display --- */
         #font-size-display { text-align: center; margin-top: 10px; }
@@ -71,14 +68,12 @@
         .io-section p { margin-top: 5px; font-size: 0.9em; }
         .io-warning { width: 100%; color: #888; font-size: 0.8em; text-align: center; margin-top: 15px; }
 
-
         /* --- Dropdown Menu Styles --- */
         .menu-item { position: relative; user-select: none; }
         .dropdown-content { display: none; position: absolute; top: 100%; right: 0; background-color: #f9f9f9; min-width: 160px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 100; list-style: none; padding: 0; margin: 0; }
         .menu-item:not(.menu-item-right) .dropdown-content { right: auto; left: 0; }
         .dropdown-content li { padding: 8px 12px; cursor: pointer; color: black; border-bottom: 1px solid #ddd; }
         .dropdown-content li:last-child { border-bottom: none; }
-        
         
         /* --- File Manager Styles --- */
         #file-manager-window { position: fixed; top: 0; left: 0; z-index: 200; display: none; }
@@ -109,6 +104,14 @@
         .note-item-details { flex-grow: 1; display: flex; flex-direction: column; }
         .note-item-title { font-weight: bold; }
         .note-item-date { font-size: 0.9em; opacity: 0.8; }
+
+        /* --- Unified Back Button --- */
+        #file-manager-back-btn {
+            display: none; /* Hidden by default */
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
         
         /* --- Windows 95 Theme --- */
         .theme-win95 body { background: #008080; }
@@ -189,19 +192,23 @@
         .theme-ios button:active { background-color: #005bb5; }
         .theme-ios button.primary { background-color: #34c759; }
         .theme-ios button.primary:active { background-color: #2ca049; }
-        .theme-ios .title-bar-controls { display: none; } /* Hide old controls */
+        .theme-ios .title-bar-controls { display: none; }
         .theme-ios .dropdown-content { border: 1px solid #d1d1d6; border-radius: 8px; background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .theme-ios .dropdown-content li { color: #007aff; border-bottom: 1px solid #d1d1d6; }
         .theme-ios .dropdown-content li:hover { background: #f0f0f0; color: #005bb5; }
         .theme-ios #about-modal p { color: #222; }
         .theme-ios #notes-list-container, .theme-ios .notes-list-header, .theme-ios .note-item, .theme-ios #note-preview-header { border-color: #d1d1d6; }
-        .theme-ios .notes-list-header { background-color: #f7f7f7; }
         .theme-ios .note-item.active { background-color: #e5f1ff; color: #007aff; }
         .theme-ios .note-item.active .file-icon { fill: #007aff; }
         .theme-ios .file-icon { fill: #6c6c70; }
         .theme-ios #file-manager-window .title-bar-controls { display: none; }
-        .theme-ios #file-manager-back-btn-ios { display: block; background: none; border: none; color: #007aff; font-size: 17px; font-weight: 400; padding: 0 10px; cursor: pointer; }
-        #file-manager-back-btn-ios, #file-manager-back-btn-android { display: none; } /* Hide by default */
+        .theme-ios #file-manager-back-btn { 
+            display: block !important;
+            color: #007aff;
+            font-size: 17px;
+            font-weight: 400;
+            padding: 0 10px;
+        }
 
         /* --- Android Theme --- */
         .theme-android body { background-color: #fafafa; font-family: 'Roboto', sans-serif; }
@@ -221,7 +228,7 @@
         .theme-android button:active { background-color: #185abc; }
         .theme-android button.primary { background-color: #1a73e8; }
         .theme-android button.primary:active { background-color: #185abc; }
-        .theme-android .title-bar-controls { display: none; } /* Hide old controls */
+        .theme-android .title-bar-controls { display: none; }
         .theme-android .dropdown-content { border: 1px solid #e0e0e0; border-radius: 8px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .theme-android .dropdown-content li { color: #3c4043; border-bottom: 1px solid #e0e0e0; }
         .theme-android .dropdown-content li:hover { background: #f1f3f4; }
@@ -233,10 +240,43 @@
         .theme-android .file-icon { fill: #5f6368; }
         .theme-android #file-manager-window .title-bar { justify-content: flex-start; gap: 8px; }
         .theme-android #file-manager-window .title-bar-controls { display: none; }
-        .theme-android #file-manager-back-btn-android { display: flex; align-items: center; justify-content: center; background: none; border: none; padding: 8px; border-radius: 50%; cursor: pointer; }
-        .theme-android #file-manager-back-btn-android:hover { background-color: rgba(0,0,0,0.05); }
-        .theme-android #file-manager-back-btn-android svg { width: 24px; height: 24px; fill: #5f6368; }
-        .theme-android #file-manager-back-btn-android { display: block; }
+        /* Android Back Button Styling */
+        .theme-android #file-manager-back-btn {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            margin-right: 8px;
+            border-radius: 20px;
+            background-color: #1a73e8;
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+            text-transform: uppercase;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+        }
+        .theme-android #file-manager-back-btn:hover {
+            background-color: #185abc;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+        }
+        .theme-android #file-manager-back-btn svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            fill: white;
+        }
+        /* Dark mode adjustments */
+        .dark-mode.theme-android #file-manager-back-btn {
+            background-color: #8ab4f8;
+            color: #202124;
+        }
+        .dark-mode.theme-android #file-manager-back-btn:hover {
+            background-color: #7aa3e6;
+        }
+        .dark-mode.theme-android #file-manager-back-btn svg {
+            fill: #202124;
+        }
 
         /* --- Dark Mode Overrides --- */
         body.dark-mode { background-color: #121212; }
@@ -256,65 +296,162 @@
         .dark-mode .file-icon { fill: #e0e0e0; }
         .dark-mode .note-item.active .file-icon { fill: #fff; }
         
-        /* Dark mode for iOS */
-        .dark-mode.theme-ios #app-window, .dark-mode.theme-ios .modal-content, .dark-mode.theme-ios #file-manager-window { background-color: #000; border-color: #333; }
-        .dark-mode.theme-ios .title-bar, .dark-mode.theme-ios .menu-bar { background: #1c1c1e; border-bottom-color: #333; }
-        .dark-mode.theme-ios .title-bar-text, .dark-mode.theme-ios p { color: #fff; }
-        .dark-mode.theme-ios .menu-bar > li { color: #0a84ff; }
-        .dark-mode.theme-ios .menu-bar > li:hover { background: #2c2c2e; }
-        .dark-mode.theme-ios #editor, .dark-mode.theme-ios #note-preview, .dark-mode.theme-ios input, .dark-mode.theme-ios select { background-color: #000; color: #fff; border-color: #333; }
-        .dark-mode.theme-ios .dropdown-content { background-color: #1c1c1e; }
-        .dark-mode.theme-ios .dropdown-content li { color: #0a84ff; border-bottom-color: #333; }
-        .dark-mode.theme-ios .dropdown-content li:hover { background: #2c2c2e; }
-        .dark-mode.theme-ios #about-modal p { text-shadow: 0 0 5px #000, 0 0 8px #000; color: #fff; }
-        .dark-mode.theme-ios #font-size-modal .modal-content { background-color: #1c1c1e; }
-        .dark-mode.theme-ios #file-manager-window .window-body { background-color: #000; }
-        .dark-mode.theme-ios .note-item.active { background-color: #0a84ff; }
-
-
-        /* Dark mode for Android */
-        .dark-mode.theme-android body { background-color: #121212; }
-        .dark-mode.theme-android #app-window, .dark-mode.theme-android .modal-content, .dark-mode.theme-android #file-manager-window { background-color: #1e1e1e; border-color: #333; }
-        .dark-mode.theme-android .title-bar, .dark-mode.theme-android .menu-bar { background: #2c2c2c; border-bottom-color: #333; }
-        .dark-mode.theme-android .title-bar-text, .dark-mode.theme-android p { color: #e0e0e0; }
-        .dark-mode.theme-android .menu-bar > li { background: #3c3c3c; color: #e0e0e0; border-color: #555; }
-        .dark-mode.theme-android .menu-bar > li:hover { background: #555; }
-        .dark-mode.theme-android #editor, .dark-mode.theme-android #note-preview, .dark-mode.theme-android input, .dark-mode.theme-android select { background-color: #1e1e1e; color: #e0e0e0; border-color: #555; }
-        .dark-mode.theme-android .dropdown-content { background-color: #2c2c2c; }
-        .dark-mode.theme-android .dropdown-content li { color: #e0e0e0; border-bottom-color: #333; }
-        .dark-mode.theme-android .dropdown-content li:hover { background: #3c3c3c; }
-        .dark-mode.theme-android #about-modal p { text-shadow: 0 0 5px #000, 0 0 8px #000; color: #fff; }
-        .dark-mode.theme-android #font-size-modal .modal-content { background-color: #1e1e1e; }
-        .dark-mode.theme-android #file-manager-window .window-body { background-color: #1e1e1e; }
-        .dark-mode.theme-android .note-item.active { background-color: #8ab4f8; color: #202124; }
-        .dark-mode.theme-android .note-item.active .file-icon { fill: #202124; }
-
-        @media (max-width: 640px) {
-            #about-modal {
-                width: 90vw;
-                height: 90vw;
-                max-width: none;
-                max-height: none;
-            }
-            #about-modal .modal-content {
-                height: 100%;
-            }
+        /* Dark mode for iOS - Fixed popup backgrounds */
+        .dark-mode.theme-ios #app-window, 
+        .dark-mode.theme-ios .modal-content, 
+        .dark-mode.theme-ios #file-manager-window { 
+            background-color: #1c1c1e; 
+            border-color: #333; 
         }
-
-        /* --- FIX: iOS Dark Mode Backgrounds --- */
-        .dark-mode.theme-ios .modal .window-body {
-            background-color: #1c1c1e;
+        .dark-mode.theme-ios .modal-content .window-body,
+        .dark-mode.theme-ios #file-manager-window .window-body {
+            background-color: #1c1c1e !important;
+        }
+        .dark-mode.theme-ios .title-bar, 
+        .dark-mode.theme-ios .menu-bar { 
+            background: #1c1c1e; 
+            border-bottom-color: #333; 
+        }
+        .dark-mode.theme-ios .title-bar-text, 
+        .dark-mode.theme-ios p { 
+            color: #fff; 
+        }
+        .dark-mode.theme-ios .menu-bar > li { 
+            color: #0a84ff; 
+        }
+        .dark-mode.theme-ios .menu-bar > li:hover { 
+            background: #2c2c2e; 
+        }
+        .dark-mode.theme-ios #editor, 
+        .dark-mode.theme-ios #note-preview, 
+        .dark-mode.theme-ios input, 
+        .dark-mode.theme-ios select { 
+            background-color: #1c1c1e; 
+            color: #fff; 
+            border-color: #333; 
+        }
+        .dark-mode.theme-ios .dropdown-content { 
+            background-color: #1c1c1e !important;
+            border-color: #333 !important;
+        }
+        .dark-mode.theme-ios .dropdown-content li { 
+            color: #0a84ff; 
+            border-bottom-color: #333; 
+        }
+        .dark-mode.theme-ios .dropdown-content li:hover { 
+            background: #2c2c2e; 
+        }
+        .dark-mode.theme-ios #about-modal p { 
+            text-shadow: 0 0 5px #000, 0 0 8px #000; 
+            color: #fff; 
+        }
+        .dark-mode.theme-ios #font-size-modal .modal-content { 
+            background-color: #1c1c1e; 
+        }
+        .dark-mode.theme-ios #file-manager-window .window-body { 
+            background-color: #1c1c1e; 
+        }
+        .dark-mode.theme-ios .note-item.active { 
+            background-color: #0a84ff; 
         }
         .dark-mode.theme-ios .notes-list-header {
             background-color: #1c1c1e;
+            border-color: #333;
+        }
+        .dark-mode.theme-ios #notes-list-container {
+            background-color: #1c1c1e;
+        }
+        .dark-mode.theme-ios button {
+            background-color: #0a84ff;
+        }
+        .dark-mode.theme-ios button.primary {
+            background-color: #30d158;
+        }
+        .dark-mode.theme-ios input[type="text"],
+        .dark-mode.theme-ios select {
+            background-color: #2c2c2c !important;
+            color: #fff !important;
+            border-color: #444 !important;
         }
 
-        /* --- FIX: Android Dark Mode Backgrounds --- */
-        .dark-mode.theme-android .modal .window-body {
-            background-color: #1e1e1e;
+        /* Dark mode for Android - Fixed popup backgrounds */
+        .dark-mode.theme-android body { 
+            background-color: #121212; 
+        }
+        .dark-mode.theme-android #app-window, 
+        .dark-mode.theme-android .modal-content, 
+        .dark-mode.theme-android #file-manager-window { 
+            background-color: #1e1e1e; 
+            border-color: #333; 
+        }
+        .dark-mode.theme-android .modal-content .window-body,
+        .dark-mode.theme-android #file-manager-window .window-body {
+            background-color: #1e1e1e !important;
+        }
+        .dark-mode.theme-android .title-bar, 
+        .dark-mode.theme-android .menu-bar { 
+            background: #2c2c2c; 
+            border-bottom-color: #333; 
+        }
+        .dark-mode.theme-android .title-bar-text, 
+        .dark-mode.theme-android p { 
+            color: #e0e0e0; 
+        }
+        .dark-mode.theme-android .menu-bar > li { 
+            background: #3c3c3c; 
+            color: #e0e0e0; 
+            border-color: #555; 
+        }
+        .dark-mode.theme-android .menu-bar > li:hover { 
+            background: #555; 
+        }
+        .dark-mode.theme-android .dropdown-content { 
+            background-color: #1e1e1e !important;
+            border-color: #333 !important;
+        }
+        .dark-mode.theme-android .dropdown-content li { 
+            color: #e0e0e0; 
+            border-bottom-color: #333; 
+        }
+        .dark-mode.theme-android .dropdown-content li:hover { 
+            background: #3c3c3c; 
+        }
+        .dark-mode.theme-android #about-modal p { 
+            text-shadow: 0 0 5px #000, 0 0 8px #000; 
+            color: #fff; 
+        }
+        .dark-mode.theme-android #font-size-modal .modal-content { 
+            background-color: #1e1e1e; 
+        }
+        .dark-mode.theme-android #file-manager-window .window-body { 
+            background-color: #1e1e1e; 
+        }
+        .dark-mode.theme-android .note-item.active { 
+            background-color: #8ab4f8; 
+            color: #202124; 
+        }
+        .dark-mode.theme-android .note-item.active .file-icon { 
+            fill: #202124; 
         }
         .dark-mode.theme-android .notes-list-header {
             background-color: #2c2c2c;
+            border-color: #333;
+        }
+        .dark-mode.theme-android #notes-list-container {
+            background-color: #2c2c2c;
+        }
+        .dark-mode.theme-android button {
+            background-color: #8ab4f8;
+            color: #202124;
+        }
+        .dark-mode.theme-android button.primary {
+            background-color: #81c995;
+        }
+        .dark-mode.theme-android input[type="text"],
+        .dark-mode.theme-android select {
+            background-color: #2c2c2c !important;
+            color: #fff !important;
+            border-color: #444 !important;
         }
 
         /* --- FIX: Dark Mode Input Boxes --- */
@@ -328,18 +465,16 @@
             box-shadow: none;
             background-image: none;
         }
-
-
     </style>
 </head>
-<body class="theme-android"> <div id="app-window">
+<body class="theme-win95">
+<div id="app-window">
     <div class="title-bar">
-        <div class="title-bar-text">Hobopad</div>
+        <div class="title-bar-text">AFSNote</div>
         <div class="title-bar-controls">
             <button id="minimize-btn" class="win-button" aria-label="Minimize"><span class="icon minimize-icon">−</span></button>
             <button id="maximize-btn" class="win-button" aria-label="Maximize"><span class="icon maximize-icon">+</span></button>
             <button id="close-btn" class="win-button" aria-label="Close"><span class="icon close-icon">×</span></button>
-    
         </div>
     </div>
     <ul class="menu-bar">
@@ -348,7 +483,6 @@
             <ul class="dropdown-content">
                 <li id="new-file-btn">New Note</li>
                 <li id="open-file-btn">Open from Device...</li>
-                
                 <li id="save-note-btn">Save Note</li>
                 <li id="save-to-device-btn">Save to Device...</li>
             </ul>
@@ -361,7 +495,6 @@
                 <li id="theme-winxp-btn">Windows XP</li>
                 <li id="theme-ios-btn">iOS</li>
                 <li id="theme-android-btn">Android</li>
-        
             </ul>
         </li>
         <li class="menu-item menu-item-right">
@@ -370,7 +503,6 @@
                 <li id="font-size-menu-btn">Font Size</li>
                 <li id="replace-menu-btn">Replace</li>
                 <li id="import-export-btn">Import/Export</li>
- 
                 <li id="dark-mode-toggle">Light Mode</li>
                 <li id="about-menu-btn">About</li>
             </ul>
@@ -384,19 +516,16 @@
 <div id="about-modal" class="modal">
     <div class="modal-content">
         <div class="title-bar">
-            <div class="title-bar-text">About Hobopad</div>
-            <div class="version-display">[Version 4.20.69]</div>
+            <div class="title-bar-text">About AFSNote</div>
+            <div class="version-display">[Version 1.0.0]</div>
         </div>
- 
         <div class="window-body">
             <p style="text-align: center; margin: 20px;">
-                This shitty app was vibe coded by an absolute complete dumbass who was sick of all your shitty note apps....<br><br>
-                Like who the fuck wants a note taking app to open DIRECTLY to the saved notes, showing you every single note with just enough of a snippet to raise suspicion.<br><br>
-                Get 
-                better you fucking weirdos.
+                A simple, no-nonsense note-taking app that gets out of your way.<br><br>
+                Lightweight, customizable, and focused on what matters - your notes.
             </p>
-            <p style="text-align: center; margin: 10px;">Oh and if you lose your saved notes, that's 100% on you bud, don't blame me, dumbass.</p>
-            <section class="field-row"><button id="close-modal-1">get fucked</button><button id="close-modal-2" class="primary">dumbass</button></section>
+            <p style="text-align: center; margin: 10px;">Your notes are stored locally in your browser.</p>
+            <section class="field-row"><button id="close-modal-1">Close</button><button id="close-modal-2" class="primary">OK</button></section>
         </div>
     </div>
 </div>
@@ -417,7 +546,7 @@
         <div class="title-bar"><div class="title-bar-text">Save to Device</div></div>
         <div class="window-body">
             <label for="device-filename-input" style="display: block; margin-bottom: 8px;">File Name:</label>
-            <input type="text" id="device-filename-input" value="">
+            <input type="text" id="device-filename-input" value="" placeholder="filename.txt">
             <label for="file-type-select" style="display: block; margin-top: 10px; margin-bottom: 8px;">File Type:</label>
             <select id="file-type-select">
                 <option value="txt">.txt (Text File)</option>
@@ -429,7 +558,6 @@
 </div>
 
 <div id="font-size-modal" class="modal">
-   
      <div class="modal-content">
        <div class="title-bar"><div class="title-bar-text">Adjust Font Size</div></div>
        <div class="window-body">
@@ -444,14 +572,12 @@
     <div class="modal-content">
         <div class="title-bar"><div class="title-bar-text">Replace</div></div>
         <div class="window-body">
-  
             <label for="find-input">Find:</label>
             <input type="text" id="find-input">
             <label for="replace-input" style="margin-top: 10px;">Replace with:</label>
             <input type="text" id="replace-input">
             <section class="field-row">
                 <button id="confirm-replace-all-btn">Replace All</button>
-              
                 <button id="close-replace-btn">Close</button>
             </section>
         </div>
@@ -464,15 +590,13 @@
         <div class="window-body">
             <div class="io-section">
                 <button id="import-notes-btn">📥</button>
-                
                 <p>Import Notes</p>
             </div>
             <div class="io-section">
                 <button id="export-notes-btn">📤</button>
                 <p>Export Notes</p>
             </div>
-            <p class="io-warning">any lost notes are 100% your own fault for trusting this shit.</p>
-    
+            <p class="io-warning">Note: Your notes are stored locally in your browser.</p>
         </div>
         <section class="field-row">
             <button id="close-io-modal-btn">Close</button>
@@ -498,9 +622,11 @@
 
 <div id="file-manager-window">
     <div class="title-bar">
-        <button id="file-manager-back-btn-ios">&lt; Back</button>
-        <button id="file-manager-back-btn-android" aria-label="Back">
-            <svg viewBox="0 0 24 24" width="24" height="24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg>
+        <button id="file-manager-back-btn">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+            Back
         </button>
         <div class="title-bar-text">Saved Notes</div>
         <div class="title-bar-controls">
@@ -508,23 +634,19 @@
         </div>
     </div>
     <div class="window-body">
-   
          <div id="file-manager-content">
             <div id="notes-list-container">
                 <div class="notes-list-header">
                     <span class="header-name">Name</span>
                     <div class="menu-item">
-                      
                         <button id="filter-btn">Filter</button>
                         <ul class="dropdown-content">
                             <li data-sort="name-asc">Name (A-Z)</li>
                             <li data-sort="name-desc">Name (Z-A)</li>
-            
                             <li data-sort="date-desc">Newest First</li>
                             <li data-sort="date-asc">Oldest First</li>
                         </ul>
                     </div>
-        
                 </div>
                 <div id="notes-list"></div>
             </div>
@@ -572,13 +694,15 @@
         const darkModeToggle = getEl('dark-mode-toggle');
         const fontSizeSlider = getEl('font-size-slider');
         const fontSizeDisplay = getEl('font-size-display');
+        const fileTypeSelect = getEl('file-type-select');
+        const deviceFilenameInput = getEl('device-filename-input');
         
         // --- Title Bar Logic ---
         const updateTitleBar = (noteName, showSavedMessage = false) => {
-            const baseTitle = `${noteName || 'Untitled'} - Hobopad`;
+            const baseTitle = `${noteName || 'Untitled'} - AFSNote`;
             titleBarText.textContent = baseTitle;
             if (showSavedMessage) {
-                titleBarText.textContent = `✓ Saved - ${noteName || 'Untitled'} - Hobopad`;
+                titleBarText.textContent = `✓ Saved - ${noteName || 'Untitled'} - AFSNote`;
                 setTimeout(() => {
                     if (titleBarText.textContent.startsWith('✓ Saved')) {
                         titleBarText.textContent = baseTitle;
@@ -621,27 +745,27 @@
         const setTheme = (theme) => {
             const isDark = document.body.classList.contains('dark-mode');
             document.body.className = isDark ? `dark-mode ${theme}` : theme;
-            localStorage.setItem('hobopad_theme', theme);
+            localStorage.setItem('afsnote_theme', theme);
         };
 
         getEl('theme-win95-btn').addEventListener('click', () => setTheme('theme-win95'));
         getEl('theme-winxp-btn').addEventListener('click', () => setTheme('theme-winxp'));
         getEl('theme-ios-btn').addEventListener('click', () => setTheme('theme-ios'));
         getEl('theme-android-btn').addEventListener('click', () => setTheme('theme-android'));
-        const savedTheme = localStorage.getItem('hobopad_theme') || 'theme-win95';
+        const savedTheme = localStorage.getItem('afsnote_theme') || 'theme-win95';
         setTheme(savedTheme);
 
         // --- Dark Mode Logic ---
         const setDarkMode = (isDark) => {
-            const currentTheme = localStorage.getItem('hobopad_theme') || 'theme-win95';
+            const currentTheme = localStorage.getItem('afsnote_theme') || 'theme-win95';
             if (isDark) {
                 document.body.classList.add('dark-mode');
                 darkModeToggle.textContent = 'Dark Mode';
-                localStorage.setItem('hobopad_darkmode', 'enabled');
+                localStorage.setItem('afsnote_darkmode', 'enabled');
             } else {
                 document.body.classList.remove('dark-mode');
                 darkModeToggle.textContent = 'Light Mode';
-                localStorage.setItem('hobopad_darkmode', 'disabled');
+                localStorage.setItem('afsnote_darkmode', 'disabled');
             }
              setTheme(currentTheme);
         };
@@ -649,7 +773,7 @@
         darkModeToggle.addEventListener('click', () => {
             setDarkMode(!document.body.classList.contains('dark-mode'));
         });
-        const savedDarkMode = localStorage.getItem('hobopad_darkmode');
+        const savedDarkMode = localStorage.getItem('afsnote_darkmode');
         const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
         if (savedDarkMode === 'enabled' || (savedDarkMode === null && prefersDark)) {
             setDarkMode(true);
@@ -680,7 +804,7 @@
         
         // --- Save Note (Local Storage) Logic ---
         const saveNoteToLocalStorage = (name, isAutosave = false) => {
-            let notes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
+            let notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
             let noteName = name.trim() || 'Untitled';
             let savedNoteName = noteName;
 
@@ -698,7 +822,7 @@
                 currentNoteId = note.id;
                 savedNoteName = note.name;
             }
-            localStorage.setItem('hobopad_notes', JSON.stringify(notes));
+            localStorage.setItem('afsnote_notes', JSON.stringify(notes));
             isDirty = false;
             
             if (isAutosave) {
@@ -710,7 +834,7 @@
         const saveNoteModal = getEl('save-note-modal');
         saveNoteBtn.addEventListener('click', () => {
             if (currentNoteId) {
-                const notes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
+                const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
                 const note = notes.find(n => n.id === currentNoteId);
                 saveNoteToLocalStorage(note.name);
                 alert('Note updated!');
@@ -728,17 +852,22 @@
         // --- Save to Device Logic ---
         const saveToDeviceModal = getEl('save-to-device-modal');
         const saveToDevice = (filename, type) => {
+            let finalFilename = filename.trim() || 'Untitled';
+            finalFilename += `.${type}`;
+            const finalType = type === 'html' ? 'text/html' : 'text/plain';
+
             const content = editor.value;
-            const blob = new Blob([content], { type: type === 'html' ? 'text/html' : 'text/plain' });
+            const blob = new Blob([content], { type: finalType });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${filename.trim() || 'Untitled'}.${type}`;
+            a.download = finalFilename;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         };
+
         saveToDeviceBtn.addEventListener('click', () => {
             saveToDeviceModal.style.display = 'flex';
             getEl('device-filename-input').focus();
@@ -816,14 +945,14 @@
             ioModal.style.display = 'none';
         });
         exportBtn.addEventListener('click', () => {
-            const notes = localStorage.getItem('hobopad_notes');
+            const notes = localStorage.getItem('afsnote_notes');
             if (!notes || notes === '[]') {
                 alert("No notes to export.");
                 return;
             }
             const now = new Date();
             const timestamp = `${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}${now.getSeconds().toString().padStart(2,'0')}`;
-            const filename = `hobofilesaver${timestamp}.json`;
+            const filename = `afsnote_export_${timestamp}.json`;
             const blob = new Blob([notes], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -847,7 +976,7 @@
                     if (!Array.isArray(importedNotes)) {
                         throw new Error("Invalid JSON file: Not an array.");
                     }
-                    const existingNotes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
+                    const existingNotes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
                     const combinedNotes = [...existingNotes];
                     const existingIds = new Set(existingNotes.map(n => n.id));
                     let importCount = 0;
@@ -857,7 +986,7 @@
                             importCount++;
                         }
                     });
-                    localStorage.setItem('hobopad_notes', JSON.stringify(combinedNotes));
+                    localStorage.setItem('afsnote_notes', JSON.stringify(combinedNotes));
                     alert(`${importCount} notes imported successfully.`);
                     ioModal.style.display = 'none';
                 } catch (err) {
@@ -871,8 +1000,7 @@
         // --- File Manager Logic ---
         const fileManagerWindow = getEl('file-manager-window');
         const fileManagerCloseBtn = getEl('file-manager-close-btn');
-        const fileManagerBackBtnIos = getEl('file-manager-back-btn-ios');
-        const fileManagerBackBtnAndroid = getEl('file-manager-back-btn-android');
+        const fileManagerBackBtn = getEl('file-manager-back-btn');
         const notesList = getEl('notes-list');
         const notePreview = getEl('note-preview');
         const notePreviewTitle = getEl('note-preview-title');
@@ -884,7 +1012,7 @@
         const cancelDeleteBtn = getEl('cancel-delete-btn');
 
         const renderNotes = (sortOrder = 'date-desc') => {
-            let notes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
+            let notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
             switch(sortOrder) {
                 case 'name-asc': notes.sort((a, b) => a.name.localeCompare(b.name)); break;
                 case 'name-desc': notes.sort((a, b) => b.name.localeCompare(a.name)); break;
@@ -909,7 +1037,7 @@
         notesList.addEventListener('click', e => {
             const noteItem = e.target.closest('.note-item');
             if (!noteItem) return;
-            const notes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
+            const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
             const noteId = Number(noteItem.dataset.noteId);
             const note = notes.find(n => n.id === noteId);
             document.querySelectorAll('.note-item').forEach(item => item.classList.remove('active'));
@@ -921,7 +1049,7 @@
         });
         previewOpenBtn.addEventListener('click', () => {
             if (!selectedPreviewId) return;
-            const notes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
+            const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
             const note = notes.find(n => n.id === selectedPreviewId);
             editor.value = note.content;
             currentNoteId = note.id;
@@ -941,9 +1069,9 @@
 
         confirmDeleteBtn.addEventListener('click', () => {
             if (!selectedPreviewId) return;
-            const notes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
+            const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
             const remainingNotes = notes.filter(n => n.id !== selectedPreviewId);
-            localStorage.setItem('hobopad_notes', JSON.stringify(remainingNotes));
+            localStorage.setItem('afsnote_notes', JSON.stringify(remainingNotes));
             renderNotes();
             notePreviewTitle.textContent = '';
             notePreviewDate.textContent = '';
@@ -963,8 +1091,7 @@
             fileManagerWindow.style.display = 'none';
         };
         fileManagerCloseBtn.addEventListener('click', closeFileManager);
-        fileManagerBackBtnIos.addEventListener('click', closeFileManager);
-        fileManagerBackBtnAndroid.addEventListener('click', closeFileManager);
+        fileManagerBackBtn.addEventListener('click', closeFileManager);
         getEl('filter-btn').parentElement.addEventListener('click', e => {
             if (e.target.dataset.sort) {
                 renderNotes(e.target.dataset.sort);
@@ -977,7 +1104,7 @@
             clearTimeout(autosaveTimeout);
             autosaveTimeout = setTimeout(() => {
                 if (currentNoteId) { // Only autosave if it's an existing note
-                    const notes = JSON.parse(localStorage.getItem('hobopad_notes') || '[]');
+                    const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
                     const note = notes.find(n => n.id === currentNoteId);
                     if (note) {
                         saveNoteToLocalStorage(note.name, true);
