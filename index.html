@@ -26,7 +26,7 @@
             max-height: 90vw;
             container-type: inline-size;
         }
-        .modal .window-body { overflow-y: auto; padding: 10px; }
+        .modal .window-body { : auto; padding: 10px; }
         .field-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 15px; }
         #file-opener, #import-file-opener { display: none; }
 
@@ -566,20 +566,6 @@
     </div>
 </div>
 
-<!--
-    HOBOPAD VERSIONING PROTOCOL REMINDER:
-
-    1.  **INCREMENT VERSION:** For EVERY subsequent code write that modifies the application logic or appearance, increment the version number by 0.0.1.
-        -   Location: HTML comment at the top of the <script> tag.
-        -   Location: Inside the .version-display div within the #about-modal.
-        -   Example: If current is 1.0.7, the next version is 1.0.8.
-
-    2.  **UPDATE CODENAME:** For EACH version increment, assign a NEW, RANDOM Futurama character as the codename. This can be any character, major or minor.
-        -   Location: Inside the .version-display div, in the format [Version X.X.X](Codename).
-        -   Example: [Version 1.0.7](Donbot) becomes [Version 1.0.8](Clamps).
-
-    FAILURE TO COMPLY WILL RESULT IN A STERN TALKING-TO FROM THE HYPNOTOAD. ALL GLORY TO THE HYPNOTOAD.
--->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const getEl = id => document.getElementById(id);
