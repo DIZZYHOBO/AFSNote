@@ -1,5 +1,5 @@
 <div align="center">
-  <h1 style="font-size: 3.5rem; font-weight: 700; border-bottom: none; letter-spacing: -1px;">Hobopad</h1>
+  <h1 style="font-size: 3.5rem; font-weight: 700; border-bottom: none; letter-spacing: -1px;">AFSNote</h1>
   <p style="font-size: 1.5rem; color: #8ab4f8; font-style: italic; margin-top: 0.5rem;">A fucking simple notepad.</p>
 </div>
 
@@ -7,7 +7,7 @@
 
 ## What is this shit?
 
-Tired of note-taking apps that are bloated, slow, and want to sync your every thought to the cloud? Hobopad is the antidote. It's a single, self-contained HTML file that gives you a straightforward, no-bullshit notepad.
+Tired of note-taking apps that are bloated, slow, and want to sync your every thought to the cloud? AFSNote is the antidote. It's a single, self-contained HTML file that gives you a straightforward, no-bullshit notepad.
 
 It opens directly to a blank note, not a list of your previous work, because who the hell wants their shit exposed the second they open an app? It saves your notes directly in your browser's local storage. No accounts, no cloud, no problem. If you lose your notes, it's **100% on you, dumbass.**
 
@@ -33,11 +33,11 @@ It opens directly to a blank note, not a list of your previous work, because who
 ## Screenshots
 **Main**
 
-![Main](https://dizzyhobo.github.io/Hobopad/screenshots/Main.png)
+![Main](https://dizzyhobo.github.io/AFSNote/screenshots/Main.png)
 
 **Saved Notes**
 
-![Main](https://raw.githubusercontent.com/DIZZYHOBO/Hobopad/main/screenshots/Saved.png
+![Main](https://raw.githubusercontent.com/DIZZYHOBO/AFSNote/main/screenshots/Saved.png
 )
 
 ---
@@ -50,9 +50,9 @@ It opens directly to a blank note, not a list of your previous work, because who
 
 Or install the PWA
 
-<a href="https://dizzyhobo.github.io/Hobopad"><img src="images/pwa.svg" height="45"></a>
+<a href="https://dizzyhobo.github.io/AFSNote"><img src="images/pwa.svg" height="45"></a>
 ---
 
 ---
 
-> "Modern software is a mess. Hobopad is a reaction to that. It doesn't need your email, it doesn't need a server, and it sure as hell doesn't need to be complicated. Get better, you fucking weirdos."
+> "Modern software is a mess. AFSNote is a reaction to that. It doesn't need your email, it doesn't need a server, and it sure as hell doesn't need to be complicated. Get better, you fucking weirdos."
