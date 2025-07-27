@@ -1,6 +1,6 @@
 {
-  "name": "Hobopad",
-  "short_name": "Hobopad",
+  "name": "AFSNote",
+  "short_name": "AFSNote",
   "description": "A fucking simple notepad.",
   "start_url": ".",
   "display": "standalone",
