@@ -31,12 +31,15 @@
 
         /* --- Custom About Modal Background --- */
         #about-modal .window-body {
+            background-image: url('about.png');
             background-size: cover;
             background-position: center;
         }
         #about-modal p {
             color: #222;
-            text-shadow: 0 0 4px white, 0 0 6px white;
+        }
+        .dark-mode #about-modal p {
+            color: #e0e0e0;
         }
         #about-modal .window-body p:first-of-type {
             font-size: 3.5cqw;
@@ -195,6 +198,11 @@
         .theme-win95 .note-item.active { background-color: #000080; color: white; }
         .theme-win95 .note-item.active .file-icon { fill: white; }
 
+        /* Dark mode for Windows 95 */
+        .dark-mode.theme-win95 #about-modal p {
+            color: #e0e0e0 !important;
+        }
+
         /* --- Windows XP Theme --- */
         .theme-winxp body { background: #D4D0C8; }
         .theme-winxp #app-window, .theme-winxp .modal-content, .theme-winxp #file-manager-window { background-color: #ECE9D8; border: 1px solid #08246B; box-shadow: 0 0 10px rgba(0,0,0,0.5); border-radius: 6px; }
@@ -225,6 +233,11 @@
         .theme-winxp #notes-list-container, .theme-winxp .notes-list-header, .theme-winxp .note-item, .theme-winxp #note-preview-header { border-color: #ACA899; }
         .theme-winxp .note-item.active { background-color: #316AC5; color: white; }
         .theme-winxp .note-item.active .file-icon { fill: white; }
+
+        /* Dark mode for Windows XP */
+        .dark-mode.theme-winxp #about-modal p {
+            color: #e0e0e0 !important;
+        }
 
         /* --- iOS Theme --- */
         .theme-ios body { background: #f0f0f0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
@@ -394,7 +407,6 @@
             background: #2c2c2e; 
         }
         .dark-mode.theme-ios #about-modal p { 
-            text-shadow: 0 0 5px #000, 0 0 8px #000; 
             color: #fff; 
         }
         .dark-mode.theme-ios #font-size-modal .modal-content { 
@@ -469,7 +481,6 @@
             background: #3c3c3c; 
         }
         .dark-mode.theme-android #about-modal p { 
-            text-shadow: 0 0 5px #000, 0 0 8px #000; 
             color: #fff; 
         }
         .dark-mode.theme-android #font-size-modal .modal-content { 
@@ -519,7 +530,7 @@
         }
     </style>
 </head>
-<body class="theme-win95">
+<body class="theme-android">
 <div id="app-window">
     <div class="title-bar">
         <div class="title-bar-text">AFSNote</div>
@@ -815,12 +826,12 @@
         getEl('theme-winxp-btn').addEventListener('click', () => setTheme('theme-winxp'));
         getEl('theme-ios-btn').addEventListener('click', () => setTheme('theme-ios'));
         getEl('theme-android-btn').addEventListener('click', () => setTheme('theme-android'));
-        const savedTheme = localStorage.getItem('afsnote_theme') || 'theme-win95';
+        const savedTheme = localStorage.getItem('afsnote_theme') || 'theme-android';
         setTheme(savedTheme);
 
         // --- Dark Mode Logic ---
         const setDarkMode = (isDark) => {
-            const currentTheme = localStorage.getItem('afsnote_theme') || 'theme-win95';
+            const currentTheme = localStorage.getItem('afsnote_theme') || 'theme-android';
             if (isDark) {
                 document.body.classList.add('dark-mode');
                 darkModeToggle.textContent = 'Dark Mode';
