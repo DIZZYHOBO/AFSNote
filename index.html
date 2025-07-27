@@ -977,7 +977,7 @@ ${content}
         const aboutModal = getEl('about-modal');
         aboutMenuBtn.addEventListener('click', () => { aboutModal.style.display = 'flex'; });
         getEl('close-modal-1').addEventListener('click', () => aboutModal.style.display = 'none');
-        getEl('close-modal-2').addEventListener('click', () => aboutModal.style.display = 'none');
+        
         const fontSizeModal = getEl('font-size-modal');
         fontSizeMenuBtn.addEventListener('click', () => { 
             const currentSize = parseInt(editor.style.fontSize) || 16;
@@ -997,18 +997,22 @@ ${content}
         const replaceInput = getEl('replace-input');
         const confirmReplaceAllBtn = getEl('confirm-replace-all-btn');
         const closeReplaceBtn = getEl('close-replace-btn');
+        
         const getFindRegex = (term) => {
             const escapedTerm = term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
             const pattern = escapedTerm.length === 1 ? `\\b${escapedTerm}\\b` : escapedTerm;
             return new RegExp(pattern, 'gi');
         };
+        
         replaceMenuBtn.addEventListener('click', () => {
             replaceModal.style.display = 'flex';
             findInput.focus();
         });
+        
         closeReplaceBtn.addEventListener('click', () => {
             replaceModal.style.display = 'none';
         });
+        
         confirmReplaceAllBtn.addEventListener('click', () => {
             const findTerm = findInput.value;
             const replaceTerm = replaceInput.value;
