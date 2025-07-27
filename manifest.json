@@ -4,8 +4,8 @@
   "description": "A fucking simple notepad.",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#ca3c4a",
-  "theme_color": "#ca3c4a",
+  "background_color": "#121212",
+  "theme_color": "#121212",
   "icons": [
     {
       "src": "https://dizzyhobo.github.io/ASFNote/images/hobopad.png",
