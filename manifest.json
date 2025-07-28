@@ -8,12 +8,12 @@
   "theme_color": "#121212",
   "icons": [
     {
-      "src": "https://dizzyhobo.github.io/AFSNote/images/hobopad.png",
+      "src": "https://dizzyhobo.github.io/AFSNote/images/afsnote.png",
       "sizes": "400x400",
       "type": "image/png"
     },
     {
-      "src": "https://dizzyhobo.github.io/AFSNote/images/hobopad.png",
+      "src": "https://dizzyhobo.github.io/AFSNote/images/afsnote.png",
       "sizes": "400x400",
       "type": "image/png"
     }
