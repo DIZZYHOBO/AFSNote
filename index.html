@@ -1211,7 +1211,9 @@ ${content}
             const note = notes.find(n => n.id === noteId);
             document.querySelectorAll('.note-item').forEach(item => item.classList.remove('active'));
             noteItem.classList.add('active');
-            notePreviewTitle.textContent = note.name;
+            
+            notePreviewTitle.textContent = note.name.length > 15 ? note.name.substring(0, 15) + '...' : note.name;
+            
             notePreviewDate.textContent = new Date(note.createdAt).toLocaleString();
             notePreview.textContent = note.content;
             selectedPreviewId = note.id;
