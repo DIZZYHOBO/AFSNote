@@ -1193,10 +1193,13 @@ ${content}
                 const item = document.createElement('div');
                 item.className = 'note-item';
                 item.dataset.noteId = note.id;
+                
+                const displayName = note.name.length > 15 ? note.name.substring(0, 15) + '...' : note.name;
+
                 item.innerHTML = `
                     <svg class="file-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M4 0h8l4 4v12H0V0h4zm8 2H2v12h12V4.5L12 2zM5 8h6v1H5V8zm0 2h6v1H5v-1zm0 2h4v1H5v-1z"/></svg>
                     <div class="note-item-details">
-                        <span class="note-item-title">${note.name}</span>
+                        <span class="note-item-title">${displayName}</span>
                         <span class="note-item-date">${new Date(note.createdAt).toLocaleString()}</span>
                     </div>
                 `;
