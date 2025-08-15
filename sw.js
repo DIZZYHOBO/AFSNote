@@ -1,11 +1,10 @@
-const CACHE_NAME = 'hobopad-cache-v1.1.5'; // Increment this on each update
+const CACHE_NAME = 'afsnote-cache-v1.0.0';
 const URLS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/hobopad.ico',
-  '/about.png'
-  // NOTE: You can add specific CSS and JS files here if you ever split them out.
+  './',
+  './index.html',
+  './manifest.json'
+  // Only cache files that actually exist
+  // Remove references to files that don't exist like hobopad.ico and about.png
 ];
 
 // Install the service worker and cache the app shell
@@ -15,6 +14,9 @@ self.addEventListener('install', event => {
       .then(cache => {
         console.log('Opened cache');
         return cache.addAll(URLS_TO_CACHE);
+      })
+      .catch(err => {
+        console.error('Cache addAll failed:', err);
       })
   );
 });
@@ -46,7 +48,17 @@ self.addEventListener('fetch', event => {
           return response;
         }
         // Not in cache - fetch from network
-        return fetch(event.request);
+        return fetch(event.request).catch(err => {
+          console.error('Fetch failed:', err);
+          // Return a basic offline page or empty response
+          return new Response('Offline - Content not available', {
+            status: 503,
+            statusText: 'Service Unavailable',
+            headers: new Headers({
+              'Content-Type': 'text/plain'
+            })
+          });
+        });
       })
   );
 });
