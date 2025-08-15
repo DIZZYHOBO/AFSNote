@@ -602,6 +602,32 @@
         .theme-git #file-manager-back-btn { 
             display: none; 
         }
+        /* Show back button for Git theme like mobile themes */
+        .theme-git #file-manager-window #file-manager-back-btn {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 16px;
+            margin-right: 8px;
+            border-radius: 6px;
+            background-color: #238636;
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s;
+            position: relative;
+            z-index: 2;
+            border: 1px solid rgba(240,246,252,0.1);
+        }
+        .theme-git #file-manager-window #file-manager-back-btn:hover {
+            background-color: #2ea043;
+        }
+        .theme-git #file-manager-window #file-manager-back-btn svg {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+            fill: white;
+        }
         
         /* Git theme checklist styles */
         .theme-git #checklist-container {
