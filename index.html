@@ -254,6 +254,19 @@
             white-space: pre-wrap;
             height: 100%;
         }
+        
+        /* Checklist preview styles */
+        .checklist-preview-item {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checklist-preview-item.completed {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
         .note-item { 
             display: flex; 
             align-items: flex-start; 
@@ -1247,7 +1260,20 @@
                 const checkbox = item.completed ? '[x]' : '[ ]';
                 text += `${checkbox} ${item.text}\n`;
             });
-            editor.value = editor.value.replace('!list', text);
+            
+            // Replace the !list command with the actual checklist content
+            const lines = editor.value.split('\n');
+            const listIndex = lines.findIndex(line => line.trim() === '!list');
+            if (listIndex !== -1) {
+                lines[listIndex] = text.trim();
+                editor.value = lines.join('\n');
+            } else {
+                // If !list not found, just append the checklist content
+                editor.value = editor.value + '\n' + text;
+            }
+            
+            // Clear checklist items for next use
+            checklistItems = [];
         };
         
         const addChecklistItem = (text) => {
@@ -1461,6 +1487,11 @@
         
         // --- Save Note (Local Storage) Logic ---
         const saveNoteToLocalStorage = (name, isAutosave = false) => {
+            // If in checklist mode, exit it first to save the checklist content
+            if (checklistMode) {
+                exitChecklistMode();
+            }
+            
             let notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
             let noteName = name.trim() || 'Untitled';
             let savedNoteName = noteName;
@@ -1734,21 +1765,97 @@ ${content}
             noteItem.classList.add('active');
             
             notePreviewTitle.textContent = note.name.length > 15 ? note.name.substring(0, 15) + '...' : note.name;
-            
             notePreviewDate.textContent = new Date(note.createdAt).toLocaleString();
-            notePreview.textContent = note.content;
+            
+            // Check if the note content is a checklist
+            const lines = note.content.split('\n');
+            const isChecklist = lines.some(line => line.trim().startsWith('[ ]') || line.trim().startsWith('[x]'));
+            
+            if (isChecklist) {
+                // Render as HTML checklist for preview
+                let htmlContent = '<div style="font-family: inherit; padding: 10px;">';
+                lines.forEach(line => {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine.startsWith('[ ]')) {
+                        const text = trimmedLine.substring(3).trim();
+                        htmlContent += `<div style="margin: 8px 0;">☐ ${text}</div>`;
+                    } else if (trimmedLine.startsWith('[x]')) {
+                        const text = trimmedLine.substring(3).trim();
+                        htmlContent += `<div style="margin: 8px 0; text-decoration: line-through; opacity: 0.7;">☑ ${text}</div>`;
+                    } else if (trimmedLine) {
+                        htmlContent += `<div style="margin: 8px 0;">${trimmedLine}</div>`;
+                    }
+                });
+                htmlContent += '</div>';
+                notePreview.innerHTML = htmlContent;
+            } else {
+                // Regular text content
+                notePreview.textContent = note.content;
+            }
+            
             selectedPreviewId = note.id;
         });
         previewOpenBtn.addEventListener('click', () => {
             if (!selectedPreviewId) return;
             const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
             const note = notes.find(n => n.id === selectedPreviewId);
-            editor.value = note.content;
+            
+            // Check if the note is a checklist
+            const lines = note.content.split('\n');
+            const isChecklist = lines.some(line => line.trim().startsWith('[ ]') || line.trim().startsWith('[x]'));
+            
+            if (isChecklist) {
+                // Parse the checklist and enter checklist mode
+                checklistItems = [];
+                lines.forEach(line => {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine.startsWith('[ ]')) {
+                        const text = trimmedLine.substring(3).trim();
+                        if (text) {
+                            checklistItems.push({
+                                id: Date.now() + Math.random(),
+                                text: text,
+                                completed: false
+                            });
+                        }
+                    } else if (trimmedLine.startsWith('[x]')) {
+                        const text = trimmedLine.substring(3).trim();
+                        if (text) {
+                            checklistItems.push({
+                                id: Date.now() + Math.random(),
+                                text: text,
+                                completed: true
+                            });
+                        }
+                    }
+                });
+                
+                // Set the editor content without the checklist items (they'll be in the checklist UI)
+                editor.value = lines.filter(line => {
+                    const trimmed = line.trim();
+                    return !trimmed.startsWith('[ ]') && !trimmed.startsWith('[x]');
+                }).join('\n');
+                
+                // Enter checklist mode
+                checklistMode = true;
+                editor.style.display = 'none';
+                checklistContainer.style.display = 'flex';
+                renderChecklistItems();
+                checklistInput.style.display = 'block';
+                checklistClose.style.display = 'block';
+                checklistEdit.style.display = 'none';
+            } else {
+                // Regular note - just load the content
+                editor.value = note.content;
+                editor.style.display = 'block';
+                checklistContainer.style.display = 'none';
+                checklistMode = false;
+            }
+            
             currentNoteId = note.id;
             isDirty = false;
             updateTitleBar(note.name);
             fileManagerWindow.style.display = 'none';
-            if (checklistMode) exitChecklistMode();
         });
 
         previewDeleteBtn.addEventListener('click', () => {
@@ -1774,13 +1881,19 @@ ${content}
         });
 
         savedNotesBtn.addEventListener('click', () => {
+            // Exit checklist mode if active before opening saved notes
+            if (checklistMode) {
+                exitChecklistMode();
+            }
             renderNotes();
             notePreviewTitle.textContent = '';
             notePreviewDate.textContent = '';
             notePreview.textContent = 'Select a note to preview...';
             fileManagerWindow.style.display = 'flex';
-            // Show back button only for mobile themes
-            const isMobileTheme = document.body.classList.contains('theme-ios') || document.body.classList.contains('theme-android');
+            // Show back button for mobile themes AND Git theme
+            const isMobileTheme = document.body.classList.contains('theme-ios') || 
+                                  document.body.classList.contains('theme-android') || 
+                                  document.body.classList.contains('theme-git');
             fileManagerBackBtn.style.display = isMobileTheme ? 'block' : 'none';
         });
         const closeFileManager = () => {
