@@ -320,6 +320,223 @@
             padding: 0 10px;
         }
 
+        /* --- Git Theme (GitHub Dark) --- */
+        .theme-git body { 
+            background-color: #0d1117; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"; 
+        }
+        .theme-git #app-window, .theme-git .modal-content, .theme-git #file-manager-window { 
+            background-color: #0d1117; 
+            border: 1px solid #30363d; 
+            border-radius: 6px; 
+            box-shadow: 0 0 0 1px rgba(27,31,36,0.15), 0 8px 24px rgba(1,4,9,0.25); 
+        }
+        .theme-git .title-bar { 
+            background: #161b22; 
+            padding: 10px 16px; 
+            color: #f0f6fc; 
+            font-weight: 600; 
+            height: auto; 
+            border-bottom: 1px solid #30363d; 
+            font-size: 14px; 
+        }
+        .theme-git .title-bar-text { 
+            font-size: 14px; 
+            padding: 0 80px; 
+            color: #f0f6fc;
+        }
+        .theme-git .menu-bar { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: flex-end; 
+            list-style: none; 
+            margin: 0; 
+            padding: 8px 16px; 
+            background: #0d1117; 
+            gap: 8px; 
+            border-bottom: 1px solid #21262d; 
+        }
+        .theme-git .menu-bar > li { 
+            padding: 5px 12px; 
+            font-size: 14px; 
+            border-radius: 6px; 
+            border: 1px solid #30363d; 
+            background: #21262d; 
+            box-shadow: none; 
+            color: #c9d1d9; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+        }
+        .theme-git .menu-bar > li:hover { 
+            background: #30363d; 
+            border-color: #8b949e; 
+        }
+        .theme-git .window-body { 
+            padding: 0; 
+            box-shadow: none; 
+            background-color: #0d1117; 
+        }
+        .theme-git #editor, .theme-git #note-preview { 
+            background-color: #0d1117; 
+            border: none; 
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace; 
+            font-size: 14px; 
+            padding: 16px; 
+            line-height: 1.45; 
+            color: #c9d1d9; 
+        }
+        .theme-git ::-webkit-scrollbar { 
+            width: 14px; 
+            height: 14px; 
+        }
+        .theme-git ::-webkit-scrollbar-track { 
+            background: #161b22; 
+            border-radius: 6px; 
+        }
+        .theme-git ::-webkit-scrollbar-thumb { 
+            background-color: #484f58; 
+            border: 3px solid #161b22; 
+            border-radius: 8px; 
+        }
+        .theme-git ::-webkit-scrollbar-thumb:hover { 
+            background-color: #6e7681; 
+        }
+        .theme-git button, .theme-git select, .theme-git input[type="text"] { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; 
+            font-size: 14px; 
+            border: 1px solid #30363d; 
+            background-color: #21262d; 
+            color: #c9d1d9; 
+            border-radius: 6px; 
+            padding: 5px 16px; 
+            min-height: 32px; 
+            transition: all 0.2s; 
+        }
+        .theme-git button { 
+            background-color: #238636; 
+            color: white; 
+            border: 1px solid rgba(240,246,252,0.1); 
+            font-weight: 500; 
+        }
+        .theme-git button:hover { 
+            background-color: #2ea043; 
+            border-color: rgba(240,246,252,0.1); 
+        }
+        .theme-git button:active { 
+            background-color: #238636; 
+        }
+        .theme-git button.primary { 
+            background-color: #1f6feb; 
+        }
+        .theme-git button.primary:hover { 
+            background-color: #388bfd; 
+        }
+        .theme-git .title-bar-controls { 
+            display: flex; 
+            gap: 8px; 
+        }
+        .theme-git .win-button { 
+            width: 12px; 
+            height: 12px; 
+            min-width: 12px; 
+            padding: 0; 
+            border-radius: 50%; 
+            border: none; 
+            opacity: 0.8; 
+            transition: opacity 0.2s; 
+        }
+        .theme-git .win-button:hover { 
+            opacity: 1; 
+        }
+        .theme-git #minimize-btn { 
+            background-color: #fbbf24; 
+        }
+        .theme-git #maximize-btn { 
+            background-color: #22c55e; 
+        }
+        .theme-git #close-btn { 
+            background-color: #f87171; 
+        }
+        .theme-git .win-button .icon { 
+            display: none; 
+        }
+        .theme-git .dropdown-content { 
+            border: 1px solid #30363d; 
+            border-radius: 6px; 
+            background-color: #161b22; 
+            box-shadow: 0 8px 24px rgba(1,4,9,0.25); 
+        }
+        .theme-git .dropdown-content li { 
+            color: #c9d1d9; 
+            border-bottom: 1px solid #21262d; 
+            padding: 8px 16px; 
+            transition: background-color 0.2s; 
+        }
+        .theme-git .dropdown-content li:hover { 
+            background: #1f6feb; 
+            color: #ffffff; 
+        }
+        .theme-git .dropdown-content li:last-child { 
+            border-bottom: none; 
+        }
+        .theme-git #about-modal p { 
+            color: #c9d1d9; 
+        }
+        .theme-git #notes-list-container, 
+        .theme-git .notes-list-header, 
+        .theme-git .note-item, 
+        .theme-git #note-preview-header { 
+            border-color: #30363d; 
+        }
+        .theme-git .notes-list-header { 
+            background-color: #161b22; 
+            color: #c9d1d9; 
+        }
+        .theme-git .note-item { 
+            background-color: #0d1117; 
+            color: #c9d1d9; 
+            transition: background-color 0.2s; 
+        }
+        .theme-git .note-item:hover { 
+            background-color: #161b22; 
+        }
+        .theme-git .note-item.active { 
+            background-color: #1f6feb; 
+            color: #ffffff; 
+        }
+        .theme-git .note-item.active .file-icon { 
+            fill: #ffffff; 
+        }
+        .theme-git .file-icon { 
+            fill: #8b949e; 
+        }
+        .theme-git #note-preview-header { 
+            background-color: #161b22; 
+            color: #c9d1d9; 
+        }
+        .theme-git input[type="text"], 
+        .theme-git select { 
+            background-color: #0d1117; 
+            border: 1px solid #30363d; 
+            color: #c9d1d9; 
+        }
+        .theme-git input[type="text"]:focus, 
+        .theme-git select:focus { 
+            border-color: #1f6feb; 
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(31,111,235,0.3); 
+        }
+        .theme-git .io-warning { 
+            color: #8b949e; 
+        }
+        .theme-git .modal-content .window-body { 
+            background-color: #0d1117; 
+            color: #c9d1d9; 
+        }
+        .theme-git #file-manager-back-btn { 
+            display: none; 
+        }
+
         /* --- Android Theme --- */
         .theme-android body { background-color: #fafafa; font-family: 'Roboto', sans-serif; }
         .theme-android #app-window, .theme-android .modal-content, .theme-android #file-manager-window { background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -621,6 +838,7 @@
                 <li id="theme-winxp-btn">Windows XP</li>
                 <li id="theme-ios-btn">iOS</li>
                 <li id="theme-android-btn">Android</li>
+                <li id="theme-git-btn">Git</li>
             </ul>
         </li>
         <li class="menu-item menu-item-right">
@@ -889,6 +1107,7 @@
         getEl('theme-winxp-btn').addEventListener('click', () => setTheme('theme-winxp'));
         getEl('theme-ios-btn').addEventListener('click', () => setTheme('theme-ios'));
         getEl('theme-android-btn').addEventListener('click', () => setTheme('theme-android'));
+        getEl('theme-git-btn').addEventListener('click', () => setTheme('theme-git'));
         const savedTheme = localStorage.getItem('afsnote_theme') || 'theme-android';
         setTheme(savedTheme);
 
@@ -1071,7 +1290,7 @@ ${content}
         const closeReplaceBtn = getEl('close-replace-btn');
         
         const getFindRegex = (term) => {
-            const escapedTerm = term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const escapedTerm = term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\        // --- Theme Switcher Logic ---');
             const pattern = escapedTerm.length === 1 ? `\\b${escapedTerm}\\b` : escapedTerm;
             return new RegExp(pattern, 'gi');
         };
