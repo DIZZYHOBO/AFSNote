@@ -1,4 +1,27 @@
-<!DOCTYPE html>
+/* Theme-specific edit input styles */
+        .theme-win95 .checklist-edit-input {
+            background-color: #1e1e1e;
+            border-color: #555;
+            color: #e0e0e0;
+        }
+        
+        .theme-winxp .checklist-edit-input {
+            background-color: #2c2c2c;
+            border-color: #555;
+            color: #e0e0e0;
+        }
+        
+        .theme-ios .checklist-edit-input {
+            background-color: #2c2c2c;
+            border-color: #444;
+            color: #fff;
+        }
+        
+        .theme-android .checklist-edit-input {
+            background-color: #2c2c2c;
+            border-color: #444;
+            color: #e0e0e0;
+        }<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -132,10 +155,16 @@
         .checklist-text {
             flex-grow: 1;
             padding: 5px;
-            color: inherit;
+            color: #e0e0e0; /* Light color for all themes */
             word-break: break-word;
             overflow-wrap: break-word;
             cursor: default;
+        }
+        
+        .checklist-item.completed .checklist-text {
+            text-decoration: line-through;
+            opacity: 0.6;
+            color: #a0a0a0; /* Lighter gray for completed items */
         }
         
         .checklist-text.editing {
@@ -145,8 +174,8 @@
         .checklist-edit-input {
             flex-grow: 1;
             padding: 5px;
-            background-color: inherit;
-            color: inherit;
+            background-color: #2c2c2c;
+            color: #e0e0e0; /* Light text color */
             border: 1px solid #555;
             border-radius: 4px;
             font-size: inherit;
@@ -1312,6 +1341,19 @@
             const item = { id: itemId, text: text, completed: false };
             checklistItems.push(item);
             renderChecklistItems();
+            // Autosave when new item is added
+            autosaveChecklist();
+        };
+        
+        // Helper function to autosave checklist
+        const autosaveChecklist = () => {
+            if (checklistMode && currentNoteId) {
+                const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
+                const note = notes.find(n => n.id === currentNoteId);
+                if (note) {
+                    saveNoteToLocalStorage(note.name, true);
+                }
+            }
         };
         
         const renderChecklistItems = () => {
@@ -1332,6 +1374,8 @@
                     } else {
                         itemDiv.classList.remove('completed');
                     }
+                    // Autosave when item is checked/unchecked
+                    autosaveChecklist();
                 });
                 
                 const textSpan = document.createElement('span');
@@ -1360,6 +1404,8 @@
                         if (newText) {
                             item.text = newText;
                             textSpan.textContent = newText;
+                            // Autosave when item is edited
+                            autosaveChecklist();
                         }
                         itemDiv.classList.remove('editing');
                     } else if (e.key === 'Escape') {
@@ -1371,9 +1417,11 @@
                 // Save on blur
                 editInput.addEventListener('blur', () => {
                     const newText = editInput.value.trim();
-                    if (newText) {
+                    if (newText && newText !== item.text) {
                         item.text = newText;
                         textSpan.textContent = newText;
+                        // Autosave when item is edited
+                        autosaveChecklist();
                     }
                     itemDiv.classList.remove('editing');
                 });
@@ -1384,6 +1432,8 @@
                 deleteBtn.addEventListener('click', () => {
                     checklistItems = checklistItems.filter(i => i.id !== item.id);
                     renderChecklistItems();
+                    // Autosave when item is deleted
+                    autosaveChecklist();
                 });
                 
                 // Long press for delete
@@ -1448,6 +1498,23 @@
                 if (currentLine.trim() === '!list') {
                     e.preventDefault();
                     checklistItems = [];
+                    
+                    // Create a new note ID if we don't have one
+                    if (!currentNoteId) {
+                        currentNoteId = Date.now();
+                        // Save initially as "Untitled" checklist
+                        const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
+                        const note = { 
+                            id: currentNoteId, 
+                            name: 'Untitled Checklist', 
+                            content: '', 
+                            createdAt: Date.now() 
+                        };
+                        notes.unshift(note);
+                        localStorage.setItem('afsnote_notes', JSON.stringify(notes));
+                        updateTitleBar('Untitled Checklist');
+                    }
+                    
                     enterChecklistMode();
                 }
             }
