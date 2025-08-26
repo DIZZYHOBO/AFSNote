@@ -2,1700 +2,2122 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureMessenger P2P</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AFSNote</title>
+    <link rel="icon" type="image/x-icon" href="https://busland.neocities.org/hobopad.ico">
+    <link rel="manifest" href="manifest.json">
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* Theme-specific edit input styles - ensure light text */
+        .theme-win95 .checklist-edit-input {
+            background-color: #1e1e1e !important;
+            border-color: #555 !important;
+            color: #e0e0e0 !important;
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #111b21;
-            height: 100vh;
-            overflow: hidden;
+        
+        .theme-winxp .checklist-edit-input {
+            background-color: #2c2c2c !important;
+            border-color: #555 !important;
+            color: #e0e0e0 !important;
         }
-
-        .app-container {
-            background: #222e35;
-            height: 100vh;
+        
+        .theme-ios .checklist-edit-input {
+            background-color: #2c2c2c !important;
+            border-color: #444 !important;
+            color: #e0e0e0 !important;
+        }
+        
+        .theme-android .checklist-edit-input {
+            background-color: #2c2c2c !important;
+            border-color: #444 !important;
+            color: #e0e0e0 !important;
+        }
+        
+        .theme-git .checklist-edit-input {
+            background-color: #0d1117 !important;
+            border-color: #30363d !important;
+            color: #c9d1d9 !important;
+        }       
+        
+        /* Override all theme-specific text colors to ensure light text */
+        .theme-win95 .checklist-text,
+        .theme-win95 .checklist-item,
+        .theme-win95 #checklist-container {
+            color: #e0e0e0 !important;
+        }
+        
+        .theme-winxp .checklist-text,
+        .theme-winxp .checklist-item,
+        .theme-winxp #checklist-container {
+            color: #e0e0e0 !important;
+        }
+        
+        .theme-ios .checklist-text,
+        .theme-ios .checklist-item,
+        .theme-ios #checklist-container {
+            color: #e0e0e0 !important;
+        }
+        
+        .theme-android .checklist-text,
+        .theme-android .checklist-item,
+        .theme-android #checklist-container {
+            color: #e0e0e0 !important;
+        }
+        
+        .theme-git .checklist-text,
+        .theme-git .checklist-item,
+        .theme-git #checklist-container {
+            color: #c9d1d9 !important;
+        }
+        
+        /* Ensure completed items are still visible but lighter */
+        .checklist-item.completed .checklist-text {
+            text-decoration: line-through;
+            opacity: 0.6;
+            color: #a0a0a0 !important;
+        }
+        /* --- Base Styles --- */
+        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: "Tahoma", "Geneva", sans-serif; transition: background-color 0.3s; }
+        #app-window, #file-manager-window { width: 100vw; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
+        .modal-content { width: 100%; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; flex-shrink: 1; min-height: 0; }
+        
+        /* Updated Title Bar Styles */
+        .title-bar {
             display: flex;
-            color: #e9edef;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            flex-shrink: 0;
         }
+        
+        .title-bar-text {
+            position: absolute;
+            left: 0;
+            right: 0;
+            text-align: center;
+            pointer-events: none;
+            z-index: 1;
+            padding: 0 60px;
+        }
+        
+        .title-bar-controls {
+            margin-left: auto;
+            z-index: 2;
+            display: flex;
+            gap: 3px;
+        }
+        
+        .window-body { display: flex; flex-direction: column; flex-grow: 1; margin: 0; padding: 0; min-height: 0; }
+        .menu-bar { flex-shrink: 0; position: relative; z-index: 10; }
+        #editor { flex-grow: 1; padding: 5px; margin: 0; resize: none; outline: none; line-height: 1.6; width: 100%; box-sizing: border-box; overflow-y: scroll; border: none; }
+        .modal { display: none; width: 90%; max-width: 340px; max-height: 80vh; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 201; flex-direction: column; }
+        #font-size-modal, #replace-modal, #import-export-modal { max-width: 300px; }
+        #about-modal {
+            width: 90vmin;
+            height: 90vmin;
+            max-width: 680px;
+            max-height: 680px;
+            container-type: inline-size;
+        }
+        .modal .window-body { overflow: auto; padding: 10px; }
+        .field-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 15px; }
+        #file-opener, #import-file-opener { display: none; }
 
-        .sidebar {
-            width: 400px;
-            background: #111b21;
+        /* --- Checklist Feature Styles --- */
+        #checklist-container {
+            display: none;
+            flex-direction: column;
+            padding: 10px;
+            background: #2c2c2c;
+            border: 1px solid #555;
+            border-radius: 8px;
+            margin: 10px;
+            max-height: 80vh;
+            overflow-y: auto;
+            max-width: 100%;
+            box-sizing: border-box;
+            color: #e0e0e0; /* Light text for container */
+        }
+        
+        .checklist-items {
             display: flex;
             flex-direction: column;
-            border-right: 1px solid #2a3942;
-            position: fixed;
-            height: 100vh;
-            left: -400px;
-            transition: left 0.3s ease;
-            z-index: 1000;
+            gap: 8px;
+            margin-bottom: 10px;
+            max-width: 100%;
+            color: #e0e0e0; /* Light text */
         }
-
-        .sidebar.open {
-            left: 0;
-        }
-
-        .sidebar-header {
-            padding: 20px;
-            background: #2a3942;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #3b4a54;
-        }
-
-        .user-profile {
+        
+        .checklist-item {
             display: flex;
             align-items: center;
-            cursor: pointer;
-        }
-
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #00d4aa, #00a084);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            color: white;
-            margin-right: 12px;
-        }
-
-        .profile-info h3 {
-            font-size: 16px;
-            font-weight: 400;
-            margin-bottom: 2px;
-        }
-
-        .username {
-            font-size: 13px;
-            color: #8696a0;
-            font-family: monospace;
-            cursor: pointer;
-            padding: 2px 6px;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-
-        .username:hover {
-            background: rgba(134, 150, 160, 0.1);
-        }
-
-        .username-edit {
-            background: #3b4a54;
-            color: #e9edef;
-            border: 1px solid #4a5c66;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 13px;
-            width: 100px;
-        }
-
-        .username-edit:focus {
-            outline: none;
-            border-color: #00d4aa;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 15px;
-        }
-
-        .header-btn {
-            background: none;
-            border: none;
-            color: #8696a0;
-            cursor: pointer;
             padding: 8px;
-            border-radius: 50%;
-            transition: background 0.2s;
-        }
-
-        .header-btn:hover {
-            background: rgba(134, 150, 160, 0.1);
-        }
-
-        .search-bar {
-            padding: 15px 20px;
-            background: #111b21;
-            border-bottom: 1px solid #2a3942;
-        }
-
-        .search-input {
+            padding-right: 50px; /* Space for delete button */
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            position: relative;
+            user-select: none;
+            transition: all 0.3s ease;
+            min-height: 40px;
             width: 100%;
-            padding: 10px 15px;
-            background: #2a3942;
-            border: none;
-            border-radius: 8px;
-            color: #e9edef;
-            font-size: 14px;
+            box-sizing: border-box;
+            color: #e0e0e0; /* Light text for items */
         }
-
-        .search-input::placeholder {
-            color: #8696a0;
+        
+        .checklist-item.completed .checklist-text {
+            text-decoration: line-through;
+            opacity: 0.6;
         }
-
-        .search-input:focus {
-            outline: none;
-            background: #3b4a54;
-        }
-
-        .chats-list {
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .chat-item {
-            padding: 15px 20px;
-            cursor: pointer;
-            transition: background 0.15s;
-            border-bottom: 1px solid rgba(42, 57, 66, 0.5);
-            display: flex;
-            align-items: center;
-        }
-
-        .chat-item:hover {
-            background: #2a3942;
-        }
-
-        .chat-item.active {
-            background: #2a3942;
-        }
-
-        .chat-item.unread {
-            background: rgba(0, 212, 170, 0.05);
-        }
-
-        .chat-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            color: white;
-            margin-right: 15px;
-            font-size: 18px;
-        }
-
-        .chat-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .chat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 3px;
-        }
-
-        .chat-name {
-            font-size: 16px;
-            font-weight: 400;
-            color: #e9edef;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .chat-time {
-            font-size: 12px;
-            color: #8696a0;
-            white-space: nowrap;
-        }
-
-        .chat-preview {
-            font-size: 14px;
-            color: #8696a0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: flex;
-            align-items: center;
-        }
-
-        .chat-status {
-            margin-right: 5px;
-        }
-
-        .unread-badge {
-            background: #00d4aa;
-            color: white;
-            border-radius: 50%;
+        
+        .checklist-checkbox {
             width: 20px;
             height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-            margin-left: 10px;
-        }
-
-        .main-chat {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #0b141a;
-            width: 100%;
-        }
-
-        .app-header {
-            background: #2a3942;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid #3b4a54;
-        }
-
-        .menu-btn {
-            background: none;
-            border: none;
-            color: #e9edef;
-            cursor: pointer;
-            padding: 8px;
-            margin-right: 15px;
-            border-radius: 50%;
-            transition: background 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .menu-btn:hover {
-            background: rgba(134, 150, 160, 0.1);
-        }
-
-        .menu-icon {
-            width: 24px;
-            height: 18px;
-            position: relative;
-        }
-
-        .menu-icon span {
-            display: block;
-            position: absolute;
-            height: 3px;
-            width: 100%;
-            background: #e9edef;
-            border-radius: 2px;
-            opacity: 1;
-            left: 0;
-            transform: rotate(0deg);
-            transition: .25s ease-in-out;
-        }
-
-        .menu-icon span:nth-child(1) {
-            top: 0px;
-        }
-
-        .menu-icon span:nth-child(2) {
-            top: 7px;
-        }
-
-        .menu-icon span:nth-child(3) {
-            top: 14px;
-        }
-
-        .app-title {
-            font-size: 20px;
-            font-weight: 500;
-            color: #e9edef;
-        }
-
-        .chat-header-main {
-            padding: 15px 20px;
-            background: #2a3942;
-            border-bottom: 1px solid #3b4a54;
-            display: none;
-            align-items: center;
-        }
-
-        .back-btn {
-            background: none;
-            border: none;
-            color: #8696a0;
-            cursor: pointer;
-            padding: 8px;
             margin-right: 10px;
+            cursor: pointer;
+            flex-shrink: 0;
+            accent-color: #007aff;
+        }
+        
+        /* Theme-specific checkbox styles */
+        .theme-win95 .checklist-checkbox {
+            accent-color: #000080;
+        }
+        
+        .theme-winxp .checklist-checkbox {
+            accent-color: #316AC5;
+        }
+        
+        .theme-ios .checklist-checkbox {
+            accent-color: #0a84ff;
             border-radius: 50%;
+        }
+        
+        .theme-android .checklist-checkbox {
+            accent-color: #8ab4f8;
+        }
+        
+        .theme-git .checklist-checkbox {
+            accent-color: #238636;
+        }
+        
+        .checklist-text {
+            flex-grow: 1;
+            padding: 5px;
+            color: #e0e0e0; /* Light color for all themes */
+            word-break: break-word;
+            overflow-wrap: break-word;
+            cursor: default;
+        }
+        
+        .checklist-item.completed .checklist-text {
+            text-decoration: line-through;
+            opacity: 0.6;
+            color: #a0a0a0; /* Lighter gray for completed items */
+        }
+        
+        .checklist-text.editing {
             display: none;
         }
-
-        .contact-info {
+        
+        .checklist-edit-input {
+            flex-grow: 1;
+            padding: 5px;
+            background-color: #2c2c2c;
+            color: #e0e0e0; /* Light text color */
+            border: 1px solid #555;
+            border-radius: 4px;
+            font-size: inherit;
+            font-family: inherit;
+            display: none;
+        }
+        
+        .checklist-edit-input.active {
+            display: block;
+        }
+        
+        .checklist-item.editing .checklist-edit-input {
+            display: block;
+        }
+        
+        .checklist-item.editing .checklist-text {
+            display: none;
+        }
+        
+        .checklist-delete {
+            position: absolute;
+            right: -100%;
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: right 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .checklist-delete.show {
+            right: 5px;
+        }
+        
+        #checklist-input-container {
             display: flex;
-            align-items: center;
-            flex: 1;
-        }
-
-        .contact-status {
-            font-size: 13px;
-            color: #8696a0;
-            margin-top: 2px;
-        }
-
-        .messages-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.02)"/></svg>');
-            background-size: 30px 30px;
-        }
-
-        .message-group {
-            margin-bottom: 20px;
-        }
-
-        .message {
-            max-width: 65%;
-            margin-bottom: 5px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .message.sent {
-            margin-left: auto;
-            align-items: flex-end;
-        }
-
-        .message.received {
-            align-items: flex-start;
-        }
-
-        .message-bubble {
-            padding: 8px 12px;
-            border-radius: 8px;
-            word-wrap: break-word;
-            position: relative;
+            gap: 8px;
+            margin-top: 10px;
             max-width: 100%;
         }
-
-        .message.sent .message-bubble {
-            background: #005c4b;
-            color: #e9edef;
-            border-bottom-right-radius: 2px;
+        
+        #checklist-input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #3c3c3c;
+            color: #e0e0e0;
+            min-width: 0; /* Allow shrinking on mobile */
         }
-
-        .message.received .message-bubble {
-            background: #202c33;
-            color: #e9edef;
-            border-bottom-left-radius: 2px;
-        }
-
-        .message-time {
-            font-size: 11px;
-            color: rgba(233, 237, 239, 0.6);
-            margin-top: 4px;
-            align-self: flex-end;
-            padding: 0 5px;
-        }
-
-        .message-input-area {
-            padding: 15px 20px;
-            background: #2a3942;
+        
+        .checklist-controls {
             display: flex;
-            align-items: flex-end;
-            gap: 10px;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+        }
+        
+        .checklist-close-btn, .checklist-edit-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            background-color: #007aff;
+            color: white;
+        }
+        
+        .checklist-close-btn:hover, .checklist-edit-btn:hover {
+            background-color: #005bb5;
         }
 
-        .message-input-container {
-            flex: 1;
-            background: #3b4a54;
-            border-radius: 25px;
-            padding: 8px 15px;
+        /* --- Custom About Modal Background --- */
+        #about-modal p {
+            color: #e0e0e0;
+        }
+        #about-modal .window-body p:first-of-type {
+            font-size: 3.5cqw;
+        }
+        #about-modal .window-body p:nth-of-type(2) {
+            font-size: 2.5cqw;
+        }
+        #about-modal .window-body .field-row {
+            font-size: 3cqw;
+        }
+
+        /* --- Version Display Style --- */
+        .version-display {
+            font-size: 0.8em;
+            font-weight: normal;
+            opacity: 0.7;
+            padding-right: 5px;
+            user-select: none;
+        }
+
+        /* --- Font Size Display --- */
+        #font-size-display { text-align: center; margin-top: 10px; }
+
+        /* --- Import/Export Styles --- */
+        #import-export-modal .window-body { display: flex; flex-wrap: wrap; justify-content: space-around; text-align: center; padding-top: 20px; padding-bottom: 10px; }
+        .io-section { width: 45%; margin-bottom: 10px; }
+        .io-section button { width: 80px; height: 60px; font-size: 2em; line-height: 1; }
+        .io-section p { margin-top: 5px; font-size: 0.9em; }
+        .io-warning { width: 100%; color: #888; font-size: 0.8em; text-align: center; margin-top: 15px; }
+
+        /* --- Dropdown Menu Styles --- */
+        .menu-item { position: relative; user-select: none; }
+        .dropdown-content { display: none; position: absolute; top: 100%; right: 0; background-color: #f9f9f9; min-width: 160px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 100; list-style: none; padding: 0; margin: 0; }
+        .menu-item:not(.menu-item-right) .dropdown-content { right: auto; left: 0; }
+        .dropdown-content li { padding: 8px 12px; cursor: pointer; color: black; border-bottom: 1px solid #ddd; }
+        .dropdown-content li:last-child { border-bottom: none; }
+        
+        /* --- File Manager Styles --- */
+        #file-manager-window { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            z-index: 200; 
+            display: none;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        #file-manager-content { 
+            display: flex; 
+            flex-grow: 1; 
+            min-height: 0; 
+            height: calc(100% - 30px);
+            colour: #e0e0e0
+        }
+        #notes-list-container { 
+            width: 40%; 
+            display: flex; 
+            flex-direction: column; 
+            border-right: 1px solid;
+            overflow-y: auto;
+        }
+        .notes-list-header { 
+            display: flex; 
+            padding: 4px 8px; 
+            font-weight: bold; 
+            border-bottom: 1px solid; 
+            flex-shrink: 0; 
+            align-items: center; 
+            background-color: inherit;
+        }
+        .header-name { flex-grow: 1; }
+        #note-preview-container { 
+            width: 60%; 
+            display: flex; 
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #note-preview-header { 
+            padding: 8px; 
+            border-bottom: 1px solid; 
+            flex-shrink: 0; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: inherit;
+        }
+        #note-preview-title { font-weight: bold; font-size: 1.2em; }
+        #note-preview-date { font-size: 0.9em; opacity: 0.8; }
+        #note-preview-actions { margin-top: 0; display: flex; gap: 8px; }
+        #note-preview-actions button, #filter-btn {
+            padding: 4px 10px;
+            font-size: 14px;
+            min-height: initial;
+        }
+        #note-preview { 
+            flex-grow: 1; 
+            padding: 10px; 
+            overflow-y: auto; 
+            white-space: pre-wrap;
+            height: 100%;
+        }
+        
+        /* Checklist preview styles */
+        .checklist-preview-item {
+            margin: 8px 0;
             display: flex;
             align-items: center;
-            min-height: 44px;
+            gap: 8px;
+        }
+        
+        .checklist-preview-item.completed {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        .note-item { 
+            display: flex; 
+            align-items: flex-start; 
+            padding: 8px; 
+            cursor: pointer; 
+            border-bottom: 1px solid; 
+            gap: 8px; 
+            margin-bottom: 5px;
+            background-color: inherit;
+        }
+        .note-item .file-icon { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
+        .note-item-details { flex-grow: 1; display: flex; flex-direction: column; }
+        .note-item-title { font-weight: bold; }
+        .note-item-date { font-size: 0.9em; opacity: 0.8; }
+        #notes-list {
+            overflow-y: auto;
+            flex-grow: 1;
         }
 
-        .message-input {
-            flex: 1;
+        /* --- Unified Back Button --- */
+        #file-manager-back-btn {
+            display: none; /* Hidden by default */
             background: none;
             border: none;
-            color: #e9edef;
-            font-size: 15px;
-            resize: none;
-            outline: none;
-            max-height: 100px;
-            line-height: 20px;
-        }
-
-        .message-input::placeholder {
-            color: #8696a0;
-        }
-
-        .send-button {
-            background: #00d4aa;
-            border: none;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
             cursor: pointer;
-            display: flex;
+        }
+        
+        /* --- Windows 95 Theme --- */
+        .theme-win95 body { background: #121212; }
+        .theme-win95 #app-window, .theme-win95 .modal-content, .theme-win95 #file-manager-window { background-color: #2c2c2c; border: 3px solid #555; border-top-color: #666; border-left-color: #666; border-right-color: #000; border-bottom-color: #000; border-radius: 0; box-shadow: none; }
+        .theme-win95 .title-bar { 
+            background: linear-gradient(90deg, #000080, #1084d0); 
+            padding: 3px 5px; 
+            color: white; 
+            font-weight: bold; 
+            height: 20px; 
+            border-bottom: none; 
+            text-shadow: none; 
+        }
+        .theme-win95 .title-bar-text { padding: 0 50px; color: white; }
+        .theme-win95 .menu-bar { display: flex; flex-wrap: wrap; justify-content: flex-end; list-style: none; margin: 0; padding: 2px; border-bottom: 1px solid #555; background: #2c2c2c; gap: 0; }
+        .theme-win95 .menu-bar > li { padding: 2px 8px; font-size: 14px; border-radius: 0; border: none; background: #3c3c3c; box-shadow: none; color: #e0e0e0; }
+        .theme-win95 .menu-bar > li:hover { background: #000080; color: white; }
+        .theme-win95 .window-body { padding: 0; box-shadow: inset -1px -1px #666, inset 1px 1px #000, inset -2px -2px #555, inset 2px 2px #333; }
+        .theme-win95 #editor, .theme-win95 #note-preview { background-color: #1e1e1e; color: #e0e0e0; border: none; font-family: 'Lucida Console', Courier, monospace; font-size: 16px; margin: 2px; }
+        .theme-win95 button, .theme-win95 select, .theme-win95 input[type="text"] { font-family: "Tahoma", sans-serif; font-size: 14px; background-color: #3c3c3c; color: #e0e0e0; border: 1px solid #555; border-radius: 0; padding: 4px 15px; min-height: 23px; }
+        .theme-win95 .dropdown-content { border: 1px solid #555; border-radius: 0; background-color: #2c2c2c; }
+        .theme-win95 .dropdown-content li { border-bottom: 1px solid #555; color: #e0e0e0; }
+        .theme-win95 .dropdown-content li:hover { background: #000080; color: white; }
+        .theme-win95 #about-modal p { color: #e0e0e0; }
+        .theme-win95 .note-item { border-bottom-color: #555; }
+        .theme-win95 .note-item.active { background-color: #000080; color: white; }
+        .theme-win95 .note-item.active .file-icon { fill: white; }
+        .theme-win95 .file-icon { fill: #e0e0e0; }
+
+        /* --- Windows XP Theme (Dark) --- */
+        .theme-winxp body { background: #121212; }
+        .theme-winxp #app-window, .theme-winxp .modal-content, .theme-winxp #file-manager-window { background-color: #1e1e1e; border: 1px solid #333; box-shadow: 0 0 10px rgba(0,0,0,0.5); border-radius: 6px; }
+        .theme-winxp .title-bar { 
+            background: linear-gradient(to bottom, #0058e1, #3d80f2 4%, #3d80f2 96%, #0058e1); 
+            padding: 3px 5px; 
+            color: white; 
+            font-weight: bold; 
+            height: 25px; 
+            border-bottom: 1px solid #333; 
+            font-size: 12px; 
+        }
+        .theme-winxp .title-bar-text { padding: 0 60px; color: white; }
+        .theme-winxp .menu-bar { display: flex; flex-wrap: wrap; justify-content: flex-end; list-style: none; margin: 0; padding: 2px; background: #2c2c2c; border-bottom: 1px solid #333; gap: 0; }
+        .theme-winxp .menu-bar > li { padding: 4px 8px; font-size: 11px; border: 1px solid transparent; border-radius: 0; background: #3c3c3c; box-shadow: none; color: #e0e0e0; }
+        .theme-winxp .menu-bar > li:hover { background: #316AC5; color: white; border: 1px solid #000; }
+        .theme-winxp .window-body { padding: 3px; box-shadow: none; background-color: #1e1e1e; }
+        .theme-winxp #editor, .theme-winxp #note-preview, .theme-winxp input, .theme-winxp select { border: 1px solid #555; background-color: #2c2c2c; color: #e0e0e0; font-family: 'Lucida Console', Courier, monospace; font-size: 12px; margin: 0; }
+        .theme-winxp button, .theme-winxp select, .theme-winxp input[type="text"] { font-family: "Tahoma", sans-serif; font-size: 11px; border: 1px solid #555; background: #3c3c3c; color: #e0e0e0; padding: 3px 12px; min-height: 23px; border-radius: 0; }
+        .theme-winxp .dropdown-content { border: 1px solid #333; border-radius: 0; background-color: #2c2c2c; }
+        .theme-winxp .dropdown-content li { border-bottom: 1px solid #333; color: #e0e0e0; }
+        .theme-winxp .dropdown-content li:hover { background: #316AC5; color: white; }
+        .theme-winxp #about-modal p { color: #e0e0e0; }
+        .theme-winxp .note-item { border-bottom-color: #333; }
+        .theme-winxp .note-item.active { background-color: #316AC5; color: white; }
+        .theme-winxp .note-item.active .file-icon { fill: white; }
+        .theme-winxp .file-icon { fill: #e0e0e0; }
+
+        /* --- iOS Theme (Dark) --- */
+        .theme-ios body { background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .theme-ios #app-window, .theme-ios .modal-content, .theme-ios #file-manager-window { background-color: #1c1c1e; border: 1px solid #333; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .theme-ios .title-bar { 
+            background: #1c1c1e; 
+            padding: 10px; 
+            color: #fff; 
+            font-weight: 600; 
+            height: auto; 
+            border-bottom: 1px solid #333; 
+        }
+        .theme-ios .title-bar-text { 
+            font-size: 17px; 
+            padding: 0 70px; 
+            color: #fff;
+        }
+        .theme-ios .menu-bar { display: flex; flex-wrap: wrap; justify-content: flex-end; list-style: none; margin: 0; padding: 8px; background: #1c1c1e; gap: 4px; border-bottom: 1px solid #333; }
+        .theme-ios .menu-bar > li { padding: 5px 10px; font-size: 14px; font-weight: bold; border-radius: 8px; border: none; background: none; box-shadow: none; color: #0a84ff; cursor: pointer; }
+        .theme-ios .menu-bar > li:hover { background: #2c2c2e; }
+        .theme-ios .window-body { padding: 0; box-shadow: none; background-color: #1c1c1e; }
+        .theme-ios #editor, .theme-ios #note-preview { background-color: #1c1c1e; border: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 17px; padding: 12px; line-height: 1.5; color: #fff; }
+        .theme-ios button, .theme-ios select, .theme-ios input[type="text"] { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 17px; border: 1px solid #444; background-color: #2c2c2c; color: #fff; border-radius: 8px; padding: 8px 12px; min-height: 36px; }
+        .theme-ios button { background-color: #0a84ff; color: white; border: none; }
+        .theme-ios button:active { background-color: #0066cc; }
+        .theme-ios button.primary { background-color: #30d158; }
+        .theme-ios button.primary:active { background-color: #28a745; }
+        .theme-ios .title-bar-controls { display: none; }
+        .theme-ios .dropdown-content { border: 1px solid #333; border-radius: 8px; background-color: #1c1c1e; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .theme-ios .dropdown-content li { color: #0a84ff; border-bottom: 1px solid #333; }
+        .theme-ios .dropdown-content li:hover { background: #2c2c2e; }
+        .theme-ios #about-modal p { color: #fff; }
+        .theme-ios #notes-list-container, .theme-ios .notes-list-header, .theme-ios .note-item, .theme-ios #note-preview-header { border-color: #333; background-color: #1c1c1e; }
+        .theme-ios .note-item.active { background-color: #0a84ff; color: #fff; }
+        .theme-ios .note-item.active .file-icon { fill: #fff; }
+        .theme-ios .file-icon { fill: #8e8e93; }
+        .theme-ios #file-manager-window .title-bar-controls { display: none; }
+        .theme-ios #file-manager-back-btn { 
+            display: block !important;
+            color: #0a84ff;
+            font-size: 17px;
+            font-weight: 400;
+            padding: 0 10px;
+        }
+
+        /* --- Git Theme (GitHub Dark - Always Dark Mode) --- */
+        .theme-git body { 
+            background-color: #0d1117; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"; 
+        }
+        .theme-git #app-window, .theme-git .modal-content, .theme-git #file-manager-window { 
+            background-color: #0d1117; 
+            border: 1px solid #30363d; 
+            border-radius: 6px; 
+            box-shadow: 0 0 0 1px rgba(27,31,36,0.15), 0 8px 24px rgba(1,4,9,0.25); 
+        }
+        .theme-git .title-bar { 
+            background: #161b22; 
+            padding: 10px 16px; 
+            color: #f0f6fc; 
+            font-weight: 600; 
+            height: auto; 
+            border-bottom: 1px solid #30363d; 
+            font-size: 14px; 
+        }
+        .theme-git .title-bar-text { 
+            font-size: 14px; 
+            padding: 0 80px; 
+            color: #f0f6fc;
+        }
+        .theme-git .menu-bar { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: flex-end; 
+            list-style: none; 
+            margin: 0; 
+            padding: 8px 16px; 
+            background: #0d1117; 
+            gap: 8px; 
+            border-bottom: 1px solid #21262d; 
+        }
+        .theme-git .menu-bar > li { 
+            padding: 5px 12px; 
+            font-size: 14px; 
+            border-radius: 6px; 
+            border: 1px solid #30363d; 
+            background: #21262d; 
+            box-shadow: none; 
+            color: #c9d1d9; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+        }
+        .theme-git .menu-bar > li:hover { 
+            background: #30363d; 
+            border-color: #8b949e; 
+        }
+        .theme-git .window-body { 
+            padding: 0; 
+            box-shadow: none; 
+            background-color: #0d1117; 
+        }
+        .theme-git #editor, .theme-git #note-preview { 
+            background-color: #0d1117; 
+            border: none; 
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace; 
+            font-size: 14px; 
+            padding: 16px; 
+            line-height: 1.45; 
+            color: #c9d1d9; 
+        }
+        .theme-git ::-webkit-scrollbar { 
+            width: 14px; 
+            height: 14px; 
+        }
+        .theme-git ::-webkit-scrollbar-track { 
+            background: #161b22; 
+            border-radius: 6px; 
+        }
+        .theme-git ::-webkit-scrollbar-thumb { 
+            background-color: #484f58; 
+            border: 3px solid #161b22; 
+            border-radius: 8px; 
+        }
+        .theme-git ::-webkit-scrollbar-thumb:hover { 
+            background-color: #6e7681; 
+        }
+        .theme-git button, .theme-git select, .theme-git input[type="text"] { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; 
+            font-size: 14px; 
+            border: 1px solid #30363d; 
+            background-color: #21262d; 
+            color: #c9d1d9; 
+            border-radius: 6px; 
+            padding: 5px 16px; 
+            min-height: 32px; 
+            transition: all 0.2s; 
+        }
+        .theme-git button { 
+            background-color: #238636; 
+            color: white; 
+            border: 1px solid rgba(240,246,252,0.1); 
+            font-weight: 500; 
+        }
+        .theme-git button:hover { 
+            background-color: #2ea043; 
+            border-color: rgba(240,246,252,0.1); 
+        }
+        .theme-git button:active { 
+            background-color: #238636; 
+        }
+        .theme-git button.primary { 
+            background-color: #1f6feb; 
+        }
+        .theme-git button.primary:hover { 
+            background-color: #388bfd; 
+        }
+        .theme-git .title-bar-controls { 
+            display: none; 
+        }
+        .theme-git .dropdown-content { 
+            border: 1px solid #30363d; 
+            border-radius: 6px; 
+            background-color: #161b22; 
+            box-shadow: 0 8px 24px rgba(1,4,9,0.25); 
+        }
+        .theme-git .dropdown-content li { 
+            color: #c9d1d9; 
+            border-bottom: 1px solid #21262d; 
+            padding: 8px 16px; 
+            transition: background-color 0.2s; 
+        }
+        .theme-git .dropdown-content li:hover { 
+            background: #1f6feb; 
+            color: #ffffff; 
+        }
+        .theme-git .dropdown-content li:last-child { 
+            border-bottom: none; 
+        }
+        .theme-git #about-modal p { 
+            color: #c9d1d9; 
+        }
+        .theme-git #notes-list-container, 
+        .theme-git .notes-list-header, 
+        .theme-git .note-item, 
+        .theme-git #note-preview-header { 
+            border-color: #30363d; 
+        }
+        .theme-git .notes-list-header { 
+            background-color: #161b22; 
+            color: #c9d1d9; 
+        }
+        .theme-git .note-item { 
+            background-color: #0d1117; 
+            color: #c9d1d9; 
+            transition: background-color 0.2s; 
+        }
+        .theme-git .note-item:hover { 
+            background-color: #161b22; 
+        }
+        .theme-git .note-item.active { 
+            background-color: #1f6feb; 
+            color: #ffffff; 
+        }
+        .theme-git .note-item.active .file-icon { 
+            fill: #ffffff; 
+        }
+        .theme-git .file-icon { 
+            fill: #8b949e; 
+        }
+        .theme-git #note-preview-header { 
+            background-color: #161b22; 
+            color: #c9d1d9; 
+        }
+        .theme-git input[type="text"], 
+        .theme-git select { 
+            background-color: #0d1117; 
+            border: 1px solid #30363d; 
+            color: #c9d1d9; 
+        }
+        .theme-git input[type="text"]:focus, 
+        .theme-git select:focus { 
+            border-color: #1f6feb; 
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(31,111,235,0.3); 
+        }
+        .theme-git .io-warning { 
+            color: #8b949e; 
+        }
+        .theme-git .modal-content .window-body { 
+            background-color: #0d1117; 
+            color: #c9d1d9; 
+        }
+        .theme-git #file-manager-back-btn { 
+            display: none; 
+        }
+        /* Show back button for Git theme like mobile themes */
+        .theme-git #file-manager-window #file-manager-back-btn {
+            display: flex !important;
             align-items: center;
             justify-content: center;
+            padding: 5px 16px;
+            margin-right: 8px;
+            border-radius: 6px;
+            background-color: #238636;
             color: white;
-            transition: background 0.2s;
-        }
-
-        .send-button:hover {
-            background: #00a084;
-        }
-
-        .welcome-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            text-align: center;
-            color: #8696a0;
-            padding: 40px;
-        }
-
-        .welcome-icon {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #00d4aa, #00a084);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-            margin-bottom: 30px;
-            color: white;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: #2a3942;
-            border-radius: 12px;
-            max-width: 400px;
-            width: 90%;
-            color: #e9edef;
-        }
-
-        .modal-header {
-            padding: 20px 20px 10px;
-            font-size: 18px;
             font-weight: 500;
-        }
-
-        .modal-body {
-            padding: 10px 20px 20px;
-        }
-
-        .modal-input {
-            width: 100%;
-            padding: 12px;
-            background: #3b4a54;
-            border: 1px solid #4a5c66;
-            border-radius: 8px;
-            color: #e9edef;
             font-size: 14px;
-            margin: 10px 0;
+            transition: all 0.2s;
+            position: relative;
+            z-index: 2;
+            border: 1px solid rgba(240,246,252,0.1);
         }
-
-        .modal-input:focus {
-            outline: none;
-            border-color: #00d4aa;
+        .theme-git #file-manager-window #file-manager-back-btn:hover {
+            background-color: #2ea043;
         }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
+        .theme-git #file-manager-window #file-manager-back-btn svg {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+            fill: white;
         }
-
-        .modal-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background 0.2s;
+        
+        /* Git theme checklist styles */
+        .theme-git #checklist-container {
+            background: #161b22;
+            border-color: #30363d;
         }
-
-        .modal-btn.primary {
-            background: #00d4aa;
+        .theme-git .checklist-item {
+            background: rgba(33,38,45,0.5);
+        }
+        .theme-git .checklist-text {
+            color: #c9d1d9; /* Match Git theme text color */
+        }
+        .theme-git #checklist-input,
+        .theme-git .checklist-edit-input {
+            background-color: #0d1117;
+            border-color: #30363d;
+            color: #c9d1d9;
+        }
+        .theme-git .checklist-close-btn,
+        .theme-git .checklist-edit-btn {
+            background-color: #238636;
             color: white;
+            border: 1px solid rgba(240,246,252,0.1);
+        }
+        .theme-git .checklist-close-btn:hover,
+        .theme-git .checklist-edit-btn:hover {
+            background-color: #2ea043;
         }
 
-        .modal-btn.primary:hover {
-            background: #00a084;
+        /* --- Android Theme (Dark) --- */
+        .theme-android body { background-color: #121212; font-family: 'Roboto', sans-serif; }
+        .theme-android #app-window, .theme-android .modal-content, .theme-android #file-manager-window { background-color: #1e1e1e; border: 1px solid #333; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .theme-android .title-bar { 
+            background: #2c2c2c; 
+            padding: 12px 16px; 
+            color: #e0e0e0; 
+            font-weight: 500; 
+            height: auto; 
+            border-bottom: 1px solid #333; 
         }
-
-        .modal-btn.secondary {
-            background: #3b4a54;
-            color: #e9edef;
+        .theme-android .title-bar-text { 
+            font-size: 18px; 
+            padding: 0 80px; 
+            color: #e0e0e0;
         }
-
-        .modal-btn.secondary:hover {
-            background: #4a5c66;
+        .theme-android #file-manager-window .title-bar-text {
+            left: 50px;
+            right: 50px;
+            padding: 0;
         }
-
-        .username-display {
-            background: #3b4a54;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            text-align: center;
-            font-family: monospace;
-            font-size: 16px;
-            color: #00d4aa;
-            border: 2px dashed #4a5c66;
-        }
-
-        .empty-state {
-            display: flex;
-            flex-direction: column;
+        .theme-android .menu-bar { display: flex; flex-wrap: wrap; justify-content: flex-end; list-style: none; margin: 0; padding: 8px; background: #2c2c2c; gap: 4px; border-bottom: 1px solid #333; }
+        .theme-android .menu-bar > li { padding: 6px 10px; font-size: 13px; border-radius: 20px; border: 1px solid #555; background: #3c3c3c; box-shadow: none; color: #e0e0e0; cursor: pointer; }
+        .theme-android .menu-bar > li:hover { background: #555; }
+        .theme-android .window-body { padding: 0; box-shadow: none; background-color: #1e1e1e; }
+        .theme-android #editor, .theme-android #note-preview { background-color: #1e1e1e; border: none; font-family: 'Roboto', sans-serif; font-size: 16px; padding: 16px; line-height: 1.6; color: #e0e0e0; }
+        .theme-android button, .theme-android select, .theme-android input[type="text"] { font-family: 'Roboto', sans-serif; font-size: 14px; border: 1px solid #444; background-color: #2c2c2c; color: #fff; border-radius: 8px; padding: 10px 14px; min-height: 40px; }
+        .theme-android button { background-color: #8ab4f8; color: #202124; border: none; font-weight: 500; }
+        .theme-android button:active { background-color: #7aa3e6; }
+        .theme-android button.primary { background-color: #81c995; color: #202124; }
+        .theme-android button.primary:active { background-color: #70b884; }
+        .theme-android .title-bar-controls { display: none; }
+        .theme-android .dropdown-content { border: 1px solid #333; border-radius: 8px; background-color: #1e1e1e; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .theme-android .dropdown-content li { color: #e0e0e0; border-bottom: 1px solid #333; }
+        .theme-android .dropdown-content li:hover { background: #3c3c3c; }
+        .theme-android #about-modal p { color: #fff; }
+        .theme-android #notes-list-container, .theme-android .notes-list-header, .theme-android .note-item, .theme-android #note-preview-header { border-color: #333; background-color: #2c2c2c; }
+        .theme-android .notes-list-header { background-color: #2c2c2c; }
+        .theme-android .note-item { background-color: #2c2c2c; }
+        .theme-android .note-item.active { background-color: #8ab4f8; color: #202124; }
+        .theme-android .note-item.active .file-icon { fill: #202124; }
+        .theme-android .file-icon { fill: #9aa0a6; }
+        .theme-android #file-manager-window .title-bar { justify-content: flex-start; gap: 8px; }
+        .theme-android #file-manager-window .title-bar-controls { display: none; }
+        /* Android Back Button Styling */
+        .theme-android #file-manager-back-btn {
+            display: flex !important;
             align-items: center;
             justify-content: center;
-            height: 200px;
-            color: #8696a0;
+            padding: 8px 16px;
+            margin-right: 8px;
+            border-radius: 20px;
+            background-color: #8ab4f8;
+            color: #202124;
+            font-weight: 500;
             font-size: 14px;
+            text-transform: uppercase;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+            position: relative;
+            z-index: 2;
+        }
+        .theme-android #file-manager-back-btn:hover {
+            background-color: #7aa3e6;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+        }
+        .theme-android #file-manager-back-btn svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            fill: #202124;
         }
 
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
+        /* --- Dark Mode Overrides --- */
+        body.dark-mode { background-color: #121212; }
+        .dark-mode #app-window, .dark-mode .modal-content, .dark-mode #file-manager-window, .dark-mode .dropdown-content { background-color: #1e1e1e; color: #e0e0e0; }
+        .dark-mode #font-size-modal .modal-content { background-color: #1e1e1e; }
+        .dark-mode .title-bar { background: #2c2c2c; color: #e0e0e0; border-bottom-color: #3c3c3c; }
+        .dark-mode .menu-bar { background: #2c2c2c; border-bottom-color: #3c3c3c; }
+        .dark-mode .menu-bar > li { background: #3c3c3c; color: #e0e0e0; border-color: #555; }
+        .dark-mode .menu-bar > li:hover { background: #555; }
+        .dark-mode #editor, .dark-mode #note-preview, .dark-mode input, .dark-mode select { background-color: #2c2c2c; color: #e0e0e0; border-color: #555; }
+        .dark-mode button { background-color: #007aff; color: #fff; }
+        .dark-mode button:active { background-color: #005bb5; }
+        .dark-mode .dropdown-content li { color: #e0e0e0; border-bottom-color: #3c3c3c; }
+        .dark-mode .dropdown-content li:hover { background: #3c3c3c; }
+        .dark-mode .note-item { border-bottom-color: #3c3c3c; }
+        .dark-mode .note-item.active { background-color: #007aff; color: #fff; }
+        .dark-mode .file-icon { fill: #e0e0e0; }
+        .dark-mode .note-item.active .file-icon { fill: #fff; }
+        
+        /* Dark Mode Checklist Styles */
+        .dark-mode #checklist-container {
+            background: #2c2c2c;
+            border-color: #555;
+        }
+        .dark-mode .checklist-item {
+            background: rgba(255,255,255,0.05);
+        }
+        .dark-mode #checklist-input {
+            background-color: #3c3c3c;
+            border-color: #555;
+            color: #e0e0e0;
+        }
+        .dark-mode .checklist-close-btn,
+        .dark-mode .checklist-edit-btn {
+            background-color: #007aff;
+        }
+        .dark-mode .checklist-close-btn:hover,
+        .dark-mode .checklist-edit-btn:hover {
+            background-color: #005bb5;
+        }
+        
+        /* Dark mode for iOS - Fixed popup backgrounds */
+        .dark-mode.theme-ios #app-window, 
+        .dark-mode.theme-ios .modal-content, 
+        .dark-mode.theme-ios #file-manager-window { 
+            background-color: #1c1c1e; 
+            border-color: #333; 
+        }
+        .dark-mode.theme-ios .modal-content .window-body,
+        .dark-mode.theme-ios #file-manager-window .window-body {
+            background-color: #1c1c1e !important;
+        }
+        .dark-mode.theme-ios .title-bar, 
+        .dark-mode.theme-ios .menu-bar { 
+            background: #1c1c1e; 
+            border-bottom-color: #333; 
+        }
+        .dark-mode.theme-ios .title-bar-text, 
+        .dark-mode.theme-ios p { 
+            color: #fff; 
+        }
+        .dark-mode.theme-ios .menu-bar > li { 
+            color: #0a84ff; 
+        }
+        .dark-mode.theme-ios .menu-bar > li:hover { 
+            background: #2c2c2e; 
+        }
+        .dark-mode.theme-ios #editor, 
+        .dark-mode.theme-ios #note-preview, 
+        .dark-mode.theme-ios input, 
+        .dark-mode.theme-ios select { 
+            background-color: #1c1c1e; 
+            color: #fff; 
+            border-color: #333; 
+        }
+        .dark-mode.theme-ios .dropdown-content { 
+            background-color: #1c1c1e !important;
+            border-color: #333 !important;
+        }
+        .dark-mode.theme-ios .dropdown-content li { 
+            color: #0a84ff; 
+            border-bottom-color: #333; 
+        }
+        .dark-mode.theme-ios .dropdown-content li:hover { 
+            background: #2c2c2e; 
+        }
+        .dark-mode.theme-ios #about-modal p { 
+            color: #fff; 
+        }
+        .dark-mode.theme-ios #font-size-modal .modal-content { 
+            background-color: #1c1c1e; 
+        }
+        .dark-mode.theme-ios #file-manager-window .window-body { 
+            background-color: #1c1c1e; 
+        }
+        .dark-mode.theme-ios .note-item.active { 
+            background-color: #0a84ff; 
+        }
+        .dark-mode.theme-ios .notes-list-header {
+            background-color: #1c1c1e;
+            border-color: #333;
+        }
+        .dark-mode.theme-ios #notes-list-container {
+            background-color: #1c1c1e;
+        }
+        .dark-mode.theme-ios button {
+            background-color: #0a84ff;
+        }
+        .dark-mode.theme-ios button.primary {
+            background-color: #30d158;
+        }
+        .dark-mode.theme-ios input[type="text"],
+        .dark-mode.theme-ios select {
+            background-color: #2c2c2c !important;
+            color: #fff !important;
+            border-color: #444 !important;
         }
 
-        .status-online { background: #00d4aa; }
-        .status-offline { background: #8696a0; }
-
-        .sidebar-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        /* Dark mode for Android - Fixed popup backgrounds */
+        .dark-mode.theme-android body { 
+            background-color: #121212; 
+        }
+        .dark-mode.theme-android #app-window, 
+        .dark-mode.theme-android .modal-content, 
+        .dark-mode.theme-android #file-manager-window { 
+            background-color: #1e1e1e; 
+            border-color: #333; 
+        }
+        .dark-mode.theme-android .modal-content .window-body,
+        .dark-mode.theme-android #file-manager-window .window-body {
+            background-color: #1e1e1e !important;
+        }
+        .dark-mode.theme-android .title-bar, 
+        .dark-mode.theme-android .menu-bar { 
+            background: #2c2c2c; 
+            border-bottom-color: #333; 
+        }
+        .dark-mode.theme-android .title-bar-text, 
+        .dark-mode.theme-android p { 
+            color: #e0e0e0; 
+        }
+        .dark-mode.theme-android .menu-bar > li { 
+            background: #3c3c3c; 
+            color: #e0e0e0; 
+            border-color: #555; 
+        }
+        .dark-mode.theme-android .menu-bar > li:hover { 
+            background: #555; 
+        }
+        .dark-mode.theme-android .dropdown-content { 
+            background-color: #1e1e1e !important;
+            border-color: #333 !important;
+        }
+        .dark-mode.theme-android .dropdown-content li { 
+            color: #e0e0e0; 
+            border-bottom-color: #333; 
+        }
+        .dark-mode.theme-android .dropdown-content li:hover { 
+            background: #3c3c3c; 
+        }
+        .dark-mode.theme-android #about-modal p { 
+            color: #fff; 
+        }
+        .dark-mode.theme-android #font-size-modal .modal-content { 
+            background-color: #1e1e1e; 
+        }
+        .dark-mode.theme-android #file-manager-window .window-body { 
+            background-color: #1e1e1e; 
+        }
+        .dark-mode.theme-android .note-item.active { 
+            background-color: #8ab4f8; 
+            color: #202124; 
+        }
+        .dark-mode.theme-android .note-item.active .file-icon { 
+            fill: #202124; 
+        }
+        .dark-mode.theme-android .notes-list-header {
+            background-color: #2c2c2c;
+            border-color: #333;
+        }
+        .dark-mode.theme-android #notes-list-container {
+            background-color: #2c2c2c;
+        }
+        .dark-mode.theme-android button {
+            background-color: #8ab4f8;
+            color: #202124;
+        }
+        .dark-mode.theme-android button.primary {
+            background-color: #81c995;
+        }
+        .dark-mode.theme-android input[type="text"],
+        .dark-mode.theme-android select {
+            background-color: #2c2c2c !important;
+            color: #fff !important;
+            border-color: #444 !important;
         }
 
-        .sidebar-overlay.visible {
-            display: block;
-            opacity: 1;
+        /* --- FIX: Dark Mode Input Boxes --- */
+        .dark-mode.theme-win95 input[type="text"],
+        .dark-mode.theme-win95 select,
+        .dark-mode.theme-winxp input[type="text"],
+        .dark-mode.theme-winxp select {
+            background-color: #2c2c2c;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            box-shadow: none;
+            background-image: none;
         }
     </style>
+
+</head>
+<body class="theme-android">
+<div id="app-window">
+    <div class="title-bar">
+        <div class="title-bar-text">AFSNote</div>
+        <div class="title-bar-controls">
+            <button id="minimize-btn" class="win-button" aria-label="Minimize"><span class="icon minimize-icon"></span></button>
+            <button id="maximize-btn" class="win-button" aria-label="Maximize"><span class="icon maximize-icon"></span></button>
+            <button id="close-btn" class="win-button" aria-label="Close"><span class="icon close-icon">×</span></button>
+        </div>
+    </div>
+    <ul class="menu-bar">
+        <li class="menu-item">
+            File
+            <ul class="dropdown-content">
+                <li id="new-file-btn">New Note</li>
+                <li id="open-file-btn">Open from Device...</li>
+                <li id="save-note-btn">Save Note</li>
+                <li id="save-to-device-btn">Save to Device...</li>
+            </ul>
+        </li>
+        <li id="saved-notes-btn">Saved Notes</li>
+        <li class="menu-item menu-item-right">
+            Styles
+            <ul class="dropdown-content">
+                <li id="theme-win95-btn">Windows 95</li>
+                <li id="theme-winxp-btn">Windows XP</li>
+                <li id="theme-ios-btn">iOS</li>
+                <li id="theme-android-btn">Android</li>
+                <li id="theme-git-btn">Git</li>
+            </ul>
+        </li>
+        <li class="menu-item menu-item-right">
+            Tools
+            <ul class="dropdown-content">
+                <li id="font-size-menu-btn">Font Size</li>
+                <li id="replace-menu-btn">Replace</li>
+                <li id="import-export-btn">Import/Export</li>
+                <li id="about-menu-btn">About</li>
+            </ul>
+        </li>
+    </ul>
+    <div class="window-body">
+        <div id="checklist-container" style="display: none;">
+            <div class="checklist-items" id="checklist-items"></div>
+            <div id="checklist-input-container">
+                <input type="text" id="checklist-input" placeholder="Add item..." />
+            </div>
+            <div class="checklist-controls">
+                <button class="checklist-close-btn" id="checklist-close">Close</button>
+                <button class="checklist-edit-btn" id="checklist-edit" style="display: none;">Edit</button>
+            </div>
+        </div>
+        <textarea id="editor" spellcheck="false"></textarea>
+    </div>
+</div>
+
+<div id="about-modal" class="modal">
+    <div class="modal-content">
+        <div class="title-bar">
+            <div class="title-bar-text">About AFSNote</div>
+            <div class="version-display">[Version 1.0.0]</div>
+        </div>
+        <div class="window-body">
+            <p style="text-align: center; margin: 20px; font-weight: bold;">
+                This shitty app was vibe coded by <br>an absolute complete dumbass
+                who was sick <br>of all your shitty note apps.
+                <br><br>
+                Like who the fuck wants a note taking app <br>to open DIRECTLY
+                to the saved notes, <br>showing you every single note <br>with just
+                enough of a snippet to raise suspicion, <br>get better you fucking weirdos.
+            </p>
+            <p style="text-align: center; margin: 20px; font-weight: bold;">
+                Your notes are stored locally in your browser,<br>
+                so it's your fault if you lose them, dumbass.
+            </p>
+            <section class="field-row"><button id="close-modal-1">Close</button></section>
+        </div>
+    </div>
+</div>
+
+<div id="save-note-modal" class="modal">
+     <div class="modal-content">
+        <div class="title-bar"><div class="title-bar-text">Save Note</div></div>
+        <div class="window-body">
+            <label for="note-name-input" style="display: block; margin-bottom: 8px;">Note Name:</label>
+            <input type="text" id="note-name-input" value="">
+            <section class="field-row"><button id="cancel-note-save-btn">Cancel</button><button id="confirm-note-save-btn" class="primary">Save</button></section>
+        </div>
+    </div>
+</div>
+
+<div id="save-to-device-modal" class="modal">
+     <div class="modal-content">
+        <div class="title-bar"><div class="title-bar-text">Save to Device</div></div>
+        <div class="window-body">
+            <label for="device-filename-input" style="display: block; margin-bottom: 8px;">File Name:</label>
+            <input type="text" id="device-filename-input" value="" placeholder="filename.txt">
+            <label for="file-type-select" style="display: block; margin-top: 10px; margin-bottom: 8px;">File Type:</label>
+            <select id="file-type-select">
+                <option value="txt">.txt (Text File)</option>
+                <option value="html">.html (HTML File)</option>
+            </select>
+            <section class="field-row"><button id="cancel-device-save-btn">Cancel</button><button id="confirm-device-save-btn" class="primary">Save</button></section>
+        </div>
+    </div>
+</div>
+
+<div id="font-size-modal" class="modal">
+     <div class="modal-content">
+       <div class="title-bar"><div class="title-bar-text">Adjust Font Size</div></div>
+       <div class="window-body">
+            <input type="range" id="font-size-slider" min="8" max="48" value="16">
+            <p id="font-size-display">16px</p>
+            <section class="field-row"><button id="close-font-modal-btn">Close</button></section>
+       </div>
+   </div>
+</div>
+
+<div id="replace-modal" class="modal">
+    <div class="modal-content">
+        <div class="title-bar"><div class="title-bar-text">Replace</div></div>
+        <div class="window-body">
+            <label for="find-input">Find:</label>
+            <input type="text" id="find-input">
+            <label for="replace-input" style="margin-top: 10px;">Replace with:</label>
+            <input type="text" id="replace-input">
+            <section class="field-row">
+                <button id="confirm-replace-all-btn">Replace All</button>
+                <button id="close-replace-btn">Close</button>
+            </section>
+        </div>
+    </div>
+</div>
+
+<div id="import-export-modal" class="modal">
+    <div class="modal-content">
+        <div class="title-bar"><div class="title-bar-text">Import/Export Notes</div></div>
+        <div class="window-body">
+            <div class="io-section">
+                <button id="import-notes-btn">📥</button>
+                <p>Import Notes</p>
+            </div>
+            <div class="io-section">
+                <button id="export-notes-btn">📤</button>
+                <p>Export Notes</p>
+            </div>
+            <p class="io-warning">Note: Your notes are stored locally in your browser.</p>
+        </div>
+        <section class="field-row">
+            <button id="close-io-modal-btn">Close</button>
+        </section>
+    </div>
+</div>
+
+<div id="delete-confirm-modal" class="modal">
+    <div class="modal-content">
+        <div class="title-bar"><div class="title-bar-text">Confirm Deletion</div></div>
+        <div class="window-body">
+            <p style="text-align: center; margin: 20px;">Are you sure you want to delete this note?</p>
+            <section class="field-row">
+                <button id="cancel-delete-btn">No</button>
+                <button id="confirm-delete-btn" class="primary">Yes</button>
+            </section>
+        </div>
+    </div>
+</div>
+
+<input type="file" id="file-opener" accept=".txt,text/plain">
+<input type="file" id="import-file-opener" accept=".json,application/json">
+
+<div id="file-manager-window">
+    <div class="title-bar">
+        <button id="file-manager-back-btn">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+            Back
+        </button>
+        <div class="title-bar-text">Saved Notes</div>
+        <div class="title-bar-controls">
+            <button id="file-manager-close-btn" class="win-button" aria-label="Close"><span class="icon close-icon">×</span></button>
+        </div>
+    </div>
+    <div class="window-body">
+         <div id="file-manager-content">
+            <div id="notes-list-container">
+                <div class="notes-list-header">
+                    <span class="header-name">Name</span>
+                    <div class="menu-item">
+                        <button id="filter-btn">Filter</button>
+                        <ul class="dropdown-content">
+                            <li data-sort="name-asc">Name (A-Z)</li>
+                            <li data-sort="name-desc">Name (Z-A)</li>
+                            <li data-sort="date-desc">Newest First</li>
+                            <li data-sort="date-asc">Oldest First</li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="notes-list"></div>
+            </div>
+            <div id="note-preview-container">
+                <div id="note-preview-header">
+                    <div>
+                        <div id="note-preview-title"></div>
+                        <div id="note-preview-date"></div>
+                    </div>
+                    <div id="note-preview-actions">
+                        <button id="preview-open-btn">Open in Editor</button>
+                        <button id="preview-delete-btn">Delete</button>
+                    </div>
+                </div>
+                <div id="note-preview">Select a note to preview...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const getEl = id => document.getElementById(id);
+        
+        // --- State ---
+        let currentNoteId = null;
+        let selectedPreviewId = null;
+        let isDirty = false; // Flag for unsaved changes
+        let autosaveTimeout = null; // Timer for autosave
+        let checklistMode = false;
+        let checklistItems = [];
+        
+        // --- Element Cache ---
+        const editor = getEl('editor');
+        const fileOpener = getEl('file-opener');
+        const importFileOpener = getEl('import-file-opener');
+        const closeBtn = getEl('close-btn');
+        const titleBarText = document.querySelector('#app-window .title-bar-text');
+        
+        // Menu Buttons
+        const newFileBtn = getEl('new-file-btn');
+        const openFileBtn = getEl('open-file-btn');
+        const saveNoteBtn = getEl('save-note-btn');
+        const saveToDeviceBtn = getEl('save-to-device-btn');
+        const aboutMenuBtn = getEl('about-menu-btn');
+        const fontSizeMenuBtn = getEl('font-size-menu-btn');
+        const savedNotesBtn = getEl('saved-notes-btn');
+        const replaceMenuBtn = getEl('replace-menu-btn');
+        const importExportBtn = getEl('import-export-btn');
+        const fontSizeSlider = getEl('font-size-slider');
+        const fontSizeDisplay = getEl('font-size-display');
+        const fileTypeSelect = getEl('file-type-select');
+        const deviceFilenameInput = getEl('device-filename-input');
+        
+        // Checklist Elements
+        const checklistContainer = getEl('checklist-container');
+        const checklistItemsContainer = getEl('checklist-items');
+        const checklistInput = getEl('checklist-input');
+        const checklistClose = getEl('checklist-close');
+        const checklistEdit = getEl('checklist-edit');
+        
+        // --- Title Bar Logic ---
+        const updateTitleBar = (noteName, showSavedMessage = false) => {
+            let displayName = noteName || 'Untitled';
+            if (displayName.length > 15) {
+                displayName = displayName.substring(0, 15) + '...';
+            }
+            const baseTitle = `${displayName} - AFSNote`;
+            titleBarText.textContent = baseTitle;
+            if (showSavedMessage) {
+                titleBarText.textContent = `✓ Saved - ${displayName} - AFSNote`;
+                setTimeout(() => {
+                    if (titleBarText.textContent.startsWith('✓ Saved')) {
+                        titleBarText.textContent = baseTitle;
+                    }
+                }, 1500);
+            }
+        };
+
+        // --- Checklist Feature Logic ---
+        const enterChecklistMode = () => {
+            checklistMode = true;
+            editor.style.display = 'none';
+            checklistContainer.style.display = 'flex';
+            checklistInput.focus();
+            checklistClose.style.display = 'block';
+            checklistEdit.style.display = 'none';
+        };
+        
+        const exitChecklistMode = () => {
+            checklistMode = false;
+            checklistContainer.style.display = 'none';
+            editor.style.display = 'block';
+            
+            // Convert checklist back to text
+            let text = '';
+            checklistItems.forEach(item => {
+                const checkbox = item.completed ? '[x]' : '[ ]';
+                text += `${checkbox} ${item.text}\n`;
+            });
+            
+            // Replace the !list command with the actual checklist content
+            const lines = editor.value.split('\n');
+            const listIndex = lines.findIndex(line => line.trim() === '!list');
+            if (listIndex !== -1) {
+                lines[listIndex] = text.trim();
+                editor.value = lines.join('\n');
+            } else {
+                // If !list not found, just append the checklist content
+                editor.value = editor.value + '\n' + text;
+            }
+            
+            // Clear checklist items for next use
+            checklistItems = [];
+        };
+        
+        const addChecklistItem = (text) => {
+            const itemId = Date.now();
+            const item = { id: itemId, text: text, completed: false };
+            checklistItems.push(item);
+            renderChecklistItems();
+            // Autosave when new item is added
+            autosaveChecklist();
+        };
+        
+        // Helper function to autosave checklist
+        const autosaveChecklist = () => {
+            if (checklistMode && currentNoteId) {
+                const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
+                const note = notes.find(n => n.id === currentNoteId);
+                if (note) {
+                    saveNoteToLocalStorage(note.name, true);
+                }
+            }
+        };
+        
+        const renderChecklistItems = () => {
+            checklistItemsContainer.innerHTML = '';
+            checklistItems.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'checklist-item';
+                if (item.completed) itemDiv.classList.add('completed');
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'checklist-checkbox';
+                checkbox.checked = item.completed;
+                checkbox.addEventListener('change', () => {
+                    item.completed = checkbox.checked;
+                    if (checkbox.checked) {
+                        itemDiv.classList.add('completed');
+                    } else {
+                        itemDiv.classList.remove('completed');
+                    }
+                    // Autosave when item is checked/unchecked
+                    autosaveChecklist();
+                });
+                
+                const textSpan = document.createElement('span');
+                textSpan.className = 'checklist-text';
+                textSpan.textContent = item.text;
+                
+                // Create edit input (hidden by default)
+                const editInput = document.createElement('input');
+                editInput.type = 'text';
+                editInput.className = 'checklist-edit-input';
+                editInput.value = item.text;
+                
+                // Double-click to edit
+                textSpan.addEventListener('dblclick', () => {
+                    itemDiv.classList.add('editing');
+                    editInput.value = item.text;
+                    editInput.focus();
+                    editInput.select();
+                });
+                
+                // Save on Enter, cancel on Escape
+                editInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const newText = editInput.value.trim();
+                        if (newText) {
+                            item.text = newText;
+                            textSpan.textContent = newText;
+                            // Autosave when item is edited
+                            autosaveChecklist();
+                        }
+                        itemDiv.classList.remove('editing');
+                    } else if (e.key === 'Escape') {
+                        editInput.value = item.text;
+                        itemDiv.classList.remove('editing');
+                    }
+                });
+                
+                // Save on blur
+                editInput.addEventListener('blur', () => {
+                    const newText = editInput.value.trim();
+                    if (newText && newText !== item.text) {
+                        item.text = newText;
+                        textSpan.textContent = newText;
+                        // Autosave when item is edited
+                        autosaveChecklist();
+                    }
+                    itemDiv.classList.remove('editing');
+                });
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'checklist-delete';
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.addEventListener('click', () => {
+                    checklistItems = checklistItems.filter(i => i.id !== item.id);
+                    renderChecklistItems();
+                    // Autosave when item is deleted
+                    autosaveChecklist();
+                });
+                
+                // Long press for delete
+                let pressTimer;
+                const startPress = () => {
+                    pressTimer = setTimeout(() => {
+                        deleteBtn.classList.add('show');
+                        setTimeout(() => {
+                            deleteBtn.classList.remove('show');
+                        }, 3000);
+                    }, 1000);
+                };
+                
+                const cancelPress = () => {
+                    clearTimeout(pressTimer);
+                };
+                
+                itemDiv.addEventListener('mousedown', (e) => {
+                    if (!e.target.matches('input')) startPress();
+                });
+                itemDiv.addEventListener('touchstart', (e) => {
+                    if (!e.target.matches('input')) startPress();
+                });
+                itemDiv.addEventListener('mouseup', cancelPress);
+                itemDiv.addEventListener('mouseleave', cancelPress);
+                itemDiv.addEventListener('touchend', cancelPress);
+                
+                itemDiv.appendChild(checkbox);
+                itemDiv.appendChild(textSpan);
+                itemDiv.appendChild(editInput);
+                itemDiv.appendChild(deleteBtn);
+                checklistItemsContainer.appendChild(itemDiv);
+            });
+        };
+        
+        // Checklist event listeners
+        checklistInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && checklistInput.value.trim()) {
+                addChecklistItem(checklistInput.value.trim());
+                checklistInput.value = '';
+            }
+        });
+        
+        checklistClose.addEventListener('click', () => {
+            checklistInput.style.display = 'none';
+            checklistClose.style.display = 'none';
+            checklistEdit.style.display = 'block';
+        });
+        
+        checklistEdit.addEventListener('click', () => {
+            checklistInput.style.display = 'block';
+            checklistEdit.style.display = 'none';
+            checklistClose.style.display = 'block';
+            checklistInput.focus();
+        });
+        
+        // Monitor editor for !list command
+        editor.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const lines = editor.value.split('\n');
+                const currentLine = lines[lines.length - 1];
+                if (currentLine.trim() === '!list') {
+                    e.preventDefault();
+                    checklistItems = [];
+                    
+                    // Create a new note ID if we don't have one
+                    if (!currentNoteId) {
+                        currentNoteId = Date.now();
+                        // Save initially as "Untitled" checklist
+                        const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
+                        const note = { 
+                            id: currentNoteId, 
+                            name: 'Untitled Checklist', 
+                            content: '', 
+                            createdAt: Date.now() 
+                        };
+                        notes.unshift(note);
+                        localStorage.setItem('afsnote_notes', JSON.stringify(notes));
+                        updateTitleBar('Untitled Checklist');
+                    }
+                    
+                    enterChecklistMode();
+                }
+            }
+        });
+
+        // --- Theme Switcher Logic ---
+        const closeAllDropdowns = () => {
+            document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
+        };
+
+        // Setup dropdown menus
+        document.querySelectorAll('.menu-item').forEach(item => {
+            const hasDropdown = item.querySelector('.dropdown-content');
+            
+            item.addEventListener('click', event => {
+                if (hasDropdown && event.target.closest('.dropdown-content')) {
+                    return;
+                }
+                event.stopPropagation();
+                
+                if (hasDropdown) {
+                    const dropdown = item.querySelector('.dropdown-content');
+                    const isVisible = dropdown.style.display === 'block';
+                    closeAllDropdowns();
+                    if (!isVisible) {
+                        dropdown.style.display = 'block';
+                    }
+                } else {
+                    closeAllDropdowns();
+                }
+            });
+        });
+        
+        document.querySelectorAll('.dropdown-content li').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeAllDropdowns();
+            });
+        });
+        
+        window.addEventListener('click', closeAllDropdowns);
+        
+        const setTheme = (theme) => {
+            document.body.className = theme;
+            localStorage.setItem('afsnote_theme', theme);
+        };
+
+        getEl('theme-win95-btn').addEventListener('click', () => setTheme('theme-win95'));
+        getEl('theme-winxp-btn').addEventListener('click', () => setTheme('theme-winxp'));
+        getEl('theme-ios-btn').addEventListener('click', () => setTheme('theme-ios'));
+        getEl('theme-android-btn').addEventListener('click', () => setTheme('theme-android'));
+        getEl('theme-git-btn').addEventListener('click', () => setTheme('theme-git'));
+        const savedTheme = localStorage.getItem('afsnote_theme') || 'theme-android';
+        setTheme(savedTheme);
+
+        // --- Core App Logic ---
+        closeBtn.addEventListener('click', () => { window.close(); });
+        newFileBtn.addEventListener('click', () => {
+            editor.value = '';
+            currentNoteId = null;
+            isDirty = false;
+            updateTitleBar('Untitled');
+            if (checklistMode) exitChecklistMode();
+        });
+        openFileBtn.addEventListener('click', () => { fileOpener.click(); });
+        fileOpener.addEventListener('change', event => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => { editor.value = e.target.result; };
+            reader.readAsText(file);
+            event.target.value = null; 
+            currentNoteId = null;
+            isDirty = false;
+            updateTitleBar(file.name.replace(/\.[^/.]+$/, ""));
+        });
+        
+        // --- Save Note (Local Storage) Logic ---
+        const saveNoteToLocalStorage = (name, isAutosave = false) => {
+            let notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
+            let noteName = name.trim() || 'Untitled';
+            let savedNoteName = noteName;
+            let content = '';
+
+            // If in checklist mode, convert items to text format for storage
+            if (checklistMode) {
+                let checklistText = '';
+                checklistItems.forEach(item => {
+                    const checkbox = item.completed ? '[x]' : '[ ]';
+                    checklistText += `${checkbox} ${item.text}\n`;
+                });
+                // Combine any text in editor with checklist items
+                const editorText = editor.value.trim();
+                content = editorText ? editorText + '\n' + checklistText : checklistText;
+            } else {
+                content = editor.value;
+            }
+
+            if (currentNoteId) {
+                const note = notes.find(n => n.id === currentNoteId);
+                if (note) {
+                    note.content = content;
+                    note.createdAt = Date.now();
+                    note.name = noteName;
+                    savedNoteName = note.name;
+                }
+            } else {
+                const note = { id: Date.now(), name: noteName, content: content, createdAt: Date.now() };
+                notes.unshift(note);
+                currentNoteId = note.id;
+                savedNoteName = note.name;
+            }
+            localStorage.setItem('afsnote_notes', JSON.stringify(notes));
+            isDirty = false;
+            
+            if (isAutosave) {
+                updateTitleBar(savedNoteName, true);
+            } else {
+                updateTitleBar(savedNoteName);
+            }
+            
+            // Stay in checklist mode after saving
+            // Don't call exitChecklistMode()
+        };
+        const saveNoteModal = getEl('save-note-modal');
+        saveNoteBtn.addEventListener('click', () => {
+            if (currentNoteId) {
+                const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
+                const note = notes.find(n => n.id === currentNoteId);
+                saveNoteToLocalStorage(note.name);
+                alert('Note updated!');
+            } else {
+                saveNoteModal.style.display = 'flex';
+                getEl('note-name-input').focus();
+            }
+        });
+        getEl('cancel-note-save-btn').addEventListener('click', () => { saveNoteModal.style.display = 'none'; });
+        getEl('confirm-note-save-btn').addEventListener('click', () => {
+            saveNoteToLocalStorage(getEl('note-name-input').value);
+            saveNoteModal.style.display = 'none';
+        });
+
+        // --- Save to Device Logic ---
+        const saveToDeviceModal = getEl('save-to-device-modal');
+        const saveToDevice = (filename, type) => {
+            let finalFilename = filename.trim() || 'Untitled';
+            let content = editor.value;
+            let mimeType = 'text/plain';
+            
+            // Remove extension if already present
+            finalFilename = finalFilename.replace(/\.(txt|html)$/i, '');
+            
+            // Add appropriate extension and set MIME type
+            if (type === 'html') {
+                finalFilename += '.html';
+                mimeType = 'text/html';
+                // Ensure basic HTML structure if saving as HTML
+                if (!content.includes('<html') && !content.includes('<HTML')) {
+                    content = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${finalFilename.replace('.html', '')}</title>
 </head>
 <body>
-    <!-- First Time Setup Modal -->
-    <div class="first-time-modal" id="firstTimeModal">
-        <div class="first-time-content">
-            <div class="welcome-icon-large">🔐</div>
-            <h1 class="first-time-title">SecureMessenger</h1>
-            <p class="first-time-subtitle">Secure, private messaging with end-to-end encryption</p>
-            
-            <div class="security-badge">
-                🛡️ Military-grade E2E encryption
-            </div>
-            
-            <div class="features-list">
-                <div class="feature-item">
-                    <span class="feature-icon">✓</span>
-                    <span>Direct P2P connections - no servers</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">✓</span>
-                    <span>Messages stored locally only</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">✓</span>
-                    <span>End-to-end encrypted conversations</span>
-                </div>
-            </div>
-            
-            <div class="username-setup">
-                <label for="setupUsernameInput">Create your secure identity:</label>
-                <input 
-                    type="text" 
-                    id="setupUsernameInput" 
-                    class="username-setup-input" 
-                    placeholder="Enter your name (e.g. john, alice, gamer)"
-                    maxlength="20"
-                    oninput="previewUsername()"
-                    onkeydown="handleSetupKeydown(event)"
-                >
-                <div class="username-preview" id="usernamePreview"></div>
-                <div class="error-message" id="setupError"></div>
-            </div>
-            
-            <button class="setup-button" id="setupButton" onclick="completeSetup()" disabled>
-                Start Secure Messaging
-            </button>
-        </div>
-    </div>
-
-    <div class="app-container">
-        <!-- Sidebar Overlay -->
-        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-        
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="user-profile" onclick="showProfileModal()">
-                    <div class="avatar" id="userAvatar">U</div>
-                    <div class="profile-info">
-                        <h3 id="displayName">User</h3>
-                        <div class="username" id="myUsername" onclick="editUsername(event)">user00000</div>
-                    </div>
-                </div>
-                <div class="header-actions">
-                    <button class="header-btn" onclick="showAddContactModal()" title="Add Contact">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                        </svg>
-                    </button>
-                    <button class="header-btn" onclick="showShareModal()" title="Share Username">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.50-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            <div class="search-bar">
-                <input type="text" class="search-input" placeholder="Search contacts..." id="searchInput" oninput="filterContacts()">
-            </div>
-
-            <div class="chats-list" id="chatsList">
-                <div class="empty-state">
-                    <div style="font-size: 48px; margin-bottom: 15px;">💬</div>
-                    <div>No contacts yet</div>
-                    <div style="margin-top: 5px; font-size: 12px;">Add a contact to start messaging</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="main-chat" id="mainChat">
-            <div class="app-header">
-                <button class="menu-btn" onclick="toggleSidebar()">
-                    <div class="menu-icon">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </button>
-                <div class="app-title">SecureMessenger</div>
-            </div>
-
-            <div class="chat-header-main" id="chatHeader">
-                <button class="back-btn" onclick="goBackToSidebar()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-                    </svg>
-                </button>
-                <div class="contact-info">
-                    <div class="chat-avatar" id="currentChatAvatar">A</div>
-                    <div>
-                        <div class="chat-name" id="currentChatName">Contact</div>
-                        <div class="contact-status">
-                            <span class="status-indicator status-offline" id="contactStatus"></span>
-                            <span id="contactStatusText">offline</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="welcomeScreen" class="welcome-screen">
-                <div class="welcome-icon">🔒</div>
-                <h2 style="color: #e9edef; margin-bottom: 15px;">SecureMessenger P2P</h2>
-                <p>Send and receive messages securely with end-to-end encryption.</p>
-                <p style="margin-top: 15px; font-size: 14px;">Add a contact to start messaging.</p>
-            </div>
-
-            <div class="messages-area" id="messagesArea" style="display: none;"></div>
-
-            <div class="message-input-area" id="messageInputArea" style="display: none;">
-                <div class="message-input-container">
-                    <textarea class="message-input" id="messageInput" placeholder="Type a message" rows="1" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
-                </div>
-                <button class="send-button" onclick="sendMessage()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Profile Modal -->
-    <div class="modal" id="profileModal">
-        <div class="modal-content">
-            <div class="modal-header">Your Profile</div>
-            <div class="modal-body">
-                <label>Display Name:</label>
-                <input type="text" class="modal-input" id="profileNameInput" maxlength="30">
-                
-                <label>Your Username (click to edit):</label>
-                <div class="username-display" id="profileUsername" onclick="editUsernameInProfile()" style="cursor: pointer;">user00000</div>
-                
-                <div class="modal-buttons">
-                    <button class="modal-btn primary" onclick="saveProfile()">Save</button>
-                    <button class="modal-btn secondary" onclick="closeModal('profileModal')">Cancel</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Contact Modal -->
-    <div class="modal" id="addContactModal">
-        <div class="modal-content">
-            <div class="modal-header">Add Contact</div>
-            <div class="modal-body">
-                <label>Enter username (type name, we'll add numbers):</label>
-                <input type="text" class="modal-input" id="contactUsernameInput" placeholder="e.g. john, alice, gamer" maxlength="20">
-                
-                <label>Display Name (optional):</label>
-                <input type="text" class="modal-input" id="contactNameInput" placeholder="Friend's Name" maxlength="30">
-                
-                <div class="modal-buttons">
-                    <button class="modal-btn primary" onclick="addContact()">Add Contact</button>
-                    <button class="modal-btn secondary" onclick="closeModal('addContactModal')">Cancel</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Share Modal -->
-    <div class="modal" id="shareModal">
-        <div class="modal-content">
-            <div class="modal-header">Share Your Username</div>
-            <div class="modal-body">
-                <p>Share this username with others to let them add you:</p>
-                <div class="username-display" id="shareUsername">user00000</div>
-                
-                <div class="modal-buttons">
-                    <button class="modal-btn primary" onclick="copyUsername()">Copy Username</button>
-                    <button class="modal-btn secondary" onclick="closeModal('shareModal')">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- PeerJS CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.0/dist/peerjs.min.js"></script>
-
-    <script>
-        // App state
-        let peer = null;
-        let myUsername = null;
-        let myDisplayName = 'User';
-        let contacts = new Map();
-        let activeConnections = new Map();
-        let currentChatUsername = null;
-        let chatMessages = new Map();
-
-        // Initialize app
-        async function initApp() {
-            try {
-                // Load or generate username
-                myUsername = localStorage.getItem('myUsername');
-                if (!myUsername) {
-                    myUsername = generateRandomUsername('user');
-                    localStorage.setItem('myUsername', myUsername);
+${content}
+</body>
+</html>`;
                 }
-
-                // Load display name
-                myDisplayName = localStorage.getItem('myDisplayName') || 'User';
-
-                // Update UI
-                updateProfileUI();
-
-                // Load saved data
-                loadContacts();
-                loadMessages();
-
-                // Initialize PeerJS
-                initPeer();
-
-                console.log('App initialized with username:', myUsername);
-            } catch (error) {
-                console.error('Failed to initialize app:', error);
-            }
-        }
-
-        // Initialize PeerJS connection
-        function initPeer() {
-            // Use username as peer ID for consistency
-            peer = new Peer(myUsername);
-
-            peer.on('open', function(id) {
-                console.log('Connected with peer ID:', id);
-                updateOnlineStatus(true);
-            });
-
-            peer.on('connection', function(conn) {
-                console.log('Incoming connection from:', conn.peer);
-                handleIncomingConnection(conn);
-            });
-
-            peer.on('error', function(err) {
-                console.error('PeerJS error:', err);
-                updateOnlineStatus(false);
-                
-                // Retry connection after a delay
-                setTimeout(() => {
-                    if (!peer.open) {
-                        initPeer();
-                    }
-                }, 5000);
-            });
-        }
-
-        // Handle incoming connections
-        function handleIncomingConnection(conn) {
-            const contactUsername = conn.peer;
-            
-            conn.on('open', function() {
-                console.log('Connection established with:', contactUsername);
-                activeConnections.set(contactUsername, conn);
-                updateContactStatus(contactUsername, true);
-                
-                // Exchange public keys for E2E encryption
-                exchangePublicKeys(conn, contactUsername);
-                
-                // Auto-add contact if not exists
-                if (!contacts.has(contactUsername)) {
-                    const contact = {
-                        username: contactUsername,
-                        displayName: contactUsername,
-                        lastSeen: Date.now(),
-                        unreadCount: 0
-                    };
-                    contacts.set(contactUsername, contact);
-                    saveContacts();
-                    updateContactsList();
-                }
-            });
-
-            conn.on('data', function(data) {
-                handleIncomingMessage(data, contactUsername);
-            });
-
-            conn.on('close', function() {
-                console.log('Connection closed with:', contactUsername);
-                activeConnections.delete(contactUsername);
-                updateContactStatus(contactUsername, false);
-            });
-        }
-
-        // Exchange public keys for E2E encryption
-        async function exchangePublicKeys(conn, contactUsername) {
-            // Send our public key
-            const myPublicKeyString = await exportPublicKey(myPublicKey);
-            conn.send({
-                type: 'public_key',
-                publicKey: myPublicKeyString,
-                from: myUsername
-            });
-        }
-
-        // Connect to a contact
-        async function connectToContact(username) {
-            if (activeConnections.has(username)) {
-                return activeConnections.get(username);
-            }
-
-            try {
-                const conn = peer.connect(username);
-                
-                return new Promise((resolve, reject) => {
-                    conn.on('open', function() {
-                        console.log('Connected to:', username);
-                        activeConnections.set(username, conn);
-                        updateContactStatus(username, true);
-                        
-                        // Exchange public keys
-                        exchangePublicKeys(conn, username);
-                        
-                        conn.on('data', function(data) {
-                            handleIncomingMessage(data, username);
-                        });
-                        
-                        conn.on('close', function() {
-                            console.log('Connection closed with:', username);
-                            activeConnections.delete(username);
-                            updateContactStatus(username, false);
-                        });
-                        
-                        resolve(conn);
-                    });
-                    
-                    conn.on('error', function(err) {
-                        console.error('Failed to connect to:', username, err);
-                        reject(err);
-                    });
-                });
-            } catch (error) {
-                console.error('Connection error:', error);
-                throw error;
-            }
-        }
-
-        // Send message
-        async function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            
-            if (!message || !currentChatUsername) return;
-
-            try {
-                // Try to connect if not already connected
-                if (!activeConnections.has(currentChatUsername)) {
-                    await connectToContact(currentChatUsername);
-                }
-
-                // Encrypt message if we have the contact's public key
-                let encryptedMessage = message;
-                const contactPublicKey = contactPublicKeys.get(currentChatUsername);
-                if (contactPublicKey && myPrivateKey) {
-                    try {
-                        const sharedKey = await deriveSharedKey(myPrivateKey, contactPublicKey);
-                        encryptedMessage = await encryptMessage(message, sharedKey);
-                    } catch (error) {
-                        console.warn('Encryption failed, sending plain text:', error);
-                    }
-                }
-
-                const messageData = {
-                    type: 'message',
-                    text: encryptedMessage,
-                    timestamp: Date.now(),
-                    from: myUsername,
-                    encrypted: encryptedMessage !== message
-                };
-
-                // Send to contact
-                const conn = activeConnections.get(currentChatUsername);
-                if (conn && conn.open) {
-                    conn.send(messageData);
-                }
-
-                // Add to local chat (store original message)
-                addMessageToChat(currentChatUsername, { ...messageData, text: message }, true);
-                
-                input.value = '';
-                autoResize(input);
-                
-            } catch (error) {
-                console.error('Failed to send message:', error);
-                alert('Failed to send message. The user might be offline.');
-            }
-        }
-
-        // Handle incoming messages
-        async function handleIncomingMessage(data, fromUsername) {
-            if (data.type === 'public_key') {
-                // Store contact's public key for E2E encryption
-                try {
-                    const contactPublicKey = await importPublicKey(data.publicKey);
-                    contactPublicKeys.set(fromUsername, contactPublicKey);
-                    console.log('Public key received from:', fromUsername);
-                    
-                    // Send our public key back if we haven't already
-                    const conn = activeConnections.get(fromUsername);
-                    if (conn && myPublicKey) {
-                        const myPublicKeyString = await exportPublicKey(myPublicKey);
-                        conn.send({
-                            type: 'public_key',
-                            publicKey: myPublicKeyString,
-                            from: myUsername
-                        });
-                    }
-                } catch (error) {
-                    console.error('Failed to import public key:', error);
-                }
-            } else if (data.type === 'message') {
-                // Decrypt message if it's encrypted
-                let messageText = data.text;
-                if (data.encrypted && contactPublicKeys.has(fromUsername) && myPrivateKey) {
-                    try {
-                        const contactPublicKey = contactPublicKeys.get(fromUsername);
-                        const sharedKey = await deriveSharedKey(myPrivateKey, contactPublicKey);
-                        messageText = await decryptMessage(data.text, sharedKey);
-                    } catch (error) {
-                        console.error('Decryption failed:', error);
-                        messageText = '[Encrypted message - decryption failed]';
-                    }
-                }
-                
-                addMessageToChat(fromUsername, { ...data, text: messageText }, false);
-                
-                // Update contact's last activity
-                const contact = contacts.get(fromUsername);
-                if (contact) {
-                    contact.lastSeen = Date.now();
-                    if (currentChatUsername !== fromUsername) {
-                        contact.unreadCount = (contact.unreadCount || 0) + 1;
-                    }
-                    saveContacts();
-                    updateContactsList();
-                }
-            }
-        }
-
-        // Add message to chat
-        function addMessageToChat(username, messageData, isSent) {
-            const chatKey = username;
-            if (!chatMessages.has(chatKey)) {
-                chatMessages.set(chatKey, []);
-            }
-            
-            const message = {
-                ...messageData,
-                isSent: isSent,
-                id: Date.now() + Math.random()
-            };
-            
-            chatMessages.get(chatKey).push(message);
-            saveMessages();
-            
-            if (currentChatUsername === username) {
-                displayMessage(message);
-            }
-            
-            // Update last message in contacts list
-            updateContactLastMessage(username, messageData.text);
-        }
-
-        // Display message in UI
-        function displayMessage(message) {
-            const messagesArea = document.getElementById('messagesArea');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${message.isSent ? 'sent' : 'received'}`;
-            
-            const bubble = document.createElement('div');
-            bubble.className = 'message-bubble';
-            bubble.textContent = message.text;
-            
-            const time = document.createElement('div');
-            time.className = 'message-time';
-            
-            // Add encryption indicator
-            const encryptionIcon = message.encrypted ? '🔒 ' : '';
-            time.textContent = `${encryptionIcon}${new Date(message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`;
-            
-            messageDiv.appendChild(bubble);
-            messageDiv.appendChild(time);
-            messagesArea.appendChild(messageDiv);
-            
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-        }
-
-        // Open chat with contact
-        function openChat(username) {
-            currentChatUsername = username;
-            
-            const contact = contacts.get(username);
-            if (contact) {
-                // Clear unread count
-                contact.unreadCount = 0;
-                saveContacts();
-                updateContactsList();
-                
-                // Update header
-                document.getElementById('currentChatName').textContent = contact.displayName;
-                document.getElementById('currentChatAvatar').textContent = contact.displayName.charAt(0).toUpperCase();
-                
-                // Show chat interface
-                document.getElementById('welcomeScreen').style.display = 'none';
-                document.getElementById('chatHeader').style.display = 'flex';
-                document.getElementById('messagesArea').style.display = 'block';
-                document.getElementById('messageInputArea').style.display = 'flex';
-                
-                // Setup mobile keyboard handling
-                setupMobileKeyboardHandling();
-                
-                // Load and display messages
-                loadChatMessages(username);
-                
-                // Update contact status
-                updateContactStatus(username, activeConnections.has(username));
-                
-                // Try to connect
-                connectToContact(username).catch(err => {
-                    console.log('Could not connect to contact:', err);
-                });
-            }
-            
-            // Close sidebar after selecting a chat
-            closeSidebar();
-        }
-
-        // Load chat messages
-        function loadChatMessages(username) {
-            const messagesArea = document.getElementById('messagesArea');
-            messagesArea.innerHTML = '';
-            
-            const messages = chatMessages.get(username) || [];
-            messages.forEach(message => {
-                displayMessage(message);
-            });
-        }
-
-        // Generate random username with good entropy
-        function generateRandomUsername(baseName) {
-            // Generate a random number between 10000 and 999999 for better uniqueness
-            const randomNum = Math.floor(Math.random() * 990000) + 10000;
-            return `${baseName}${randomNum}`;
-        }
-
-        // Extract base name from username (remove numbers at the end)
-        function extractBaseName(username) {
-            return username.replace(/\d+$/, '') || 'user';
-        }
-
-        // Username editing
-        function editUsername(event) {
-            event.stopPropagation(); // Prevent profile modal from opening
-            
-            const usernameDiv = document.getElementById('myUsername');
-            const currentUsername = usernameDiv.textContent;
-            
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'username-edit';
-            input.value = currentUsername;
-            input.maxLength = 20;
-            
-            usernameDiv.style.display = 'none';
-            usernameDiv.parentNode.insertBefore(input, usernameDiv.nextSibling);
-            
-            input.focus();
-            input.select();
-            
-            function saveUsername() {
-                let newUsername = input.value.trim();
-                
-                // If user just typed a base name (no numbers), generate full username
-                if (newUsername && !newUsername.match(/\d+$/)) {
-                    newUsername = generateRandomUsername(newUsername);
-                    input.value = newUsername; // Show the generated username
-                }
-                
-                // Validate username format
-                if (!newUsername.match(/^[a-zA-Z0-9_]{4,25}$/)) {
-                    alert('Username must be 4-25 characters (letters, numbers, underscore only)');
-                    input.focus();
-                    return;
-                }
-                
-                if (newUsername !== myUsername) {
-                    // Check if username is already taken by trying to connect
-                    checkUsernameAvailability(newUsername).then(available => {
-                        if (available || newUsername === myUsername) {
-                            updateUsername(newUsername);
-                            finishEdit();
-                        } else {
-                            // If taken, regenerate with different number
-                            const baseName = extractBaseName(newUsername);
-                            const retryUsername = generateRandomUsername(baseName);
-                            input.value = retryUsername;
-                            alert(`Username taken. Trying: ${retryUsername}`);
-                            input.focus();
-                        }
-                    }).catch(() => {
-                        // If check fails, allow the change (might be offline)
-                        updateUsername(newUsername);
-                        finishEdit();
-                    });
-                } else {
-                    finishEdit();
-                }
-            }
-            
-            function finishEdit() {
-                input.remove();
-                usernameDiv.style.display = 'block';
-            }
-            
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    saveUsername();
-                } else if (e.key === 'Escape') {
-                    finishEdit();
-                }
-            });
-            
-            input.addEventListener('blur', saveUsername);
-        }
-
-        function editUsernameInProfile() {
-            const profileUsername = document.getElementById('profileUsername');
-            const currentUsername = myUsername;
-            
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'modal-input';
-            input.value = currentUsername;
-            input.maxLength = 20;
-            input.placeholder = 'e.g. john, alice, gamer';
-            
-            profileUsername.style.display = 'none';
-            profileUsername.parentNode.insertBefore(input, profileUsername.nextSibling);
-            
-            input.focus();
-            input.select();
-            
-            function saveProfileUsername() {
-                const newUsername = input.value.trim();
-                
-                if (!newUsername.match(/^[a-zA-Z0-9_]{4,20}$/)) {
-                    alert('Username must be 4-20 characters (letters, numbers, underscore only)');
-                    input.focus();
-                    return;
-                }
-                
-                if (newUsername !== myUsername) {
-                    checkUsernameAvailability(newUsername).then(available => {
-                        if (available || newUsername === myUsername) {
-                            updateUsername(newUsername);
-                            finishProfileEdit();
-                        } else {
-                            alert('Username is already taken. Please choose a different one.');
-                            input.focus();
-                        }
-                    }).catch(() => {
-                        updateUsername(newUsername);
-                        finishProfileEdit();
-                    });
-                } else {
-                    finishProfileEdit();
-                }
-            }
-            
-            function finishProfileEdit() {
-                input.remove();
-                profileUsername.style.display = 'block';
-            }
-            
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    saveProfileUsername();
-                } else if (e.key === 'Escape') {
-                    finishProfileEdit();
-                }
-            });
-            
-            input.addEventListener('blur', saveProfileUsername);
-        }
-
-        async function checkUsernameAvailability(username) {
-            return new Promise((resolve) => {
-                // Create a temporary peer to check if username is taken
-                const testPeer = new Peer(username + '_test_' + Math.random().toString(36).substr(2, 4));
-                
-                const timeout = setTimeout(() => {
-                    testPeer.destroy();
-                    resolve(true); // Assume available if no response
-                }, 3000);
-                
-                testPeer.on('open', function() {
-                    // Try to connect to the username
-                    const testConn = testPeer.connect(username);
-                    
-                    testConn.on('open', function() {
-                        clearTimeout(timeout);
-                        testConn.close();
-                        testPeer.destroy();
-                        resolve(false); // Username is taken
-                    });
-                    
-                    testConn.on('error', function() {
-                        clearTimeout(timeout);
-                        testPeer.destroy();
-                        resolve(true); // Username is available
-                    });
-                    
-                    // If no connection within 2 seconds, assume available
-                    setTimeout(() => {
-                        if (testConn.open === false) {
-                            clearTimeout(timeout);
-                            testPeer.destroy();
-                            resolve(true);
-                        }
-                    }, 2000);
-                });
-                
-                testPeer.on('error', function(err) {
-                    clearTimeout(timeout);
-                    console.log('Test peer error:', err);
-                    resolve(true); // Assume available on error
-                });
-            });
-        }
-
-        function updateUsername(newUsername) {
-            const oldUsername = myUsername;
-            myUsername = newUsername;
-            
-            // Close existing peer connection
-            if (peer) {
-                peer.destroy();
-            }
-            
-            // Save new username
-            localStorage.setItem('myUsername', myUsername);
-            
-            // Update UI
-            updateProfileUI();
-            
-            // Reinitialize peer with new username
-            initPeer();
-            
-            console.log('Username changed from', oldUsername, 'to', newUsername);
-        }
-
-        // Sidebar functions
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            
-            if (sidebar.classList.contains('open')) {
-                closeSidebar();
             } else {
-                openSidebar();
+                finalFilename += '.txt';
             }
-        }
 
-        function openSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            
-            sidebar.classList.add('open');
-            overlay.classList.add('visible');
-        }
+            try {
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = finalFilename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+            } catch (err) {
+                alert(`Error saving file: ${err.message}`);
+            }
+        };
 
-        function closeSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            
-            sidebar.classList.remove('open');
-            overlay.classList.remove('visible');
-        }
-        function updateProfileUI() {
-            document.getElementById('myUsername').textContent = myUsername;
-            document.getElementById('displayName').textContent = myDisplayName;
-            document.getElementById('userAvatar').textContent = myDisplayName.charAt(0).toUpperCase();
-            document.getElementById('profileUsername').textContent = myUsername;
-            document.getElementById('shareUsername').textContent = myUsername;
-        }
+        saveToDeviceBtn.addEventListener('click', () => {
+            saveToDeviceModal.style.display = 'flex';
+            getEl('device-filename-input').focus();
+            getEl('device-filename-input').value = ''; // Clear previous input
+        });
+        getEl('cancel-device-save-btn').addEventListener('click', () => { saveToDeviceModal.style.display = 'none'; });
+        getEl('confirm-device-save-btn').addEventListener('click', () => {
+            const filename = getEl('device-filename-input').value;
+            const type = getEl('file-type-select').value;
+            saveToDevice(filename, type);
+            saveToDeviceModal.style.display = 'none';
+        });
 
-        function updateContactsList() {
-            const chatsList = document.getElementById('chatsList');
-            const contactsArray = Array.from(contacts.values());
-            
-            if (contactsArray.length === 0) {
-                chatsList.innerHTML = `
-                    <div class="empty-state">
-                        <div style="font-size: 48px; margin-bottom: 15px;">💬</div>
-                        <div>No contacts yet</div>
-                        <div style="margin-top: 5px; font-size: 12px;">Add a contact to start messaging</div>
-                    </div>
-                `;
+        // --- Other Modals ---
+        const aboutModal = getEl('about-modal');
+        aboutMenuBtn.addEventListener('click', () => { aboutModal.style.display = 'flex'; });
+        getEl('close-modal-1').addEventListener('click', () => aboutModal.style.display = 'none');
+        
+        const fontSizeModal = getEl('font-size-modal');
+        fontSizeMenuBtn.addEventListener('click', () => { 
+            const currentSize = parseInt(editor.style.fontSize) || 16;
+            fontSizeSlider.value = currentSize;
+            fontSizeDisplay.textContent = `${currentSize}px`;
+            fontSizeModal.style.display = 'flex'; 
+        });
+        fontSizeSlider.addEventListener('input', e => { 
+            editor.style.fontSize = `${e.target.value}px`; 
+            fontSizeDisplay.textContent = `${e.target.value}px`;
+        });
+        getEl('close-font-modal-btn').addEventListener('click', () => { fontSizeModal.style.display = 'none'; });
+
+        // --- Replace Logic ---
+        const replaceModal = getEl('replace-modal');
+        const findInput = getEl('find-input');
+        const replaceInput = getEl('replace-input');
+        const confirmReplaceAllBtn = getEl('confirm-replace-all-btn');
+        const closeReplaceBtn = getEl('close-replace-btn');
+        
+        const getFindRegex = (term) => {
+            const escapedTerm = term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\            <button id="file-manager-');
+            const pattern = escapedTerm.length === 1 ? `\\b${escapedTerm}\\b` : escapedTerm;
+            return new RegExp(pattern, 'gi');
+        };
+        
+        replaceMenuBtn.addEventListener('click', () => {
+            replaceModal.style.display = 'flex';
+            findInput.focus();
+        });
+        
+        closeReplaceBtn.addEventListener('click', () => {
+            replaceModal.style.display = 'none';
+        });
+        
+        confirmReplaceAllBtn.addEventListener('click', () => {
+            const findTerm = findInput.value;
+            const replaceTerm = replaceInput.value;
+            if (!findTerm) {
+                alert("Please enter text to find.");
                 return;
             }
-            
-            // Sort by last activity
-            contactsArray.sort((a, b) => (b.lastSeen || 0) - (a.lastSeen || 0));
-            
-            chatsList.innerHTML = '';
-            contactsArray.forEach(contact => {
-                const chatItem = createChatItem(contact);
-                chatsList.appendChild(chatItem);
-            });
-        }
-
-        function createChatItem(contact) {
-            const div = document.createElement('div');
-            div.className = `chat-item ${contact.unreadCount > 0 ? 'unread' : ''} ${currentChatUsername === contact.username ? 'active' : ''}`;
-            div.onclick = () => openChat(contact.username);
-            
-            const avatar = document.createElement('div');
-            avatar.className = 'chat-avatar';
-            avatar.textContent = contact.displayName.charAt(0).toUpperCase();
-            
-            const info = document.createElement('div');
-            info.className = 'chat-info';
-            
-            const header = document.createElement('div');
-            header.className = 'chat-header';
-            
-            const name = document.createElement('div');
-            name.className = 'chat-name';
-            name.textContent = contact.displayName;
-            
-            const time = document.createElement('div');
-            time.className = 'chat-time';
-            if (contact.lastSeen) {
-                time.textContent = new Date(contact.lastSeen).toLocaleDateString();
+            const text = editor.value;
+            const regex = getFindRegex(findTerm);
+            if (text.match(regex)) {
+                editor.value = text.replace(regex, replaceTerm);
+                alert("All occurrences have been replaced.");
+            } else {
+                alert("Text not found.");
             }
-            
-            header.appendChild(name);
-            header.appendChild(time);
-            
-            const preview = document.createElement('div');
-            preview.className = 'chat-preview';
-            preview.textContent = contact.lastMessage || 'No messages yet';
-            
-            info.appendChild(header);
-            info.appendChild(preview);
-            
-            div.appendChild(avatar);
-            div.appendChild(info);
-            
-            if (contact.unreadCount > 0) {
-                const badge = document.createElement('div');
-                badge.className = 'unread-badge';
-                badge.textContent = contact.unreadCount;
-                div.appendChild(badge);
-            }
-            
-            return div;
-        }
-
-        function updateContactStatus(username, isOnline) {
-            if (currentChatUsername === username) {
-                const statusIndicator = document.getElementById('contactStatus');
-                const statusText = document.getElementById('contactStatusText');
-                
-                statusIndicator.className = `status-indicator ${isOnline ? 'status-online' : 'status-offline'}`;
-                statusText.textContent = isOnline ? 'online' : 'last seen recently';
-            }
-        }
-
-        function updateOnlineStatus(isOnline) {
-            // Could add a status indicator for self if needed
-            console.log('Online status:', isOnline);
-        }
-
-        function updateContactLastMessage(username, message) {
-            const contact = contacts.get(username);
-            if (contact) {
-                contact.lastMessage = message.length > 50 ? message.substring(0, 50) + '...' : message;
-                contact.lastSeen = Date.now();
-                saveContacts();
-                updateContactsList();
-            }
-        }
-
-        // Modal functions
-        function showProfileModal() {
-            document.getElementById('profileNameInput').value = myDisplayName;
-            document.getElementById('profileModal').style.display = 'flex';
-        }
-
-        function showAddContactModal() {
-            document.getElementById('contactUsernameInput').value = '';
-            document.getElementById('contactNameInput').value = '';
-            document.getElementById('addContactModal').style.display = 'flex';
-        }
-
-        function showShareModal() {
-            document.getElementById('shareModal').style.display = 'flex';
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        function saveProfile() {
-            const newName = document.getElementById('profileNameInput').value.trim();
-            if (newName) {
-                myDisplayName = newName;
-                localStorage.setItem('myDisplayName', myDisplayName);
-                updateProfileUI();
-            }
-            closeModal('profileModal');
-        }
-
-        function addContact() {
-            let username = document.getElementById('contactUsernameInput').value.trim();
-            const displayName = document.getElementById('contactNameInput').value.trim();
-            
-            // If no username provided, show error
-            if (!username) {
-                alert('Please enter a username');
+        });
+        
+        // --- Import / Export Logic ---
+        const ioModal = getEl('import-export-modal');
+        const importBtn = getEl('import-notes-btn');
+        const exportBtn = getEl('export-notes-btn');
+        const closeIoModalBtn = getEl('close-io-modal-btn');
+        importExportBtn.addEventListener('click', () => {
+            ioModal.style.display = 'flex';
+        });
+        closeIoModalBtn.addEventListener('click', () => {
+            ioModal.style.display = 'none';
+        });
+        exportBtn.addEventListener('click', () => {
+            const notes = localStorage.getItem('afsnote_notes');
+            if (!notes || notes === '[]') {
+                alert("No notes to export.");
                 return;
             }
-            
-            // If user typed just a base name, ask them to be more specific
-            if (!username.match(/\d+$/)) {
-                alert('Please enter the complete username with numbers (e.g. john12345)');
-                return;
-            }
-            
-            if (!username.match(/^[a-zA-Z0-9_]{4,25}$/)) {
-                alert('Please enter a valid username (4-25 characters, letters/numbers/underscore only)');
-                return;
-            }
-            
-            if (username === myUsername) {
-                alert('You cannot add yourself as a contact');
-                return;
-            }
-            
-            if (contacts.has(username)) {
-                alert('Contact already exists');
-                return;
-            }
-            
-            const contact = {
-                username: username,
-                displayName: displayName || extractBaseName(username),
-                lastSeen: null,
-                unreadCount: 0,
-                lastMessage: null
-            };
-            
-            contacts.set(username, contact);
-            saveContacts();
-            updateContactsList();
-            closeModal('addContactModal');
-        }
-
-        function copyUsername() {
-            navigator.clipboard.writeText(myUsername).then(() => {
-                alert('Username copied to clipboard!');
-            });
-        }
-
-        // Storage functions
-        function saveContacts() {
-            const contactsArray = Array.from(contacts.entries());
-            localStorage.setItem('contacts', JSON.stringify(contactsArray));
-        }
-
-        function loadContacts() {
-            const saved = localStorage.getItem('contacts');
-            if (saved) {
-                const contactsArray = JSON.parse(saved);
-                contacts = new Map(contactsArray);
-                updateContactsList();
-            }
-        }
-
-        function saveMessages() {
-            const messagesArray = Array.from(chatMessages.entries());
-            localStorage.setItem('chatMessages', JSON.stringify(messagesArray));
-        }
-
-        function loadMessages() {
-            const saved = localStorage.getItem('chatMessages');
-            if (saved) {
-                const messagesArray = JSON.parse(saved);
-                chatMessages = new Map(messagesArray);
-            }
-        }
-
-        // Utility functions
-        function handleKeyDown(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage();
-            }
-        }
-
-        function autoResize(textarea) {
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
-        }
-
-        // Mobile keyboard handling
-        function setupMobileKeyboardHandling() {
-            const messageInput = document.getElementById('messageInput');
-            const mainChat = document.getElementById('mainChat');
-            
-            if (messageInput && window.innerWidth <= 768) {
-                messageInput.addEventListener('focus', function() {
-                    setTimeout(() => {
-                        mainChat.classList.add('keyboard-open');
-                        // Scroll to bottom when keyboard opens
-                        const messagesArea = document.getElementById('messagesArea');
-                        if (messagesArea) {
-                            messagesArea.scrollTop = messagesArea.scrollHeight;
+            const now = new Date();
+            const timestamp = `${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}${now.getSeconds().toString().padStart(2,'0')}`;
+            const filename = `afsnote_export_${timestamp}.json`;
+            const blob = new Blob([notes], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+        importBtn.addEventListener('click', () => {
+            importFileOpener.click();
+        });
+        importFileOpener.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedNotes = JSON.parse(e.target.result);
+                    if (!Array.isArray(importedNotes)) {
+                        throw new Error("Invalid JSON file: Not an array.");
+                    }
+                    const existingNotes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
+                    const combinedNotes = [...existingNotes];
+                    const existingIds = new Set(existingNotes.map(n => n.id));
+                    let importCount = 0;
+                    importedNotes.forEach(note => {
+                        if (note.id && note.name && note.content && note.createdAt && !existingIds.has(note.id)) {
+                            combinedNotes.push(note);
+                            importCount++;
                         }
-                    }, 300);
+                    });
+                    localStorage.setItem('afsnote_notes', JSON.stringify(combinedNotes));
+                    alert(`${importCount} notes imported successfully.`);
+                    ioModal.style.display = 'none';
+                } catch (err) {
+                    alert(`Error importing notes: ${err.message}`);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = null;
+        });
+
+        // --- File Manager Logic ---
+        const fileManagerWindow = getEl('file-manager-window');
+        const fileManagerCloseBtn = getEl('file-manager-close-btn');
+        const fileManagerBackBtn = getEl('file-manager-back-btn');
+        const notesList = getEl('notes-list');
+        const notePreview = getEl('note-preview');
+        const notePreviewTitle = getEl('note-preview-title');
+        const notePreviewDate = getEl('note-preview-date');
+        const previewOpenBtn = getEl('preview-open-btn');
+        const previewDeleteBtn = getEl('preview-delete-btn');
+        const deleteConfirmModal = getEl('delete-confirm-modal');
+        const confirmDeleteBtn = getEl('confirm-delete-btn');
+        const cancelDeleteBtn = getEl('cancel-delete-btn');
+
+        const renderNotes = (sortOrder = 'date-desc') => {
+            let notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
+            switch(sortOrder) {
+                case 'name-asc': notes.sort((a, b) => a.name.localeCompare(b.name)); break;
+                case 'name-desc': notes.sort((a, b) => b.name.localeCompare(a.name)); break;
+                case 'date-asc': notes.sort((a, b) => a.createdAt - b.createdAt); break;
+                case 'date-desc': notes.sort((a, b) => b.createdAt - a.createdAt); break;
+            }
+            notesList.innerHTML = '';
+            notes.forEach(note => {
+                const item = document.createElement('div');
+                item.className = 'note-item';
+                item.dataset.noteId = note.id;
+                
+                const displayName = note.name.length > 15 ? note.name.substring(0, 15) + '...' : note.name;
+
+                item.innerHTML = '<svg class="file-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M4 0h8l4 4v12H0V0h4zm8 2H2v12h12V4.5L12 2zM5 8h6v1H5V8zm0 2h6v1H5v-1zm0 2h4v1H5v-1z"/></svg>' +
+                    '<div class="note-item-details">' +
+                        '<span class="note-item-title">' + displayName + '</span>' +
+                        '<span class="note-item-date">' + new Date(note.createdAt).toLocaleString() + '</span>' +
+                    '</div>';
+                notesList.appendChild(item);
+            });
+        };
+        notesList.addEventListener('click', e => {
+            const noteItem = e.target.closest('.note-item');
+            if (!noteItem) return;
+            const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
+            const noteId = Number(noteItem.dataset.noteId);
+            const note = notes.find(n => n.id === noteId);
+            document.querySelectorAll('.note-item').forEach(item => item.classList.remove('active'));
+            noteItem.classList.add('active');
+            
+            notePreviewTitle.textContent = note.name.length > 15 ? note.name.substring(0, 15) + '...' : note.name;
+            notePreviewDate.textContent = new Date(note.createdAt).toLocaleString();
+            
+            // Check if the note content is a checklist
+            const lines = note.content.split('\n');
+            const isChecklist = lines.some(line => line.trim().startsWith('[ ]') || line.trim().startsWith('[x]'));
+            
+            if (isChecklist) {
+                // Render as HTML checklist for preview
+                let htmlContent = '<div style="font-family: inherit; padding: 10px;">';
+                lines.forEach(line => {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine.startsWith('[ ]')) {
+                        const text = trimmedLine.substring(3).trim();
+                        htmlContent += `<div style="margin: 8px 0;">☐ ${text}</div>`;
+                    } else if (trimmedLine.startsWith('[x]')) {
+                        const text = trimmedLine.substring(3).trim();
+                        htmlContent += `<div style="margin: 8px 0; text-decoration: line-through; opacity: 0.7;">☑ ${text}</div>`;
+                    } else if (trimmedLine) {
+                        htmlContent += `<div style="margin: 8px 0;">${trimmedLine}</div>`;
+                    }
+                });
+                htmlContent += '</div>';
+                notePreview.innerHTML = htmlContent;
+            } else {
+                // Regular text content
+                notePreview.textContent = note.content;
+            }
+            
+            selectedPreviewId = note.id;
+        });
+        previewOpenBtn.addEventListener('click', () => {
+            if (!selectedPreviewId) return;
+            const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
+            const note = notes.find(n => n.id === selectedPreviewId);
+            
+            // Check if the note is a checklist
+            const lines = note.content.split('\n');
+            const isChecklist = lines.some(line => line.trim().startsWith('[ ]') || line.trim().startsWith('[x]'));
+            
+            if (isChecklist) {
+                // Parse the checklist and enter checklist mode
+                checklistItems = [];
+                lines.forEach(line => {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine.startsWith('[ ]')) {
+                        const text = trimmedLine.substring(3).trim();
+                        if (text) {
+                            checklistItems.push({
+                                id: Date.now() + Math.random(),
+                                text: text,
+                                completed: false
+                            });
+                        }
+                    } else if (trimmedLine.startsWith('[x]')) {
+                        const text = trimmedLine.substring(3).trim();
+                        if (text) {
+                            checklistItems.push({
+                                id: Date.now() + Math.random(),
+                                text: text,
+                                completed: true
+                            });
+                        }
+                    }
                 });
                 
-                messageInput.addEventListener('blur', function() {
-                    setTimeout(() => {
-                        mainChat.classList.remove('keyboard-open');
-                    }, 300);
-                });
+                // Set the editor content without the checklist items (they'll be in the checklist UI)
+                editor.value = lines.filter(line => {
+                    const trimmed = line.trim();
+                    return !trimmed.startsWith('[ ]') && !trimmed.startsWith('[x]');
+                }).join('\n');
+                
+                // Enter checklist mode
+                checklistMode = true;
+                editor.style.display = 'none';
+                checklistContainer.style.display = 'flex';
+                renderChecklistItems();
+                checklistInput.style.display = 'block';
+                checklistClose.style.display = 'block';
+                checklistEdit.style.display = 'none';
+            } else {
+                // Regular note - just load the content
+                editor.value = note.content;
+                editor.style.display = 'block';
+                checklistContainer.style.display = 'none';
+                checklistMode = false;
             }
-        }
-
-        function filterContacts() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const chatItems = document.querySelectorAll('.chat-item');
             
-            chatItems.forEach(item => {
-                const name = item.querySelector('.chat-name').textContent.toLowerCase();
-                if (name.includes(query)) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        }
-
-        function goBackToSidebar() {
-            openSidebar();
-        }
-
-        // Initialize app when page loads
-        window.addEventListener('load', initApp);
-
-        // Handle viewport changes for mobile keyboards
-        window.addEventListener('resize', function() {
-            setupMobileKeyboardHandling();
+            currentNoteId = note.id;
+            isDirty = false;
+            updateTitleBar(note.name);
+            fileManagerWindow.style.display = 'none';
         });
 
-        // Close modals when clicking outside
-        window.addEventListener('click', function(event) {
-            const modals = document.querySelectorAll('.modal');
-            modals.forEach(modal => {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                }
+        previewDeleteBtn.addEventListener('click', () => {
+            if (!selectedPreviewId) return;
+            deleteConfirmModal.style.display = 'flex';
+        });
+
+        cancelDeleteBtn.addEventListener('click', () => {
+            deleteConfirmModal.style.display = 'none';
+        });
+
+        confirmDeleteBtn.addEventListener('click', () => {
+            if (!selectedPreviewId) return;
+            const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
+            const remainingNotes = notes.filter(n => n.id !== selectedPreviewId);
+            localStorage.setItem('afsnote_notes', JSON.stringify(remainingNotes));
+            renderNotes();
+            notePreviewTitle.textContent = '';
+            notePreviewDate.textContent = '';
+            notePreview.textContent = 'Select a note to preview...';
+            selectedPreviewId = null;
+            deleteConfirmModal.style.display = 'none';
+        });
+
+        savedNotesBtn.addEventListener('click', () => {
+            // Exit checklist mode if active before opening saved notes
+            if (checklistMode) {
+                exitChecklistMode();
+            }
+            renderNotes();
+            notePreviewTitle.textContent = '';
+            notePreviewDate.textContent = '';
+            notePreview.textContent = 'Select a note to preview...';
+            fileManagerWindow.style.display = 'flex';
+            // Show back button for mobile themes AND Git theme
+            const isMobileTheme = document.body.classList.contains('theme-ios') || 
+                                  document.body.classList.contains('theme-android') || 
+                                  document.body.classList.contains('theme-git');
+            fileManagerBackBtn.style.display = isMobileTheme ? 'block' : 'none';
+        });
+        const closeFileManager = () => {
+            fileManagerWindow.style.display = 'none';
+        };
+        fileManagerCloseBtn.addEventListener('click', closeFileManager);
+        fileManagerBackBtn.addEventListener('click', closeFileManager);
+        document.querySelector('#filter-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const dropdown = document.querySelector('#filter-btn').nextElementSibling;
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        });
+        document.querySelectorAll('#filter-btn + .dropdown-content li').forEach(item => {
+            item.addEventListener('click', (e) => {
+                renderNotes(e.target.dataset.sort);
             });
         });
-    </script>
+
+        // --- Autosave & Dirty Flag Logic ---
+        editor.addEventListener('input', () => {
+            isDirty = true;
+            clearTimeout(autosaveTimeout);
+            autosaveTimeout = setTimeout(() => {
+                if (currentNoteId) { // Only autosave if it's an existing note
+                    const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
+                    const note = notes.find(n => n.id === currentNoteId);
+                    if (note) {
+                        saveNoteToLocalStorage(note.name, true);
+                    }
+                }
+            }, 1500); // Wait 1.5 seconds after user stops typing
+        });
+
+        // Initialize with default title
+        updateTitleBar('Untitled');
+    });
+
+    // --- Prevent Refresh on Unsaved Changes ---
+    window.addEventListener('beforeunload', (e) => {
+        const editor = document.getElementById('editor');
+        const isDirty = editor.value && (!editor.dataset.saved || editor.dataset.saved === 'false');
+        if (isDirty) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js').catch(err => {
+                console.error('ServiceWorker registration failed: ', err);
+            });
+        });
+    }
+</script>
+
 </body>
 </html>
