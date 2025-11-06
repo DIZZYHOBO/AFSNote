@@ -6,1723 +6,1408 @@
     <title>AFSNote</title>
     <link rel="icon" type="image/x-icon" href="https://busland.neocities.org/hobopad.ico">
     <link rel="manifest" href="manifest.json">
-
     <style>
-        /* Theme-specific edit input styles - ensure light text */
-        .theme-win95 .checklist-edit-input {
-            background-color: #1e1e1e !important;
-            border-color: #555 !important;
-            color: #e0e0e0 !important;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        .theme-winxp .checklist-edit-input {
-            background-color: #2c2c2c !important;
-            border-color: #555 !important;
-            color: #e0e0e0 !important;
+
+        :root {
+            /* iOS Light */
+            --ios-light-bg: #ffffff;
+            --ios-light-surface: #f2f2f7;
+            --ios-light-text: #000000;
+            --ios-light-secondary: #8e8e93;
+            --ios-light-accent: #007aff;
+            --ios-light-border: #c6c6c8;
+            --ios-light-header: #f9f9f9;
+            
+            /* iOS Dark */
+            --ios-dark-bg: #000000;
+            --ios-dark-surface: #1c1c1e;
+            --ios-dark-text: #ffffff;
+            --ios-dark-secondary: #8e8e93;
+            --ios-dark-accent: #0a84ff;
+            --ios-dark-border: #38383a;
+            --ios-dark-header: #1c1c1e;
+            
+            /* Android Light */
+            --android-light-bg: #ffffff;
+            --android-light-surface: #f5f5f5;
+            --android-light-text: #000000;
+            --android-light-secondary: #666666;
+            --android-light-accent: #1976d2;
+            --android-light-border: #e0e0e0;
+            --android-light-header: #fafafa;
+            
+            /* Android Dark */
+            --android-dark-bg: #121212;
+            --android-dark-surface: #1e1e1e;
+            --android-dark-text: #ffffff;
+            --android-dark-secondary: #b0b0b0;
+            --android-dark-accent: #8ab4f8;
+            --android-dark-border: #333333;
+            --android-dark-header: #1e1e1e;
         }
-        
-        .theme-ios .checklist-edit-input {
-            background-color: #2c2c2c !important;
-            border-color: #444 !important;
-            color: #e0e0e0 !important;
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
-        
-        .theme-android .checklist-edit-input {
-            background-color: #2c2c2c !important;
-            border-color: #444 !important;
-            color: #e0e0e0 !important;
+
+        /* iOS Light Theme */
+        .ios-light {
+            --bg: var(--ios-light-bg);
+            --surface: var(--ios-light-surface);
+            --text: var(--ios-light-text);
+            --secondary: var(--ios-light-secondary);
+            --accent: var(--ios-light-accent);
+            --border: var(--ios-light-border);
+            --header: var(--ios-light-header);
         }
-        
-        .theme-git .checklist-edit-input {
-            background-color: #0d1117 !important;
-            border-color: #30363d !important;
-            color: #c9d1d9 !important;
-        }       
-        
-        /* Override all theme-specific text colors to ensure light text */
-        .theme-win95 .checklist-text,
-        .theme-win95 .checklist-item,
-        .theme-win95 #checklist-container {
-            color: #e0e0e0 !important;
+
+        /* iOS Dark Theme */
+        .ios-dark {
+            --bg: var(--ios-dark-bg);
+            --surface: var(--ios-dark-surface);
+            --text: var(--ios-dark-text);
+            --secondary: var(--ios-dark-secondary);
+            --accent: var(--ios-dark-accent);
+            --border: var(--ios-dark-border);
+            --header: var(--ios-dark-header);
         }
-        
-        .theme-winxp .checklist-text,
-        .theme-winxp .checklist-item,
-        .theme-winxp #checklist-container {
-            color: #e0e0e0 !important;
+
+        /* Android Light Theme */
+        .android-light {
+            --bg: var(--android-light-bg);
+            --surface: var(--android-light-surface);
+            --text: var(--android-light-text);
+            --secondary: var(--android-light-secondary);
+            --accent: var(--android-light-accent);
+            --border: var(--android-light-border);
+            --header: var(--android-light-header);
         }
-        
-        .theme-ios .checklist-text,
-        .theme-ios .checklist-item,
-        .theme-ios #checklist-container {
-            color: #e0e0e0 !important;
+
+        /* Android Dark Theme */
+        .android-dark {
+            --bg: var(--android-dark-bg);
+            --surface: var(--android-dark-surface);
+            --text: var(--android-dark-text);
+            --secondary: var(--android-dark-secondary);
+            --accent: var(--android-dark-accent);
+            --border: var(--android-dark-border);
+            --header: var(--android-dark-header);
         }
-        
-        .theme-android .checklist-text,
-        .theme-android .checklist-item,
-        .theme-android #checklist-container {
-            color: #e0e0e0 !important;
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: var(--bg);
         }
-        
-        .theme-git .checklist-text,
-        .theme-git .checklist-item,
-        .theme-git #checklist-container {
-            color: #c9d1d9 !important;
-        }
-        
-        /* Ensure completed items are still visible but lighter */
-        .checklist-item.completed .checklist-text {
-            text-decoration: line-through;
-            opacity: 0.6;
-            color: #a0a0a0 !important;
-        }
-        /* --- Base Styles --- */
-        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: "Tahoma", "Geneva", sans-serif; transition: background-color 0.3s; }
-        #app-window, #file-manager-window { width: 100vw; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
-        .modal-content { width: 100%; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; flex-shrink: 1; min-height: 0; }
-        
-        /* Updated Title Bar Styles */
-        .title-bar {
+
+        /* Header */
+        .header {
+            background: var(--header);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: relative;
             flex-shrink: 0;
         }
-        
-        .title-bar-text {
-            position: absolute;
-            left: 0;
-            right: 0;
+
+        .title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+            flex: 1;
             text-align: center;
-            pointer-events: none;
-            z-index: 1;
-            padding: 0 60px;
         }
-        
-        .title-bar-controls {
-            margin-left: auto;
-            z-index: 2;
-            display: flex;
-            gap: 3px;
-        }
-        
-        .window-body { display: flex; flex-direction: column; flex-grow: 1; margin: 0; padding: 0; min-height: 0; }
-        .menu-bar { flex-shrink: 0; position: relative; z-index: 10; }
-        #editor { flex-grow: 1; padding: 5px; margin: 0; resize: none; outline: none; line-height: 1.6; width: 100%; box-sizing: border-box; overflow-y: scroll; border: none; }
-        .modal { display: none; width: 90%; max-width: 340px; max-height: 80vh; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 201; flex-direction: column; }
-        #font-size-modal, #replace-modal, #import-export-modal { max-width: 300px; }
-        #about-modal {
-            width: 90vmin;
-            height: 90vmin;
-            max-width: 680px;
-            max-height: 680px;
-            container-type: inline-size;
-        }
-        .modal .window-body { overflow: auto; padding: 10px; }
-        .field-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 15px; }
-        #file-opener, #import-file-opener { display: none; }
 
-        /* --- Checklist Feature Styles --- */
-        #checklist-container {
-            display: none;
-            flex-direction: column;
-            padding: 10px;
-            background: #2c2c2c;
-            border: 1px solid #555;
-            border-radius: 8px;
-            margin: 10px;
-            max-height: 80vh;
-            overflow-y: auto;
-            max-width: 100%;
-            box-sizing: border-box;
-            color: #e0e0e0; /* Light text for container */
-        }
-        
-        .checklist-items {
+        /* Menu Bar */
+        .menu-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
             gap: 8px;
-            margin-bottom: 10px;
-            max-width: 100%;
-            color: #e0e0e0; /* Light text */
-        }
-        
-        .checklist-item {
-            display: flex;
-            align-items: center;
-            padding: 8px;
-            padding-right: 50px; /* Space for delete button */
-            background: rgba(255,255,255,0.05);
-            border-radius: 6px;
-            position: relative;
-            user-select: none;
-            transition: all 0.3s ease;
-            min-height: 40px;
-            width: 100%;
-            box-sizing: border-box;
-            color: #e0e0e0; /* Light text for items */
-        }
-        
-        .checklist-item.completed .checklist-text {
-            text-decoration: line-through;
-            opacity: 0.6;
-        }
-        
-        .checklist-checkbox {
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-            cursor: pointer;
+            padding: 8px 16px;
             flex-shrink: 0;
-            accent-color: #007aff;
         }
-        
-        /* Theme-specific checkbox styles */
-        .theme-win95 .checklist-checkbox {
-            accent-color: #000080;
+
+        .menu-button {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--accent);
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
         }
-        
-        .theme-winxp .checklist-checkbox {
-            accent-color: #316AC5;
+
+        .android-light .menu-button,
+        .android-dark .menu-button {
+            border-radius: 20px;
         }
-        
-        .theme-ios .checklist-checkbox {
-            accent-color: #0a84ff;
-            border-radius: 50%;
+
+        .menu-button:hover {
+            background: var(--border);
         }
-        
-        .theme-android .checklist-checkbox {
-            accent-color: #8ab4f8;
+
+        .menu-button:active {
+            transform: scale(0.98);
         }
-        
-        .theme-git .checklist-checkbox {
-            accent-color: #238636;
+
+        /* Dropdown Menu */
+        .dropdown {
+            position: relative;
+            display: inline-block;
         }
-        
-        .checklist-text {
-            flex-grow: 1;
-            padding: 5px;
-            color: #e0e0e0; /* Light color for all themes */
-            word-break: break-word;
-            overflow-wrap: break-word;
-            cursor: default;
-        }
-        
-        .checklist-item.completed .checklist-text {
-            text-decoration: line-through;
-            opacity: 0.6;
-            color: #a0a0a0; /* Lighter gray for completed items */
-        }
-        
-        .checklist-text.editing {
+
+        .dropdown-content {
             display: none;
-        }
-        
-        .checklist-edit-input {
-            flex-grow: 1;
-            padding: 5px;
-            background-color: #2c2c2c;
-            color: #e0e0e0; /* Light text color */
-            border: 1px solid #555;
-            border-radius: 4px;
-            font-size: inherit;
-            font-family: inherit;
-            display: none;
-        }
-        
-        .checklist-edit-input.active {
-            display: block;
-        }
-        
-        .checklist-item.editing .checklist-edit-input {
-            display: block;
-        }
-        
-        .checklist-item.editing .checklist-text {
-            display: none;
-        }
-        
-        .checklist-delete {
             position: absolute;
-            right: -100%;
-            background: #ff4444;
-            color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 4px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 180px;
+            z-index: 1000;
+            top: 100%;
+            margin-top: 4px;
+        }
+
+        .dropdown-content.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
             cursor: pointer;
-            transition: right 0.3s ease;
-            white-space: nowrap;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
         }
-        
-        .checklist-delete.show {
-            right: 5px;
+
+        .dropdown-item:last-child {
+            border-bottom: none;
         }
-        
-        #checklist-input-container {
+
+        .dropdown-item:hover {
+            background: var(--border);
+        }
+
+        /* Editor Container */
+        .editor-container {
+            flex: 1;
             display: flex;
-            gap: 8px;
-            margin-top: 10px;
-            max-width: 100%;
-        }
-        
-        #checklist-input {
-            flex-grow: 1;
-            padding: 8px;
-            border: 1px solid #555;
-            border-radius: 4px;
-            font-size: 14px;
-            background-color: #3c3c3c;
-            color: #e0e0e0;
-            min-width: 0; /* Allow shrinking on mobile */
-        }
-        
-        .checklist-controls {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-            flex-wrap: wrap; /* Allow wrapping on small screens */
-        }
-        
-        .checklist-close-btn, .checklist-edit-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            background-color: #007aff;
-            color: white;
-        }
-        
-        .checklist-close-btn:hover, .checklist-edit-btn:hover {
-            background-color: #005bb5;
-        }
-
-        /* --- Custom About Modal Background --- */
-        #about-modal p {
-            color: #e0e0e0;
-        }
-        #about-modal .window-body p:first-of-type {
-            font-size: 3.5cqw;
-        }
-        #about-modal .window-body p:nth-of-type(2) {
-            font-size: 2.5cqw;
-        }
-        #about-modal .window-body .field-row {
-            font-size: 3cqw;
-        }
-
-        /* --- Version Display Style --- */
-        .version-display {
-            font-size: 0.8em;
-            font-weight: normal;
-            opacity: 0.7;
-            padding-right: 5px;
-            user-select: none;
-        }
-
-        /* --- Font Size Display --- */
-        #font-size-display { text-align: center; margin-top: 10px; }
-
-        /* --- Import/Export Styles --- */
-        #import-export-modal .window-body { display: flex; flex-wrap: wrap; justify-content: space-around; text-align: center; padding-top: 20px; padding-bottom: 10px; }
-        .io-section { width: 45%; margin-bottom: 10px; }
-        .io-section button { width: 80px; height: 60px; font-size: 2em; line-height: 1; }
-        .io-section p { margin-top: 5px; font-size: 0.9em; }
-        .io-warning { width: 100%; color: #888; font-size: 0.8em; text-align: center; margin-top: 15px; }
-
-        /* --- Dropdown Menu Styles --- */
-        .menu-item { position: relative; user-select: none; }
-        .dropdown-content { display: none; position: absolute; top: 100%; right: 0; background-color: #f9f9f9; min-width: 160px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 100; list-style: none; padding: 0; margin: 0; }
-        .menu-item:not(.menu-item-right) .dropdown-content { right: auto; left: 0; }
-        .dropdown-content li { padding: 8px 12px; cursor: pointer; color: black; border-bottom: 1px solid #ddd; }
-        .dropdown-content li:last-child { border-bottom: none; }
-        
-        /* --- File Manager Styles --- */
-        #file-manager-window { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            z-index: 200; 
-            display: none;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-        #file-manager-content { 
-            display: flex; 
-            flex-grow: 1; 
-            min-height: 0; 
-            height: calc(100% - 30px);
-            colour: #e0e0e0
-        }
-        #notes-list-container { 
-            width: 40%; 
-            display: flex; 
-            flex-direction: column; 
-            border-right: 1px solid;
-            overflow-y: auto;
-        }
-        .notes-list-header { 
-            display: flex; 
-            padding: 4px 8px; 
-            font-weight: bold; 
-            border-bottom: 1px solid; 
-            flex-shrink: 0; 
-            align-items: center; 
-            background-color: inherit;
-        }
-        .header-name { flex-grow: 1; }
-        #note-preview-container { 
-            width: 60%; 
-            display: flex; 
             flex-direction: column;
             overflow: hidden;
         }
-        #note-preview-header { 
-            padding: 8px; 
-            border-bottom: 1px solid; 
-            flex-shrink: 0; 
+
+        #editor {
+            flex: 1;
+            padding: 16px;
+            background: var(--bg);
+            color: var(--text);
+            border: none;
+            outline: none;
+            resize: none;
+            font-size: 16px;
+            line-height: 1.6;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        /* Checklist Container */
+        #checklist-container {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        #checklist-container.active {
+            display: flex;
+        }
+
+        .checklist-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            gap: 12px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .android-light .checklist-item,
+        .android-dark .checklist-item {
+            border-radius: 12px;
+        }
+
+        .checklist-item.completed {
+            opacity: 0.6;
+        }
+
+        .checklist-checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            flex-shrink: 0;
+            accent-color: var(--accent);
+        }
+
+        .checklist-text {
+            flex: 1;
+            color: var(--text);
+            word-break: break-word;
+            cursor: text;
+        }
+
+        .checklist-item.completed .checklist-text {
+            text-decoration: line-through;
+        }
+
+        .checklist-edit-input {
+            flex: 1;
+            padding: 8px;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+            display: none;
+        }
+
+        .checklist-item.editing .checklist-edit-input {
+            display: block;
+        }
+
+        .checklist-item.editing .checklist-text {
+            display: none;
+        }
+
+        .checklist-delete {
+            position: absolute;
+            right: -100%;
+            background: #ff3b30;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: right 0.3s ease;
+            font-weight: 500;
+        }
+
+        .checklist-delete.show {
+            right: 8px;
+        }
+
+        .checklist-input-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        #checklist-input {
+            flex: 1;
+            padding: 12px;
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .android-light #checklist-input,
+        .android-dark #checklist-input {
+            border-radius: 24px;
+        }
+
+        #checklist-input:focus {
+            border-color: var(--accent);
+        }
+
+        .checklist-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .android-light .btn-primary,
+        .android-dark .btn-primary {
+            border-radius: 20px;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--text);
+        }
+
+        .modal-body {
+            padding: 16px;
+        }
+
+        .modal-body p {
+            color: var(--text);
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            border-color: var(--accent);
+        }
+
+        .modal-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.98);
+        }
+
+        /* File Manager */
+        #file-manager {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            z-index: 1500;
+            flex-direction: column;
+        }
+
+        #file-manager.show {
+            display: flex;
+        }
+
+        .file-manager-header {
+            background: var(--header);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-button {
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 500;
+        }
+
+        .file-manager-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .file-manager-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .notes-list-panel {
+            width: 40%;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notes-list-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: inherit;
         }
-        #note-preview-title { font-weight: bold; font-size: 1.2em; }
-        #note-preview-date { font-size: 0.9em; opacity: 0.8; }
-        #note-preview-actions { margin-top: 0; display: flex; gap: 8px; }
-        #note-preview-actions button, #filter-btn {
-            padding: 4px 10px;
-            font-size: 14px;
-            min-height: initial;
+
+        .notes-list {
+            flex: 1;
+            overflow-y: auto;
         }
-        #note-preview { 
-            flex-grow: 1; 
-            padding: 10px; 
-            overflow-y: auto; 
-            white-space: pre-wrap;
-            height: 100%;
+
+        .note-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
         }
-        
-        /* Checklist preview styles */
-        .checklist-preview-item {
-            margin: 8px 0;
+
+        .note-item:hover {
+            background: var(--surface);
+        }
+
+        .note-item.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .note-item-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .note-item-date {
+            font-size: 12px;
+            color: var(--secondary);
+        }
+
+        .note-item.active .note-item-date {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .preview-panel {
+            width: 60%;
             display: flex;
-            align-items: center;
+            flex-direction: column;
+        }
+
+        .preview-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .preview-title {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .preview-date {
+            font-size: 12px;
+            color: var(--secondary);
+            margin-bottom: 12px;
+        }
+
+        .preview-actions {
+            display: flex;
             gap: 8px;
         }
-        
-        .checklist-preview-item.completed {
-            text-decoration: line-through;
-            opacity: 0.7;
-        }
-        .note-item { 
-            display: flex; 
-            align-items: flex-start; 
-            padding: 8px; 
-            cursor: pointer; 
-            border-bottom: 1px solid; 
-            gap: 8px; 
-            margin-bottom: 5px;
-            background-color: inherit;
-        }
-        .note-item .file-icon { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
-        .note-item-details { flex-grow: 1; display: flex; flex-direction: column; }
-        .note-item-title { font-weight: bold; }
-        .note-item-date { font-size: 0.9em; opacity: 0.8; }
-        #notes-list {
+
+        .preview-content {
+            flex: 1;
+            padding: 16px;
             overflow-y: auto;
-            flex-grow: 1;
+            white-space: pre-wrap;
+            color: var(--text);
         }
 
-        /* --- Unified Back Button --- */
-        #file-manager-back-btn {
-            display: none; /* Hidden by default */
-            background: none;
-            border: none;
+        /* IO Section */
+        .io-section {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px 0;
+        }
+
+        .io-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
             cursor: pointer;
-        }
-        
-        /* --- Windows 95 Theme --- */
-        .theme-win95 body { background: #121212; }
-        .theme-win95 #app-window, .theme-win95 .modal-content, .theme-win95 #file-manager-window { background-color: #2c2c2c; border: 3px solid #555; border-top-color: #666; border-left-color: #666; border-right-color: #000; border-bottom-color: #000; border-radius: 0; box-shadow: none; }
-        .theme-win95 .title-bar { 
-            background: linear-gradient(90deg, #000080, #1084d0); 
-            padding: 3px 5px; 
-            color: white; 
-            font-weight: bold; 
-            height: 20px; 
-            border-bottom: none; 
-            text-shadow: none; 
-        }
-        .theme-win95 .title-bar-text { padding: 0 50px; color: white; }
-        .theme-win95 .menu-bar { display: flex; flex-wrap: wrap; justify-content: flex-end; list-style: none; margin: 0; padding: 2px; border-bottom: 1px solid #555; background: #2c2c2c; gap: 0; }
-        .theme-win95 .menu-bar > li { padding: 2px 8px; font-size: 14px; border-radius: 0; border: none; background: #3c3c3c; box-shadow: none; color: #e0e0e0; }
-        .theme-win95 .menu-bar > li:hover { background: #000080; color: white; }
-        .theme-win95 .window-body { padding: 0; box-shadow: inset -1px -1px #666, inset 1px 1px #000, inset -2px -2px #555, inset 2px 2px #333; }
-        .theme-win95 #editor, .theme-win95 #note-preview { background-color: #1e1e1e; color: #e0e0e0; border: none; font-family: 'Lucida Console', Courier, monospace; font-size: 16px; margin: 2px; }
-        .theme-win95 button, .theme-win95 select, .theme-win95 input[type="text"] { font-family: "Tahoma", sans-serif; font-size: 14px; background-color: #3c3c3c; color: #e0e0e0; border: 1px solid #555; border-radius: 0; padding: 4px 15px; min-height: 23px; }
-        .theme-win95 .dropdown-content { border: 1px solid #555; border-radius: 0; background-color: #2c2c2c; }
-        .theme-win95 .dropdown-content li { border-bottom: 1px solid #555; color: #e0e0e0; }
-        .theme-win95 .dropdown-content li:hover { background: #000080; color: white; }
-        .theme-win95 #about-modal p { color: #e0e0e0; }
-        .theme-win95 .note-item { border-bottom-color: #555; }
-        .theme-win95 .note-item.active { background-color: #000080; color: white; }
-        .theme-win95 .note-item.active .file-icon { fill: white; }
-        .theme-win95 .file-icon { fill: #e0e0e0; }
-
-        /* --- Windows XP Theme (Dark) --- */
-        .theme-winxp body { background: #121212; }
-        .theme-winxp #app-window, .theme-winxp .modal-content, .theme-winxp #file-manager-window { background-color: #1e1e1e; border: 1px solid #333; box-shadow: 0 0 10px rgba(0,0,0,0.5); border-radius: 6px; }
-        .theme-winxp .title-bar { 
-            background: linear-gradient(to bottom, #0058e1, #3d80f2 4%, #3d80f2 96%, #0058e1); 
-            padding: 3px 5px; 
-            color: white; 
-            font-weight: bold; 
-            height: 25px; 
-            border-bottom: 1px solid #333; 
-            font-size: 12px; 
-        }
-        .theme-winxp .title-bar-text { padding: 0 60px; color: white; }
-        .theme-winxp .menu-bar { display: flex; flex-wrap: wrap; justify-content: flex-end; list-style: none; margin: 0; padding: 2px; background: #2c2c2c; border-bottom: 1px solid #333; gap: 0; }
-        .theme-winxp .menu-bar > li { padding: 4px 8px; font-size: 11px; border: 1px solid transparent; border-radius: 0; background: #3c3c3c; box-shadow: none; color: #e0e0e0; }
-        .theme-winxp .menu-bar > li:hover { background: #316AC5; color: white; border: 1px solid #000; }
-        .theme-winxp .window-body { padding: 3px; box-shadow: none; background-color: #1e1e1e; }
-        .theme-winxp #editor, .theme-winxp #note-preview, .theme-winxp input, .theme-winxp select { border: 1px solid #555; background-color: #2c2c2c; color: #e0e0e0; font-family: 'Lucida Console', Courier, monospace; font-size: 12px; margin: 0; }
-        .theme-winxp button, .theme-winxp select, .theme-winxp input[type="text"] { font-family: "Tahoma", sans-serif; font-size: 11px; border: 1px solid #555; background: #3c3c3c; color: #e0e0e0; padding: 3px 12px; min-height: 23px; border-radius: 0; }
-        .theme-winxp .dropdown-content { border: 1px solid #333; border-radius: 0; background-color: #2c2c2c; }
-        .theme-winxp .dropdown-content li { border-bottom: 1px solid #333; color: #e0e0e0; }
-        .theme-winxp .dropdown-content li:hover { background: #316AC5; color: white; }
-        .theme-winxp #about-modal p { color: #e0e0e0; }
-        .theme-winxp .note-item { border-bottom-color: #333; }
-        .theme-winxp .note-item.active { background-color: #316AC5; color: white; }
-        .theme-winxp .note-item.active .file-icon { fill: white; }
-        .theme-winxp .file-icon { fill: #e0e0e0; }
-
-        /* --- iOS Theme (Dark) --- */
-        .theme-ios body { background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        .theme-ios #app-window, .theme-ios .modal-content, .theme-ios #file-manager-window { background-color: #1c1c1e; border: 1px solid #333; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-        .theme-ios .title-bar { 
-            background: #1c1c1e; 
-            padding: 10px; 
-            color: #fff; 
-            font-weight: 600; 
-            height: auto; 
-            border-bottom: 1px solid #333; 
-        }
-        .theme-ios .title-bar-text { 
-            font-size: 17px; 
-            padding: 0 70px; 
-            color: #fff;
-        }
-        .theme-ios .menu-bar { display: flex; flex-wrap: wrap; justify-content: flex-end; list-style: none; margin: 0; padding: 8px; background: #1c1c1e; gap: 4px; border-bottom: 1px solid #333; }
-        .theme-ios .menu-bar > li { padding: 5px 10px; font-size: 14px; font-weight: bold; border-radius: 8px; border: none; background: none; box-shadow: none; color: #0a84ff; cursor: pointer; }
-        .theme-ios .menu-bar > li:hover { background: #2c2c2e; }
-        .theme-ios .window-body { padding: 0; box-shadow: none; background-color: #1c1c1e; }
-        .theme-ios #editor, .theme-ios #note-preview { background-color: #1c1c1e; border: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 17px; padding: 12px; line-height: 1.5; color: #fff; }
-        .theme-ios button, .theme-ios select, .theme-ios input[type="text"] { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 17px; border: 1px solid #444; background-color: #2c2c2c; color: #fff; border-radius: 8px; padding: 8px 12px; min-height: 36px; }
-        .theme-ios button { background-color: #0a84ff; color: white; border: none; }
-        .theme-ios button:active { background-color: #0066cc; }
-        .theme-ios button.primary { background-color: #30d158; }
-        .theme-ios button.primary:active { background-color: #28a745; }
-        .theme-ios .title-bar-controls { display: none; }
-        .theme-ios .dropdown-content { border: 1px solid #333; border-radius: 8px; background-color: #1c1c1e; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-        .theme-ios .dropdown-content li { color: #0a84ff; border-bottom: 1px solid #333; }
-        .theme-ios .dropdown-content li:hover { background: #2c2c2e; }
-        .theme-ios #about-modal p { color: #fff; }
-        .theme-ios #notes-list-container, .theme-ios .notes-list-header, .theme-ios .note-item, .theme-ios #note-preview-header { border-color: #333; background-color: #1c1c1e; }
-        .theme-ios .note-item.active { background-color: #0a84ff; color: #fff; }
-        .theme-ios .note-item.active .file-icon { fill: #fff; }
-        .theme-ios .file-icon { fill: #8e8e93; }
-        .theme-ios #file-manager-window .title-bar-controls { display: none; }
-        .theme-ios #file-manager-back-btn { 
-            display: block !important;
-            color: #0a84ff;
-            font-size: 17px;
-            font-weight: 400;
-            padding: 0 10px;
+            padding: 16px;
+            border-radius: 8px;
+            transition: background 0.2s;
         }
 
-        /* --- Git Theme (GitHub Dark - Always Dark Mode) --- */
-        .theme-git body { 
-            background-color: #0d1117; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"; 
+        .io-button:hover {
+            background: var(--surface);
         }
-        .theme-git #app-window, .theme-git .modal-content, .theme-git #file-manager-window { 
-            background-color: #0d1117; 
-            border: 1px solid #30363d; 
-            border-radius: 6px; 
-            box-shadow: 0 0 0 1px rgba(27,31,36,0.15), 0 8px 24px rgba(1,4,9,0.25); 
+
+        .io-icon {
+            font-size: 48px;
         }
-        .theme-git .title-bar { 
-            background: #161b22; 
-            padding: 10px 16px; 
-            color: #f0f6fc; 
-            font-weight: 600; 
-            height: auto; 
-            border-bottom: 1px solid #30363d; 
-            font-size: 14px; 
-        }
-        .theme-git .title-bar-text { 
-            font-size: 14px; 
-            padding: 0 80px; 
-            color: #f0f6fc;
-        }
-        .theme-git .menu-bar { 
-            display: flex; 
-            flex-wrap: wrap; 
-            justify-content: flex-end; 
-            list-style: none; 
-            margin: 0; 
-            padding: 8px 16px; 
-            background: #0d1117; 
-            gap: 8px; 
-            border-bottom: 1px solid #21262d; 
-        }
-        .theme-git .menu-bar > li { 
-            padding: 5px 12px; 
-            font-size: 14px; 
-            border-radius: 6px; 
-            border: 1px solid #30363d; 
-            background: #21262d; 
-            box-shadow: none; 
-            color: #c9d1d9; 
-            cursor: pointer; 
-            transition: all 0.2s; 
-        }
-        .theme-git .menu-bar > li:hover { 
-            background: #30363d; 
-            border-color: #8b949e; 
-        }
-        .theme-git .window-body { 
-            padding: 0; 
-            box-shadow: none; 
-            background-color: #0d1117; 
-        }
-        .theme-git #editor, .theme-git #note-preview { 
-            background-color: #0d1117; 
-            border: none; 
-            font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace; 
-            font-size: 14px; 
-            padding: 16px; 
-            line-height: 1.45; 
-            color: #c9d1d9; 
-        }
-        .theme-git ::-webkit-scrollbar { 
-            width: 14px; 
-            height: 14px; 
-        }
-        .theme-git ::-webkit-scrollbar-track { 
-            background: #161b22; 
-            border-radius: 6px; 
-        }
-        .theme-git ::-webkit-scrollbar-thumb { 
-            background-color: #484f58; 
-            border: 3px solid #161b22; 
-            border-radius: 8px; 
-        }
-        .theme-git ::-webkit-scrollbar-thumb:hover { 
-            background-color: #6e7681; 
-        }
-        .theme-git button, .theme-git select, .theme-git input[type="text"] { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; 
-            font-size: 14px; 
-            border: 1px solid #30363d; 
-            background-color: #21262d; 
-            color: #c9d1d9; 
-            border-radius: 6px; 
-            padding: 5px 16px; 
-            min-height: 32px; 
-            transition: all 0.2s; 
-        }
-        .theme-git button { 
-            background-color: #238636; 
-            color: white; 
-            border: 1px solid rgba(240,246,252,0.1); 
-            font-weight: 500; 
-        }
-        .theme-git button:hover { 
-            background-color: #2ea043; 
-            border-color: rgba(240,246,252,0.1); 
-        }
-        .theme-git button:active { 
-            background-color: #238636; 
-        }
-        .theme-git button.primary { 
-            background-color: #1f6feb; 
-        }
-        .theme-git button.primary:hover { 
-            background-color: #388bfd; 
-        }
-        .theme-git .title-bar-controls { 
-            display: none; 
-        }
-        .theme-git .dropdown-content { 
-            border: 1px solid #30363d; 
-            border-radius: 6px; 
-            background-color: #161b22; 
-            box-shadow: 0 8px 24px rgba(1,4,9,0.25); 
-        }
-        .theme-git .dropdown-content li { 
-            color: #c9d1d9; 
-            border-bottom: 1px solid #21262d; 
-            padding: 8px 16px; 
-            transition: background-color 0.2s; 
-        }
-        .theme-git .dropdown-content li:hover { 
-            background: #1f6feb; 
-            color: #ffffff; 
-        }
-        .theme-git .dropdown-content li:last-child { 
-            border-bottom: none; 
-        }
-        .theme-git #about-modal p { 
-            color: #c9d1d9; 
-        }
-        .theme-git #notes-list-container, 
-        .theme-git .notes-list-header, 
-        .theme-git .note-item, 
-        .theme-git #note-preview-header { 
-            border-color: #30363d; 
-        }
-        .theme-git .notes-list-header { 
-            background-color: #161b22; 
-            color: #c9d1d9; 
-        }
-        .theme-git .note-item { 
-            background-color: #0d1117; 
-            color: #c9d1d9; 
-            transition: background-color 0.2s; 
-        }
-        .theme-git .note-item:hover { 
-            background-color: #161b22; 
-        }
-        .theme-git .note-item.active { 
-            background-color: #1f6feb; 
-            color: #ffffff; 
-        }
-        .theme-git .note-item.active .file-icon { 
-            fill: #ffffff; 
-        }
-        .theme-git .file-icon { 
-            fill: #8b949e; 
-        }
-        .theme-git #note-preview-header { 
-            background-color: #161b22; 
-            color: #c9d1d9; 
-        }
-        .theme-git input[type="text"], 
-        .theme-git select { 
-            background-color: #0d1117; 
-            border: 1px solid #30363d; 
-            color: #c9d1d9; 
-        }
-        .theme-git input[type="text"]:focus, 
-        .theme-git select:focus { 
-            border-color: #1f6feb; 
-            outline: none; 
-            box-shadow: 0 0 0 3px rgba(31,111,235,0.3); 
-        }
-        .theme-git .io-warning { 
-            color: #8b949e; 
-        }
-        .theme-git .modal-content .window-body { 
-            background-color: #0d1117; 
-            color: #c9d1d9; 
-        }
-        .theme-git #file-manager-back-btn { 
-            display: none; 
-        }
-        /* Show back button for Git theme like mobile themes */
-        .theme-git #file-manager-window #file-manager-back-btn {
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-            padding: 5px 16px;
-            margin-right: 8px;
-            border-radius: 6px;
-            background-color: #238636;
-            color: white;
-            font-weight: 500;
+
+        .io-label {
             font-size: 14px;
-            transition: all 0.2s;
-            position: relative;
-            z-index: 2;
-            border: 1px solid rgba(240,246,252,0.1);
-        }
-        .theme-git #file-manager-window #file-manager-back-btn:hover {
-            background-color: #2ea043;
-        }
-        .theme-git #file-manager-window #file-manager-back-btn svg {
-            width: 16px;
-            height: 16px;
-            margin-right: 6px;
-            fill: white;
-        }
-        
-        /* Git theme checklist styles */
-        .theme-git #checklist-container {
-            background: #161b22;
-            border-color: #30363d;
-        }
-        .theme-git .checklist-item {
-            background: rgba(33,38,45,0.5);
-        }
-        .theme-git .checklist-text {
-            color: #c9d1d9; /* Match Git theme text color */
-        }
-        .theme-git #checklist-input,
-        .theme-git .checklist-edit-input {
-            background-color: #0d1117;
-            border-color: #30363d;
-            color: #c9d1d9;
-        }
-        .theme-git .checklist-close-btn,
-        .theme-git .checklist-edit-btn {
-            background-color: #238636;
-            color: white;
-            border: 1px solid rgba(240,246,252,0.1);
-        }
-        .theme-git .checklist-close-btn:hover,
-        .theme-git .checklist-edit-btn:hover {
-            background-color: #2ea043;
+            color: var(--text);
         }
 
-        /* --- Android Theme (Dark) --- */
-        .theme-android body { background-color: #121212; font-family: 'Roboto', sans-serif; }
-        .theme-android #app-window, .theme-android .modal-content, .theme-android #file-manager-window { background-color: #1e1e1e; border: 1px solid #333; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .theme-android .title-bar { 
-            background: #2c2c2c; 
-            padding: 12px 16px; 
-            color: #e0e0e0; 
-            font-weight: 500; 
-            height: auto; 
-            border-bottom: 1px solid #333; 
-        }
-        .theme-android .title-bar-text { 
-            font-size: 18px; 
-            padding: 0 80px; 
-            color: #e0e0e0;
-        }
-        .theme-android #file-manager-window .title-bar-text {
-            left: 50px;
-            right: 50px;
-            padding: 0;
-        }
-        .theme-android .menu-bar { display: flex; flex-wrap: wrap; justify-content: flex-end; list-style: none; margin: 0; padding: 8px; background: #2c2c2c; gap: 4px; border-bottom: 1px solid #333; }
-        .theme-android .menu-bar > li { padding: 6px 10px; font-size: 13px; border-radius: 20px; border: 1px solid #555; background: #3c3c3c; box-shadow: none; color: #e0e0e0; cursor: pointer; }
-        .theme-android .menu-bar > li:hover { background: #555; }
-        .theme-android .window-body { padding: 0; box-shadow: none; background-color: #1e1e1e; }
-        .theme-android #editor, .theme-android #note-preview { background-color: #1e1e1e; border: none; font-family: 'Roboto', sans-serif; font-size: 16px; padding: 16px; line-height: 1.6; color: #e0e0e0; }
-        .theme-android button, .theme-android select, .theme-android input[type="text"] { font-family: 'Roboto', sans-serif; font-size: 14px; border: 1px solid #444; background-color: #2c2c2c; color: #fff; border-radius: 8px; padding: 10px 14px; min-height: 40px; }
-        .theme-android button { background-color: #8ab4f8; color: #202124; border: none; font-weight: 500; }
-        .theme-android button:active { background-color: #7aa3e6; }
-        .theme-android button.primary { background-color: #81c995; color: #202124; }
-        .theme-android button.primary:active { background-color: #70b884; }
-        .theme-android .title-bar-controls { display: none; }
-        .theme-android .dropdown-content { border: 1px solid #333; border-radius: 8px; background-color: #1e1e1e; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .theme-android .dropdown-content li { color: #e0e0e0; border-bottom: 1px solid #333; }
-        .theme-android .dropdown-content li:hover { background: #3c3c3c; }
-        .theme-android #about-modal p { color: #fff; }
-        .theme-android #notes-list-container, .theme-android .notes-list-header, .theme-android .note-item, .theme-android #note-preview-header { border-color: #333; background-color: #2c2c2c; }
-        .theme-android .notes-list-header { background-color: #2c2c2c; }
-        .theme-android .note-item { background-color: #2c2c2c; }
-        .theme-android .note-item.active { background-color: #8ab4f8; color: #202124; }
-        .theme-android .note-item.active .file-icon { fill: #202124; }
-        .theme-android .file-icon { fill: #9aa0a6; }
-        .theme-android #file-manager-window .title-bar { justify-content: flex-start; gap: 8px; }
-        .theme-android #file-manager-window .title-bar-controls { display: none; }
-        /* Android Back Button Styling */
-        .theme-android #file-manager-back-btn {
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 16px;
-            margin-right: 8px;
-            border-radius: 20px;
-            background-color: #8ab4f8;
-            color: #202124;
-            font-weight: 500;
-            font-size: 14px;
-            text-transform: uppercase;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-            transition: all 0.3s cubic-bezier(.25,.8,.25,1);
-            position: relative;
-            z-index: 2;
-        }
-        .theme-android #file-manager-back-btn:hover {
-            background-color: #7aa3e6;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-        }
-        .theme-android #file-manager-back-btn svg {
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
-            fill: #202124;
+        .io-warning {
+            text-align: center;
+            color: var(--secondary);
+            font-size: 12px;
+            padding: 0 16px 16px;
         }
 
-        /* --- Dark Mode Overrides --- */
-        body.dark-mode { background-color: #121212; }
-        .dark-mode #app-window, .dark-mode .modal-content, .dark-mode #file-manager-window, .dark-mode .dropdown-content { background-color: #1e1e1e; color: #e0e0e0; }
-        .dark-mode #font-size-modal .modal-content { background-color: #1e1e1e; }
-        .dark-mode .title-bar { background: #2c2c2c; color: #e0e0e0; border-bottom-color: #3c3c3c; }
-        .dark-mode .menu-bar { background: #2c2c2c; border-bottom-color: #3c3c3c; }
-        .dark-mode .menu-bar > li { background: #3c3c3c; color: #e0e0e0; border-color: #555; }
-        .dark-mode .menu-bar > li:hover { background: #555; }
-        .dark-mode #editor, .dark-mode #note-preview, .dark-mode input, .dark-mode select { background-color: #2c2c2c; color: #e0e0e0; border-color: #555; }
-        .dark-mode button { background-color: #007aff; color: #fff; }
-        .dark-mode button:active { background-color: #005bb5; }
-        .dark-mode .dropdown-content li { color: #e0e0e0; border-bottom-color: #3c3c3c; }
-        .dark-mode .dropdown-content li:hover { background: #3c3c3c; }
-        .dark-mode .note-item { border-bottom-color: #3c3c3c; }
-        .dark-mode .note-item.active { background-color: #007aff; color: #fff; }
-        .dark-mode .file-icon { fill: #e0e0e0; }
-        .dark-mode .note-item.active .file-icon { fill: #fff; }
-        
-        /* Dark Mode Checklist Styles */
-        .dark-mode #checklist-container {
-            background: #2c2c2c;
-            border-color: #555;
-        }
-        .dark-mode .checklist-item {
-            background: rgba(255,255,255,0.05);
-        }
-        .dark-mode #checklist-input {
-            background-color: #3c3c3c;
-            border-color: #555;
-            color: #e0e0e0;
-        }
-        .dark-mode .checklist-close-btn,
-        .dark-mode .checklist-edit-btn {
-            background-color: #007aff;
-        }
-        .dark-mode .checklist-close-btn:hover,
-        .dark-mode .checklist-edit-btn:hover {
-            background-color: #005bb5;
-        }
-        
-        /* Dark mode for iOS - Fixed popup backgrounds */
-        .dark-mode.theme-ios #app-window, 
-        .dark-mode.theme-ios .modal-content, 
-        .dark-mode.theme-ios #file-manager-window { 
-            background-color: #1c1c1e; 
-            border-color: #333; 
-        }
-        .dark-mode.theme-ios .modal-content .window-body,
-        .dark-mode.theme-ios #file-manager-window .window-body {
-            background-color: #1c1c1e !important;
-        }
-        .dark-mode.theme-ios .title-bar, 
-        .dark-mode.theme-ios .menu-bar { 
-            background: #1c1c1e; 
-            border-bottom-color: #333; 
-        }
-        .dark-mode.theme-ios .title-bar-text, 
-        .dark-mode.theme-ios p { 
-            color: #fff; 
-        }
-        .dark-mode.theme-ios .menu-bar > li { 
-            color: #0a84ff; 
-        }
-        .dark-mode.theme-ios .menu-bar > li:hover { 
-            background: #2c2c2e; 
-        }
-        .dark-mode.theme-ios #editor, 
-        .dark-mode.theme-ios #note-preview, 
-        .dark-mode.theme-ios input, 
-        .dark-mode.theme-ios select { 
-            background-color: #1c1c1e; 
-            color: #fff; 
-            border-color: #333; 
-        }
-        .dark-mode.theme-ios .dropdown-content { 
-            background-color: #1c1c1e !important;
-            border-color: #333 !important;
-        }
-        .dark-mode.theme-ios .dropdown-content li { 
-            color: #0a84ff; 
-            border-bottom-color: #333; 
-        }
-        .dark-mode.theme-ios .dropdown-content li:hover { 
-            background: #2c2c2e; 
-        }
-        .dark-mode.theme-ios #about-modal p { 
-            color: #fff; 
-        }
-        .dark-mode.theme-ios #font-size-modal .modal-content { 
-            background-color: #1c1c1e; 
-        }
-        .dark-mode.theme-ios #file-manager-window .window-body { 
-            background-color: #1c1c1e; 
-        }
-        .dark-mode.theme-ios .note-item.active { 
-            background-color: #0a84ff; 
-        }
-        .dark-mode.theme-ios .notes-list-header {
-            background-color: #1c1c1e;
-            border-color: #333;
-        }
-        .dark-mode.theme-ios #notes-list-container {
-            background-color: #1c1c1e;
-        }
-        .dark-mode.theme-ios button {
-            background-color: #0a84ff;
-        }
-        .dark-mode.theme-ios button.primary {
-            background-color: #30d158;
-        }
-        .dark-mode.theme-ios input[type="text"],
-        .dark-mode.theme-ios select {
-            background-color: #2c2c2c !important;
-            color: #fff !important;
-            border-color: #444 !important;
+        /* Hidden file inputs */
+        input[type="file"] {
+            display: none;
         }
 
-        /* Dark mode for Android - Fixed popup backgrounds */
-        .dark-mode.theme-android body { 
-            background-color: #121212; 
-        }
-        .dark-mode.theme-android #app-window, 
-        .dark-mode.theme-android .modal-content, 
-        .dark-mode.theme-android #file-manager-window { 
-            background-color: #1e1e1e; 
-            border-color: #333; 
-        }
-        .dark-mode.theme-android .modal-content .window-body,
-        .dark-mode.theme-android #file-manager-window .window-body {
-            background-color: #1e1e1e !important;
-        }
-        .dark-mode.theme-android .title-bar, 
-        .dark-mode.theme-android .menu-bar { 
-            background: #2c2c2c; 
-            border-bottom-color: #333; 
-        }
-        .dark-mode.theme-android .title-bar-text, 
-        .dark-mode.theme-android p { 
-            color: #e0e0e0; 
-        }
-        .dark-mode.theme-android .menu-bar > li { 
-            background: #3c3c3c; 
-            color: #e0e0e0; 
-            border-color: #555; 
-        }
-        .dark-mode.theme-android .menu-bar > li:hover { 
-            background: #555; 
-        }
-        .dark-mode.theme-android .dropdown-content { 
-            background-color: #1e1e1e !important;
-            border-color: #333 !important;
-        }
-        .dark-mode.theme-android .dropdown-content li { 
-            color: #e0e0e0; 
-            border-bottom-color: #333; 
-        }
-        .dark-mode.theme-android .dropdown-content li:hover { 
-            background: #3c3c3c; 
-        }
-        .dark-mode.theme-android #about-modal p { 
-            color: #fff; 
-        }
-        .dark-mode.theme-android #font-size-modal .modal-content { 
-            background-color: #1e1e1e; 
-        }
-        .dark-mode.theme-android #file-manager-window .window-body { 
-            background-color: #1e1e1e; 
-        }
-        .dark-mode.theme-android .note-item.active { 
-            background-color: #8ab4f8; 
-            color: #202124; 
-        }
-        .dark-mode.theme-android .note-item.active .file-icon { 
-            fill: #202124; 
-        }
-        .dark-mode.theme-android .notes-list-header {
-            background-color: #2c2c2c;
-            border-color: #333;
-        }
-        .dark-mode.theme-android #notes-list-container {
-            background-color: #2c2c2c;
-        }
-        .dark-mode.theme-android button {
-            background-color: #8ab4f8;
-            color: #202124;
-        }
-        .dark-mode.theme-android button.primary {
-            background-color: #81c995;
-        }
-        .dark-mode.theme-android input[type="text"],
-        .dark-mode.theme-android select {
-            background-color: #2c2c2c !important;
-            color: #fff !important;
-            border-color: #444 !important;
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
 
-        /* --- FIX: Dark Mode Input Boxes --- */
-        .dark-mode.theme-win95 input[type="text"],
-        .dark-mode.theme-win95 select,
-        .dark-mode.theme-winxp input[type="text"],
-        .dark-mode.theme-winxp select {
-            background-color: #2c2c2c;
-            color: #e0e0e0;
-            border: 1px solid #555;
-            box-shadow: none;
-            background-image: none;
+        ::-webkit-scrollbar-track {
+            background: var(--surface);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .notes-list-panel {
+                width: 100%;
+                border-right: none;
+            }
+
+            .preview-panel {
+                display: none;
+            }
+
+            .preview-panel.mobile-show {
+                display: flex;
+                width: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                height: 100%;
+                background: var(--bg);
+                z-index: 10;
+            }
         }
     </style>
-
 </head>
-<body class="theme-android">
-<div id="app-window">
-    <div class="title-bar">
-        <div class="title-bar-text">AFSNote</div>
-        <div class="title-bar-controls">
-            <button id="minimize-btn" class="win-button" aria-label="Minimize"><span class="icon minimize-icon"></span></button>
-            <button id="maximize-btn" class="win-button" aria-label="Maximize"><span class="icon maximize-icon"></span></button>
-            <button id="close-btn" class="win-button" aria-label="Close"><span class="icon close-icon">×</span></button>
+<body class="ios-dark">
+    <div id="app">
+        <!-- Header -->
+        <div class="header">
+            <div class="title">Untitled - AFSNote</div>
         </div>
-    </div>
-    <ul class="menu-bar">
-        <li class="menu-item">
-            File
-            <ul class="dropdown-content">
-                <li id="new-file-btn">New Note</li>
-                <li id="open-file-btn">Open from Device...</li>
-                <li id="save-note-btn">Save Note</li>
-                <li id="save-to-device-btn">Save to Device...</li>
-            </ul>
-        </li>
-        <li id="saved-notes-btn">Saved Notes</li>
-        <li class="menu-item menu-item-right">
-            Styles
-            <ul class="dropdown-content">
-                <li id="theme-win95-btn">Windows 95</li>
-                <li id="theme-winxp-btn">Windows XP</li>
-                <li id="theme-ios-btn">iOS</li>
-                <li id="theme-android-btn">Android</li>
-                <li id="theme-git-btn">Git</li>
-            </ul>
-        </li>
-        <li class="menu-item menu-item-right">
-            Tools
-            <ul class="dropdown-content">
-                <li id="font-size-menu-btn">Font Size</li>
-                <li id="replace-menu-btn">Replace</li>
-                <li id="import-export-btn">Import/Export</li>
-                <li id="about-menu-btn">About</li>
-            </ul>
-        </li>
-    </ul>
-    <div class="window-body">
-        <div id="checklist-container" style="display: none;">
-            <div class="checklist-items" id="checklist-items"></div>
-            <div id="checklist-input-container">
-                <input type="text" id="checklist-input" placeholder="Add item..." />
+
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <div class="dropdown">
+                <button class="menu-button" id="file-menu-btn">File</button>
+                <div class="dropdown-content" id="file-dropdown">
+                    <div class="dropdown-item" id="new-note-btn">New Note</div>
+                    <div class="dropdown-item" id="new-list-btn">New List</div>
+                    <div class="dropdown-item" id="open-file-btn">Open from Device</div>
+                    <div class="dropdown-item" id="save-note-btn">Save Note</div>
+                    <div class="dropdown-item" id="save-device-btn">Save to Device</div>
+                </div>
             </div>
-            <div class="checklist-controls">
-                <button class="checklist-close-btn" id="checklist-close">Close</button>
-                <button class="checklist-edit-btn" id="checklist-edit" style="display: none;">Edit</button>
+
+            <button class="menu-button" id="saved-notes-btn">Saved Notes</button>
+
+            <div class="dropdown">
+                <button class="menu-button" id="theme-menu-btn">Theme</button>
+                <div class="dropdown-content" id="theme-dropdown">
+                    <div class="dropdown-item" data-theme="ios-light">iOS Light</div>
+                    <div class="dropdown-item" data-theme="ios-dark">iOS Dark</div>
+                    <div class="dropdown-item" data-theme="android-light">Android Light</div>
+                    <div class="dropdown-item" data-theme="android-dark">Android Dark</div>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="menu-button" id="tools-menu-btn">Tools</button>
+                <div class="dropdown-content" id="tools-dropdown">
+                    <div class="dropdown-item" id="font-size-btn">Font Size</div>
+                    <div class="dropdown-item" id="replace-btn">Replace</div>
+                    <div class="dropdown-item" id="import-export-btn">Import/Export</div>
+                    <div class="dropdown-item" id="about-btn">About</div>
+                </div>
             </div>
         </div>
-        <textarea id="editor" spellcheck="false"></textarea>
-    </div>
-</div>
 
-<div id="about-modal" class="modal">
-    <div class="modal-content">
-        <div class="title-bar">
-            <div class="title-bar-text">About AFSNote</div>
-            <div class="version-display">[Version 1.0.0]</div>
-        </div>
-        <div class="window-body">
-            <p style="text-align: center; margin: 20px; font-weight: bold;">
-                This shitty app was vibe coded by <br>an absolute complete dumbass
-                who was sick <br>of all your shitty note apps.
-                <br><br>
-                Like who the fuck wants a note taking app <br>to open DIRECTLY
-                to the saved notes, <br>showing you every single note <br>with just
-                enough of a snippet to raise suspicion, <br>get better you fucking weirdos.
-            </p>
-            <p style="text-align: center; margin: 20px; font-weight: bold;">
-                Your notes are stored locally in your browser,<br>
-                so it's your fault if you lose them, dumbass.
-            </p>
-            <section class="field-row"><button id="close-modal-1">Close</button></section>
-        </div>
-    </div>
-</div>
+        <!-- Editor Container -->
+        <div class="editor-container">
+            <textarea id="editor" placeholder="Start typing..."></textarea>
 
-<div id="save-note-modal" class="modal">
-     <div class="modal-content">
-        <div class="title-bar"><div class="title-bar-text">Save Note</div></div>
-        <div class="window-body">
-            <label for="note-name-input" style="display: block; margin-bottom: 8px;">Note Name:</label>
-            <input type="text" id="note-name-input" value="">
-            <section class="field-row"><button id="cancel-note-save-btn">Cancel</button><button id="confirm-note-save-btn" class="primary">Save</button></section>
-        </div>
-    </div>
-</div>
-
-<div id="save-to-device-modal" class="modal">
-     <div class="modal-content">
-        <div class="title-bar"><div class="title-bar-text">Save to Device</div></div>
-        <div class="window-body">
-            <label for="device-filename-input" style="display: block; margin-bottom: 8px;">File Name:</label>
-            <input type="text" id="device-filename-input" value="" placeholder="filename.txt">
-            <label for="file-type-select" style="display: block; margin-top: 10px; margin-bottom: 8px;">File Type:</label>
-            <select id="file-type-select">
-                <option value="txt">.txt (Text File)</option>
-                <option value="html">.html (HTML File)</option>
-            </select>
-            <section class="field-row"><button id="cancel-device-save-btn">Cancel</button><button id="confirm-device-save-btn" class="primary">Save</button></section>
-        </div>
-    </div>
-</div>
-
-<div id="font-size-modal" class="modal">
-     <div class="modal-content">
-       <div class="title-bar"><div class="title-bar-text">Adjust Font Size</div></div>
-       <div class="window-body">
-            <input type="range" id="font-size-slider" min="8" max="48" value="16">
-            <p id="font-size-display">16px</p>
-            <section class="field-row"><button id="close-font-modal-btn">Close</button></section>
-       </div>
-   </div>
-</div>
-
-<div id="replace-modal" class="modal">
-    <div class="modal-content">
-        <div class="title-bar"><div class="title-bar-text">Replace</div></div>
-        <div class="window-body">
-            <label for="find-input">Find:</label>
-            <input type="text" id="find-input">
-            <label for="replace-input" style="margin-top: 10px;">Replace with:</label>
-            <input type="text" id="replace-input">
-            <section class="field-row">
-                <button id="confirm-replace-all-btn">Replace All</button>
-                <button id="close-replace-btn">Close</button>
-            </section>
-        </div>
-    </div>
-</div>
-
-<div id="import-export-modal" class="modal">
-    <div class="modal-content">
-        <div class="title-bar"><div class="title-bar-text">Import/Export Notes</div></div>
-        <div class="window-body">
-            <div class="io-section">
-                <button id="import-notes-btn">📥</button>
-                <p>Import Notes</p>
+            <!-- Checklist Container -->
+            <div id="checklist-container">
+                <div class="checklist-items" id="checklist-items"></div>
+                <div class="checklist-input-container">
+                    <input type="text" id="checklist-input" placeholder="Add item...">
+                </div>
+                <div class="checklist-controls">
+                    <button class="btn-primary" id="exit-checklist-btn">Convert to Text Note</button>
+                </div>
             </div>
-            <div class="io-section">
-                <button id="export-notes-btn">📤</button>
-                <p>Export Notes</p>
-            </div>
-            <p class="io-warning">Note: Your notes are stored locally in your browser.</p>
-        </div>
-        <section class="field-row">
-            <button id="close-io-modal-btn">Close</button>
-        </section>
-    </div>
-</div>
-
-<div id="delete-confirm-modal" class="modal">
-    <div class="modal-content">
-        <div class="title-bar"><div class="title-bar-text">Confirm Deletion</div></div>
-        <div class="window-body">
-            <p style="text-align: center; margin: 20px;">Are you sure you want to delete this note?</p>
-            <section class="field-row">
-                <button id="cancel-delete-btn">No</button>
-                <button id="confirm-delete-btn" class="primary">Yes</button>
-            </section>
         </div>
     </div>
-</div>
 
-<input type="file" id="file-opener" accept=".txt,text/plain">
-<input type="file" id="import-file-opener" accept=".json,application/json">
-
-<div id="file-manager-window">
-    <div class="title-bar">
-        <button id="file-manager-back-btn">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-            </svg>
-            Back
-        </button>
-        <div class="title-bar-text">Saved Notes</div>
-        <div class="title-bar-controls">
-            <button id="file-manager-close-btn" class="win-button" aria-label="Close"><span class="icon close-icon">×</span></button>
+    <!-- File Manager -->
+    <div id="file-manager">
+        <div class="file-manager-header">
+            <button class="back-button" id="close-file-manager">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </button>
+            <div class="file-manager-title">Saved Notes</div>
         </div>
-    </div>
-    <div class="window-body">
-         <div id="file-manager-content">
-            <div id="notes-list-container">
+        <div class="file-manager-content">
+            <div class="notes-list-panel">
                 <div class="notes-list-header">
-                    <span class="header-name">Name</span>
-                    <div class="menu-item">
-                        <button id="filter-btn">Filter</button>
-                        <ul class="dropdown-content">
-                            <li data-sort="name-asc">Name (A-Z)</li>
-                            <li data-sort="name-desc">Name (Z-A)</li>
-                            <li data-sort="date-desc">Newest First</li>
-                            <li data-sort="date-asc">Oldest First</li>
-                        </ul>
+                    <span>Notes</span>
+                    <div class="dropdown">
+                        <button class="menu-button" id="sort-btn">Sort</button>
+                        <div class="dropdown-content" id="sort-dropdown">
+                            <div class="dropdown-item" data-sort="date-desc">Newest First</div>
+                            <div class="dropdown-item" data-sort="date-asc">Oldest First</div>
+                            <div class="dropdown-item" data-sort="name-asc">Name (A-Z)</div>
+                            <div class="dropdown-item" data-sort="name-desc">Name (Z-A)</div>
+                        </div>
                     </div>
                 </div>
-                <div id="notes-list"></div>
+                <div class="notes-list" id="notes-list"></div>
             </div>
-            <div id="note-preview-container">
-                <div id="note-preview-header">
-                    <div>
-                        <div id="note-preview-title"></div>
-                        <div id="note-preview-date"></div>
-                    </div>
-                    <div id="note-preview-actions">
-                        <button id="preview-open-btn">Open in Editor</button>
-                        <button id="preview-delete-btn">Delete</button>
+            <div class="preview-panel" id="preview-panel">
+                <div class="preview-header">
+                    <div class="preview-title" id="preview-title">Select a note</div>
+                    <div class="preview-date" id="preview-date"></div>
+                    <div class="preview-actions">
+                        <button class="btn-primary" id="open-note-btn">Edit</button>
+                        <button class="btn-secondary" id="delete-note-btn">Delete</button>
                     </div>
                 </div>
-                <div id="note-preview">Select a note to preview...</div>
+                <div class="preview-content" id="preview-content">Select a note to preview...</div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const getEl = id => document.getElementById(id);
-        
-        // --- State ---
-        let currentNoteId = null;
-        let selectedPreviewId = null;
-        let isDirty = false; // Flag for unsaved changes
-        let autosaveTimeout = null; // Timer for autosave
-        let checklistMode = false;
-        let checklistItems = [];
-        
-        // --- Element Cache ---
-        const editor = getEl('editor');
-        const fileOpener = getEl('file-opener');
-        const importFileOpener = getEl('import-file-opener');
-        const closeBtn = getEl('close-btn');
-        const titleBarText = document.querySelector('#app-window .title-bar-text');
-        
-        // Menu Buttons
-        const newFileBtn = getEl('new-file-btn');
-        const openFileBtn = getEl('open-file-btn');
-        const saveNoteBtn = getEl('save-note-btn');
-        const saveToDeviceBtn = getEl('save-to-device-btn');
-        const aboutMenuBtn = getEl('about-menu-btn');
-        const fontSizeMenuBtn = getEl('font-size-menu-btn');
-        const savedNotesBtn = getEl('saved-notes-btn');
-        const replaceMenuBtn = getEl('replace-menu-btn');
-        const importExportBtn = getEl('import-export-btn');
-        const fontSizeSlider = getEl('font-size-slider');
-        const fontSizeDisplay = getEl('font-size-display');
-        const fileTypeSelect = getEl('file-type-select');
-        const deviceFilenameInput = getEl('device-filename-input');
-        
-        // Checklist Elements
-        const checklistContainer = getEl('checklist-container');
-        const checklistItemsContainer = getEl('checklist-items');
-        const checklistInput = getEl('checklist-input');
-        const checklistClose = getEl('checklist-close');
-        const checklistEdit = getEl('checklist-edit');
-        
-        // --- Title Bar Logic ---
-        const updateTitleBar = (noteName, showSavedMessage = false) => {
-            let displayName = noteName || 'Untitled';
-            if (displayName.length > 15) {
-                displayName = displayName.substring(0, 15) + '...';
-            }
-            const baseTitle = `${displayName} - AFSNote`;
-            titleBarText.textContent = baseTitle;
-            if (showSavedMessage) {
-                titleBarText.textContent = `✓ Saved - ${displayName} - AFSNote`;
-                setTimeout(() => {
-                    if (titleBarText.textContent.startsWith('✓ Saved')) {
-                        titleBarText.textContent = baseTitle;
-                    }
-                }, 1500);
-            }
-        };
+    <!-- Save Note Modal -->
+    <div class="modal" id="save-modal">
+        <div class="modal-content">
+            <div class="modal-header">Save Note</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Note Name</label>
+                    <input type="text" class="form-input" id="note-name-input" placeholder="Enter note name">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancel-save-btn">Cancel</button>
+                <button class="btn-primary" id="confirm-save-btn">Save</button>
+            </div>
+        </div>
+    </div>
 
-        // --- Checklist Feature Logic ---
-        const enterChecklistMode = () => {
-            checklistMode = true;
-            editor.style.display = 'none';
-            checklistContainer.style.display = 'flex';
-            checklistInput.focus();
-            checklistClose.style.display = 'block';
-            checklistEdit.style.display = 'none';
-        };
-        
-        const exitChecklistMode = () => {
-            checklistMode = false;
-            checklistContainer.style.display = 'none';
-            editor.style.display = 'block';
-            
-            // Convert checklist back to text
-            let text = '';
-            checklistItems.forEach(item => {
-                const checkbox = item.completed ? '[x]' : '[ ]';
-                text += `${checkbox} ${item.text}\n`;
-            });
-            
-            // Replace the !list command with the actual checklist content
-            const lines = editor.value.split('\n');
-            const listIndex = lines.findIndex(line => line.trim() === '!list');
-            if (listIndex !== -1) {
-                lines[listIndex] = text.trim();
-                editor.value = lines.join('\n');
-            } else {
-                // If !list not found, just append the checklist content
-                editor.value = editor.value + '\n' + text;
-            }
-            
-            // Clear checklist items for next use
-            checklistItems = [];
-        };
-        
-        const addChecklistItem = (text) => {
-            const itemId = Date.now();
-            const item = { id: itemId, text: text, completed: false };
-            checklistItems.push(item);
-            renderChecklistItems();
-            // Autosave when new item is added
-            autosaveChecklist();
-        };
-        
-        // Helper function to autosave checklist
-        const autosaveChecklist = () => {
-            if (checklistMode && currentNoteId) {
-                const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
-                const note = notes.find(n => n.id === currentNoteId);
-                if (note) {
-                    saveNoteToLocalStorage(note.name, true);
-                }
-            }
-        };
-        
-        const renderChecklistItems = () => {
-            checklistItemsContainer.innerHTML = '';
-            checklistItems.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'checklist-item';
-                if (item.completed) itemDiv.classList.add('completed');
-                
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.className = 'checklist-checkbox';
-                checkbox.checked = item.completed;
-                checkbox.addEventListener('change', () => {
-                    item.completed = checkbox.checked;
-                    if (checkbox.checked) {
-                        itemDiv.classList.add('completed');
-                    } else {
-                        itemDiv.classList.remove('completed');
-                    }
-                    // Autosave when item is checked/unchecked
-                    autosaveChecklist();
-                });
-                
-                const textSpan = document.createElement('span');
-                textSpan.className = 'checklist-text';
-                textSpan.textContent = item.text;
-                
-                // Create edit input (hidden by default)
-                const editInput = document.createElement('input');
-                editInput.type = 'text';
-                editInput.className = 'checklist-edit-input';
-                editInput.value = item.text;
-                
-                // Double-click to edit
-                textSpan.addEventListener('dblclick', () => {
-                    itemDiv.classList.add('editing');
-                    editInput.value = item.text;
-                    editInput.focus();
-                    editInput.select();
-                });
-                
-                // Save on Enter, cancel on Escape
-                editInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        const newText = editInput.value.trim();
-                        if (newText) {
-                            item.text = newText;
-                            textSpan.textContent = newText;
-                            // Autosave when item is edited
-                            autosaveChecklist();
-                        }
-                        itemDiv.classList.remove('editing');
-                    } else if (e.key === 'Escape') {
-                        editInput.value = item.text;
-                        itemDiv.classList.remove('editing');
-                    }
-                });
-                
-                // Save on blur
-                editInput.addEventListener('blur', () => {
-                    const newText = editInput.value.trim();
-                    if (newText && newText !== item.text) {
-                        item.text = newText;
-                        textSpan.textContent = newText;
-                        // Autosave when item is edited
-                        autosaveChecklist();
-                    }
-                    itemDiv.classList.remove('editing');
-                });
-                
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'checklist-delete';
-                deleteBtn.textContent = 'Delete';
-                deleteBtn.addEventListener('click', () => {
-                    checklistItems = checklistItems.filter(i => i.id !== item.id);
-                    renderChecklistItems();
-                    // Autosave when item is deleted
-                    autosaveChecklist();
-                });
-                
-                // Long press for delete
-                let pressTimer;
-                const startPress = () => {
-                    pressTimer = setTimeout(() => {
-                        deleteBtn.classList.add('show');
-                        setTimeout(() => {
-                            deleteBtn.classList.remove('show');
-                        }, 3000);
-                    }, 1000);
-                };
-                
-                const cancelPress = () => {
-                    clearTimeout(pressTimer);
-                };
-                
-                itemDiv.addEventListener('mousedown', (e) => {
-                    if (!e.target.matches('input')) startPress();
-                });
-                itemDiv.addEventListener('touchstart', (e) => {
-                    if (!e.target.matches('input')) startPress();
-                });
-                itemDiv.addEventListener('mouseup', cancelPress);
-                itemDiv.addEventListener('mouseleave', cancelPress);
-                itemDiv.addEventListener('touchend', cancelPress);
-                
-                itemDiv.appendChild(checkbox);
-                itemDiv.appendChild(textSpan);
-                itemDiv.appendChild(editInput);
-                itemDiv.appendChild(deleteBtn);
-                checklistItemsContainer.appendChild(itemDiv);
-            });
-        };
-        
-        // Checklist event listeners
-        checklistInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && checklistInput.value.trim()) {
-                addChecklistItem(checklistInput.value.trim());
-                checklistInput.value = '';
-            }
-        });
-        
-        checklistClose.addEventListener('click', () => {
-            checklistInput.style.display = 'none';
-            checklistClose.style.display = 'none';
-            checklistEdit.style.display = 'block';
-        });
-        
-        checklistEdit.addEventListener('click', () => {
-            checklistInput.style.display = 'block';
-            checklistEdit.style.display = 'none';
-            checklistClose.style.display = 'block';
-            checklistInput.focus();
-        });
-        
-        // Monitor editor for !list command
-        editor.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const lines = editor.value.split('\n');
-                const currentLine = lines[lines.length - 1];
-                if (currentLine.trim() === '!list') {
-                    e.preventDefault();
-                    checklistItems = [];
-                    
-                    // Create a new note ID if we don't have one
-                    if (!currentNoteId) {
-                        currentNoteId = Date.now();
-                        // Save initially as "Untitled" checklist
-                        const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
-                        const note = { 
-                            id: currentNoteId, 
-                            name: 'Untitled Checklist', 
-                            content: '', 
-                            createdAt: Date.now() 
-                        };
-                        notes.unshift(note);
-                        localStorage.setItem('afsnote_notes', JSON.stringify(notes));
-                        updateTitleBar('Untitled Checklist');
-                    }
-                    
-                    enterChecklistMode();
-                }
-            }
-        });
+    <!-- Save to Device Modal -->
+    <div class="modal" id="save-device-modal">
+        <div class="modal-content">
+            <div class="modal-header">Save to Device</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">File Name</label>
+                    <input type="text" class="form-input" id="filename-input" placeholder="filename">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">File Type</label>
+                    <select class="form-select" id="file-type-select">
+                        <option value="txt">.txt (Text File)</option>
+                        <option value="html">.html (HTML File)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancel-device-save-btn">Cancel</button>
+                <button class="btn-primary" id="confirm-device-save-btn">Save</button>
+            </div>
+        </div>
+    </div>
 
-        // --- Theme Switcher Logic ---
-        const closeAllDropdowns = () => {
-            document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
+    <!-- Font Size Modal -->
+    <div class="modal" id="font-size-modal">
+        <div class="modal-content">
+            <div class="modal-header">Font Size</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Size: <span id="font-size-value">16px</span></label>
+                    <input type="range" class="form-input" id="font-size-slider" min="12" max="32" value="16" style="width: 100%">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="close-font-modal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Replace Modal -->
+    <div class="modal" id="replace-modal">
+        <div class="modal-content">
+            <div class="modal-header">Find and Replace</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Find</label>
+                    <input type="text" class="form-input" id="find-input" placeholder="Text to find">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Replace with</label>
+                    <input type="text" class="form-input" id="replace-input" placeholder="Replacement text">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="close-replace-modal">Close</button>
+                <button class="btn-primary" id="confirm-replace-btn">Replace All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import/Export Modal -->
+    <div class="modal" id="import-export-modal">
+        <div class="modal-content">
+            <div class="modal-header">Import/Export Notes</div>
+            <div class="modal-body">
+                <div class="io-section">
+                    <div class="io-button" id="import-notes-btn">
+                        <div class="io-icon">📥</div>
+                        <div class="io-label">Import</div>
+                    </div>
+                    <div class="io-button" id="export-notes-btn">
+                        <div class="io-icon">📤</div>
+                        <div class="io-label">Export</div>
+                    </div>
+                </div>
+                <div class="io-warning">Your notes are stored locally in your browser</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="close-io-modal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div class="modal" id="about-modal">
+        <div class="modal-content">
+            <div class="modal-header">About AFSNote</div>
+            <div class="modal-body">
+                <p style="text-align: center; font-weight: 600; margin-bottom: 16px;">AFSNote v2.0</p>
+                <p>A simple, privacy-focused note-taking app that stores your notes locally in your browser.</p>
+                <p>Features:</p>
+                <p>• Create and manage notes</p>
+                <p>• Checklist functionality</p>
+                <p>• Import/Export notes</p>
+                <p>• Multiple themes</p>
+                <p>• Auto-save</p>
+                <p style="margin-top: 16px; text-align: center; color: var(--secondary);">Your notes never leave your device.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="close-about-modal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="delete-modal">
+        <div class="modal-content">
+            <div class="modal-header">Delete Note</div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this note? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancel-delete-btn">Cancel</button>
+                <button class="btn-primary" id="confirm-delete-btn" style="background: #ff3b30;">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden File Inputs -->
+    <input type="file" id="file-input" accept=".txt,text/plain">
+    <input type="file" id="import-file-input" accept=".json,application/json">
+
+    <script>
+        // Application State
+        const state = {
+            currentNoteId: null,
+            selectedNoteId: null,
+            isDirty: false,
+            autosaveTimer: null,
+            isChecklistMode: false,
+            checklistItems: []
         };
 
-        // Setup dropdown menus
-        document.querySelectorAll('.menu-item').forEach(item => {
-            const hasDropdown = item.querySelector('.dropdown-content');
-            
-            item.addEventListener('click', event => {
-                if (hasDropdown && event.target.closest('.dropdown-content')) {
-                    return;
-                }
-                event.stopPropagation();
+        // DOM Elements
+        const elements = {
+            editor: document.getElementById('editor'),
+            title: document.querySelector('.title'),
+            checklistContainer: document.getElementById('checklist-container'),
+            checklistItems: document.getElementById('checklist-items'),
+            checklistInput: document.getElementById('checklist-input'),
+            fileManager: document.getElementById('file-manager'),
+            notesList: document.getElementById('notes-list'),
+            previewPanel: document.getElementById('preview-panel'),
+            previewTitle: document.getElementById('preview-title'),
+            previewDate: document.getElementById('preview-date'),
+            previewContent: document.getElementById('preview-content')
+        };
+
+        // Utility Functions
+        const $ = (id) => document.getElementById(id);
+        const $$ = (selector) => document.querySelectorAll(selector);
+
+        // Theme Management
+        const themeManager = {
+            init() {
+                const savedTheme = localStorage.getItem('afsnote_theme') || 'ios-dark';
+                this.setTheme(savedTheme);
                 
-                if (hasDropdown) {
-                    const dropdown = item.querySelector('.dropdown-content');
-                    const isVisible = dropdown.style.display === 'block';
+                $$('[data-theme]').forEach(item => {
+                    item.addEventListener('click', () => {
+                        this.setTheme(item.dataset.theme);
+                        closeAllDropdowns();
+                    });
+                });
+            },
+            
+            setTheme(theme) {
+                document.body.className = theme;
+                localStorage.setItem('afsnote_theme', theme);
+            }
+        };
+
+        // Dropdown Management
+        function setupDropdowns() {
+            const dropdowns = $$('.dropdown');
+            
+            dropdowns.forEach(dropdown => {
+                const button = dropdown.querySelector('.menu-button');
+                const content = dropdown.querySelector('.dropdown-content');
+                
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isOpen = content.classList.contains('show');
                     closeAllDropdowns();
-                    if (!isVisible) {
-                        dropdown.style.display = 'block';
+                    if (!isOpen) {
+                        content.classList.add('show');
+                    }
+                });
+            });
+            
+            document.addEventListener('click', closeAllDropdowns);
+        }
+
+        function closeAllDropdowns() {
+            $$('.dropdown-content').forEach(dropdown => {
+                dropdown.classList.remove('show');
+            });
+        }
+
+        // Modal Management
+        const modalManager = {
+            show(modalId) {
+                $(modalId).classList.add('show');
+            },
+            
+            hide(modalId) {
+                $(modalId).classList.remove('show');
+            }
+        };
+
+        // Title Management
+        function updateTitle(name = 'Untitled', showSaved = false) {
+            const displayName = name.length > 20 ? name.substring(0, 20) + '...' : name;
+            const baseTitle = `${displayName} - AFSNote`;
+            
+            if (showSaved) {
+                elements.title.textContent = `✓ Saved - ${displayName}`;
+                setTimeout(() => {
+                    elements.title.textContent = baseTitle;
+                }, 1500);
+            } else {
+                elements.title.textContent = baseTitle;
+            }
+        }
+
+        // Note Storage
+        const noteStorage = {
+            getAll() {
+                return JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
+            },
+            
+            save(notes) {
+                localStorage.setItem('afsnote_notes', JSON.stringify(notes));
+            },
+            
+            add(note) {
+                const notes = this.getAll();
+                notes.unshift(note);
+                this.save(notes);
+            },
+            
+            update(id, updates) {
+                const notes = this.getAll();
+                const note = notes.find(n => n.id === id);
+                if (note) {
+                    Object.assign(note, updates);
+                    this.save(notes);
+                }
+            },
+            
+            delete(id) {
+                const notes = this.getAll();
+                const filtered = notes.filter(n => n.id !== id);
+                this.save(filtered);
+            },
+            
+            getById(id) {
+                return this.getAll().find(n => n.id === id);
+            }
+        };
+
+        // Checklist Management
+        const checklistManager = {
+            enter() {
+                state.isChecklistMode = true;
+                elements.editor.style.display = 'none';
+                elements.checklistContainer.classList.add('active');
+                elements.checklistInput.focus();
+            },
+            
+            exit() {
+                state.isChecklistMode = false;
+                elements.checklistContainer.classList.remove('active');
+                elements.editor.style.display = 'block';
+                
+                // Convert checklist to text format
+                const text = state.checklistItems.map(item => {
+                    const checkbox = item.completed ? '[x]' : '[ ]';
+                    return `${checkbox} ${item.text}`;
+                }).join('\n');
+                
+                elements.editor.value = text;
+                
+                // Update the note to be a text note instead of checklist
+                if (state.currentNoteId) {
+                    noteStorage.update(state.currentNoteId, {
+                        content: text,
+                        isChecklist: false,
+                        checklistItems: null
+                    });
+                }
+                
+                state.checklistItems = [];
+            },
+            
+            addItem(text) {
+                if (!text.trim()) return;
+                
+                const item = {
+                    id: Date.now() + Math.random(),
+                    text: text.trim(),
+                    completed: false
+                };
+                
+                state.checklistItems.push(item);
+                state.isDirty = true;
+                this.render();
+                this.autosave();
+            },
+            
+            deleteItem(id) {
+                state.checklistItems = state.checklistItems.filter(item => item.id !== id);
+                state.isDirty = true;
+                this.render();
+                this.autosave();
+            },
+            
+            toggleItem(id) {
+                const item = state.checklistItems.find(item => item.id === id);
+                if (item) {
+                    item.completed = !item.completed;
+                    state.isDirty = true;
+                    this.render();
+                    this.autosave();
+                }
+            },
+            
+            updateItem(id, text) {
+                const item = state.checklistItems.find(item => item.id === id);
+                if (item) {
+                    item.text = text;
+                    state.isDirty = true;
+                    this.render();
+                    this.autosave();
+                }
+            },
+            
+            render() {
+                elements.checklistItems.innerHTML = '';
+                
+                state.checklistItems.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'checklist-item' + (item.completed ? ' completed' : '');
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'checklist-checkbox';
+                    checkbox.checked = item.completed;
+                    checkbox.addEventListener('change', () => this.toggleItem(item.id));
+                    
+                    const text = document.createElement('span');
+                    text.className = 'checklist-text';
+                    text.textContent = item.text;
+                    
+                    const editInput = document.createElement('input');
+                    editInput.type = 'text';
+                    editInput.className = 'checklist-edit-input';
+                    editInput.value = item.text;
+                    
+                    // Double click to edit
+                    text.addEventListener('dblclick', () => {
+                        div.classList.add('editing');
+                        editInput.focus();
+                        editInput.select();
+                    });
+                    
+                    // Save on Enter
+                    editInput.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (editInput.value.trim()) {
+                                this.updateItem(item.id, editInput.value.trim());
+                            }
+                            div.classList.remove('editing');
+                        } else if (e.key === 'Escape') {
+                            div.classList.remove('editing');
+                        }
+                    });
+                    
+                    // Save on blur
+                    editInput.addEventListener('blur', () => {
+                        if (editInput.value.trim() && editInput.value !== item.text) {
+                            this.updateItem(item.id, editInput.value.trim());
+                        }
+                        div.classList.remove('editing');
+                    });
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'checklist-delete';
+                    deleteBtn.textContent = 'Delete';
+                    deleteBtn.addEventListener('click', () => this.deleteItem(item.id));
+                    
+                    // Long press for delete
+                    let pressTimer;
+                    const startPress = () => {
+                        pressTimer = setTimeout(() => {
+                            deleteBtn.classList.add('show');
+                            setTimeout(() => deleteBtn.classList.remove('show'), 3000);
+                        }, 500);
+                    };
+                    
+                    const cancelPress = () => clearTimeout(pressTimer);
+                    
+                    div.addEventListener('mousedown', startPress);
+                    div.addEventListener('touchstart', startPress);
+                    div.addEventListener('mouseup', cancelPress);
+                    div.addEventListener('mouseleave', cancelPress);
+                    div.addEventListener('touchend', cancelPress);
+                    
+                    div.appendChild(checkbox);
+                    div.appendChild(text);
+                    div.appendChild(editInput);
+                    div.appendChild(deleteBtn);
+                    elements.checklistItems.appendChild(div);
+                });
+            },
+            
+            autosave() {
+                if (state.currentNoteId) {
+                    this.saveChecklist();
+                }
+            },
+            
+            saveChecklist() {
+                noteStorage.update(state.currentNoteId, {
+                    checklistItems: JSON.parse(JSON.stringify(state.checklistItems)),
+                    isChecklist: true,
+                    createdAt: Date.now()
+                });
+            },
+            
+            loadFromText(text) {
+                state.checklistItems = [];
+                const lines = text.split('\n');
+                
+                lines.forEach(line => {
+                    const trimmed = line.trim();
+                    if (trimmed.startsWith('[ ]')) {
+                        state.checklistItems.push({
+                            id: Date.now() + Math.random(),
+                            text: trimmed.substring(3).trim(),
+                            completed: false
+                        });
+                    } else if (trimmed.startsWith('[x]')) {
+                        state.checklistItems.push({
+                            id: Date.now() + Math.random(),
+                            text: trimmed.substring(3).trim(),
+                            completed: true
+                        });
+                    }
+                });
+                
+                this.render();
+            },
+            
+            loadFromItems(items) {
+                state.checklistItems = JSON.parse(JSON.stringify(items));
+                this.render();
+            }
+        };
+
+        // File Operations
+        const fileOperations = {
+            newNote() {
+                // Create a new note immediately so autosave works from the start
+                const note = {
+                    id: Date.now(),
+                    name: 'Untitled',
+                    content: '',
+                    isChecklist: false,
+                    createdAt: Date.now()
+                };
+                noteStorage.add(note);
+                
+                elements.editor.value = '';
+                state.currentNoteId = note.id;
+                state.isDirty = false;
+                state.checklistItems = [];
+                updateTitle('Untitled');
+                
+                if (state.isChecklistMode) {
+                    checklistManager.exit();
+                }
+            },
+            
+            newList() {
+                // Create a new checklist note immediately
+                const note = {
+                    id: Date.now(),
+                    name: 'Untitled List',
+                    checklistItems: [],
+                    isChecklist: true,
+                    createdAt: Date.now()
+                };
+                noteStorage.add(note);
+                
+                state.currentNoteId = note.id;
+                state.isDirty = false;
+                state.checklistItems = [];
+                checklistManager.enter();
+                updateTitle('Untitled List');
+            },
+            
+            openFromDevice() {
+                $('file-input').click();
+            },
+            
+            saveNote(name = 'Untitled', isAutosave = false) {
+                let noteName = name.trim() || 'Untitled';
+                
+                if (state.isChecklistMode) {
+                    // Save as checklist with items array
+                    if (state.currentNoteId) {
+                        noteStorage.update(state.currentNoteId, {
+                            checklistItems: JSON.parse(JSON.stringify(state.checklistItems)),
+                            isChecklist: true,
+                            createdAt: Date.now(),
+                            name: noteName
+                        });
+                    } else {
+                        const note = {
+                            id: Date.now(),
+                            name: noteName,
+                            checklistItems: JSON.parse(JSON.stringify(state.checklistItems)),
+                            isChecklist: true,
+                            createdAt: Date.now()
+                        };
+                        noteStorage.add(note);
+                        state.currentNoteId = note.id;
                     }
                 } else {
-                    closeAllDropdowns();
+                    // Save as regular note
+                    const content = elements.editor.value;
+                    
+                    if (state.currentNoteId) {
+                        noteStorage.update(state.currentNoteId, {
+                            content,
+                            isChecklist: false,
+                            createdAt: Date.now(),
+                            name: noteName
+                        });
+                    } else {
+                        const note = {
+                            id: Date.now(),
+                            name: noteName,
+                            content,
+                            isChecklist: false,
+                            createdAt: Date.now()
+                        };
+                        noteStorage.add(note);
+                        state.currentNoteId = note.id;
+                    }
                 }
-            });
-        });
-        
-        document.querySelectorAll('.dropdown-content li').forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.stopPropagation();
-                closeAllDropdowns();
-            });
-        });
-        
-        window.addEventListener('click', closeAllDropdowns);
-        
-        const setTheme = (theme) => {
-            document.body.className = theme;
-            localStorage.setItem('afsnote_theme', theme);
-        };
-
-        getEl('theme-win95-btn').addEventListener('click', () => setTheme('theme-win95'));
-        getEl('theme-winxp-btn').addEventListener('click', () => setTheme('theme-winxp'));
-        getEl('theme-ios-btn').addEventListener('click', () => setTheme('theme-ios'));
-        getEl('theme-android-btn').addEventListener('click', () => setTheme('theme-android'));
-        getEl('theme-git-btn').addEventListener('click', () => setTheme('theme-git'));
-        const savedTheme = localStorage.getItem('afsnote_theme') || 'theme-android';
-        setTheme(savedTheme);
-
-        // --- Core App Logic ---
-        closeBtn.addEventListener('click', () => { window.close(); });
-        newFileBtn.addEventListener('click', () => {
-            editor.value = '';
-            currentNoteId = null;
-            isDirty = false;
-            updateTitleBar('Untitled');
-            if (checklistMode) exitChecklistMode();
-        });
-        openFileBtn.addEventListener('click', () => { fileOpener.click(); });
-        fileOpener.addEventListener('change', event => {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = e => { editor.value = e.target.result; };
-            reader.readAsText(file);
-            event.target.value = null; 
-            currentNoteId = null;
-            isDirty = false;
-            updateTitleBar(file.name.replace(/\.[^/.]+$/, ""));
-        });
-        
-        // --- Save Note (Local Storage) Logic ---
-        const saveNoteToLocalStorage = (name, isAutosave = false) => {
-            let notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
-            let noteName = name.trim() || 'Untitled';
-            let savedNoteName = noteName;
-            let content = '';
-
-            // If in checklist mode, convert items to text format for storage
-            if (checklistMode) {
-                let checklistText = '';
-                checklistItems.forEach(item => {
-                    const checkbox = item.completed ? '[x]' : '[ ]';
-                    checklistText += `${checkbox} ${item.text}\n`;
-                });
-                // Combine any text in editor with checklist items
-                const editorText = editor.value.trim();
-                content = editorText ? editorText + '\n' + checklistText : checklistText;
-            } else {
-                content = editor.value;
-            }
-
-            if (currentNoteId) {
-                const note = notes.find(n => n.id === currentNoteId);
-                if (note) {
-                    note.content = content;
-                    note.createdAt = Date.now();
-                    note.name = noteName;
-                    savedNoteName = note.name;
+                
+                state.isDirty = false;
+                updateTitle(noteName, isAutosave);
+            },
+            
+            saveToDevice(filename, type) {
+                let finalFilename = filename.trim() || 'Untitled';
+                let content = '';
+                let mimeType = 'text/plain';
+                
+                // Get content based on current mode
+                if (state.isChecklistMode) {
+                    content = state.checklistItems.map(item => {
+                        const checkbox = item.completed ? '[x]' : '[ ]';
+                        return `${checkbox} ${item.text}`;
+                    }).join('\n');
+                } else {
+                    content = elements.editor.value;
                 }
-            } else {
-                const note = { id: Date.now(), name: noteName, content: content, createdAt: Date.now() };
-                notes.unshift(note);
-                currentNoteId = note.id;
-                savedNoteName = note.name;
-            }
-            localStorage.setItem('afsnote_notes', JSON.stringify(notes));
-            isDirty = false;
-            
-            if (isAutosave) {
-                updateTitleBar(savedNoteName, true);
-            } else {
-                updateTitleBar(savedNoteName);
-            }
-            
-            // Stay in checklist mode after saving
-            // Don't call exitChecklistMode()
-        };
-        const saveNoteModal = getEl('save-note-modal');
-        saveNoteBtn.addEventListener('click', () => {
-            if (currentNoteId) {
-                const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
-                const note = notes.find(n => n.id === currentNoteId);
-                saveNoteToLocalStorage(note.name);
-                alert('Note updated!');
-            } else {
-                saveNoteModal.style.display = 'flex';
-                getEl('note-name-input').focus();
-            }
-        });
-        getEl('cancel-note-save-btn').addEventListener('click', () => { saveNoteModal.style.display = 'none'; });
-        getEl('confirm-note-save-btn').addEventListener('click', () => {
-            saveNoteToLocalStorage(getEl('note-name-input').value);
-            saveNoteModal.style.display = 'none';
-        });
-
-        // --- Save to Device Logic ---
-        const saveToDeviceModal = getEl('save-to-device-modal');
-        const saveToDevice = (filename, type) => {
-            let finalFilename = filename.trim() || 'Untitled';
-            let content = editor.value;
-            let mimeType = 'text/plain';
-            
-            // Remove extension if already present
-            finalFilename = finalFilename.replace(/\.(txt|html)$/i, '');
-            
-            // Add appropriate extension and set MIME type
-            if (type === 'html') {
-                finalFilename += '.html';
-                mimeType = 'text/html';
-                // Ensure basic HTML structure if saving as HTML
-                if (!content.includes('<html') && !content.includes('<HTML')) {
-                    content = `<!DOCTYPE html>
+                
+                finalFilename = finalFilename.replace(/\.(txt|html)$/i, '');
+                
+                if (type === 'html') {
+                    finalFilename += '.html';
+                    mimeType = 'text/html';
+                    
+                    if (!content.includes('<html')) {
+                        content = `<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -1732,392 +1417,498 @@
 ${content}
 </body>
 </html>`;
+                    }
+                } else {
+                    finalFilename += '.txt';
                 }
-            } else {
-                finalFilename += '.txt';
-            }
-
-            try {
+                
                 const blob = new Blob([content], { type: mimeType });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = finalFilename;
-                document.body.appendChild(a);
                 a.click();
-                document.body.removeChild(a);
-                setTimeout(() => URL.revokeObjectURL(url), 100);
-            } catch (err) {
-                alert(`Error saving file: ${err.message}`);
-            }
-        };
-
-        saveToDeviceBtn.addEventListener('click', () => {
-            saveToDeviceModal.style.display = 'flex';
-            getEl('device-filename-input').focus();
-            getEl('device-filename-input').value = ''; // Clear previous input
-        });
-        getEl('cancel-device-save-btn').addEventListener('click', () => { saveToDeviceModal.style.display = 'none'; });
-        getEl('confirm-device-save-btn').addEventListener('click', () => {
-            const filename = getEl('device-filename-input').value;
-            const type = getEl('file-type-select').value;
-            saveToDevice(filename, type);
-            saveToDeviceModal.style.display = 'none';
-        });
-
-        // --- Other Modals ---
-        const aboutModal = getEl('about-modal');
-        aboutMenuBtn.addEventListener('click', () => { aboutModal.style.display = 'flex'; });
-        getEl('close-modal-1').addEventListener('click', () => aboutModal.style.display = 'none');
-        
-        const fontSizeModal = getEl('font-size-modal');
-        fontSizeMenuBtn.addEventListener('click', () => { 
-            const currentSize = parseInt(editor.style.fontSize) || 16;
-            fontSizeSlider.value = currentSize;
-            fontSizeDisplay.textContent = `${currentSize}px`;
-            fontSizeModal.style.display = 'flex'; 
-        });
-        fontSizeSlider.addEventListener('input', e => { 
-            editor.style.fontSize = `${e.target.value}px`; 
-            fontSizeDisplay.textContent = `${e.target.value}px`;
-        });
-        getEl('close-font-modal-btn').addEventListener('click', () => { fontSizeModal.style.display = 'none'; });
-
-        // --- Replace Logic ---
-        const replaceModal = getEl('replace-modal');
-        const findInput = getEl('find-input');
-        const replaceInput = getEl('replace-input');
-        const confirmReplaceAllBtn = getEl('confirm-replace-all-btn');
-        const closeReplaceBtn = getEl('close-replace-btn');
-        
-        const getFindRegex = (term) => {
-            const escapedTerm = term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\            <button id="file-manager-');
-            const pattern = escapedTerm.length === 1 ? `\\b${escapedTerm}\\b` : escapedTerm;
-            return new RegExp(pattern, 'gi');
-        };
-        
-        replaceMenuBtn.addEventListener('click', () => {
-            replaceModal.style.display = 'flex';
-            findInput.focus();
-        });
-        
-        closeReplaceBtn.addEventListener('click', () => {
-            replaceModal.style.display = 'none';
-        });
-        
-        confirmReplaceAllBtn.addEventListener('click', () => {
-            const findTerm = findInput.value;
-            const replaceTerm = replaceInput.value;
-            if (!findTerm) {
-                alert("Please enter text to find.");
-                return;
-            }
-            const text = editor.value;
-            const regex = getFindRegex(findTerm);
-            if (text.match(regex)) {
-                editor.value = text.replace(regex, replaceTerm);
-                alert("All occurrences have been replaced.");
-            } else {
-                alert("Text not found.");
-            }
-        });
-        
-        // --- Import / Export Logic ---
-        const ioModal = getEl('import-export-modal');
-        const importBtn = getEl('import-notes-btn');
-        const exportBtn = getEl('export-notes-btn');
-        const closeIoModalBtn = getEl('close-io-modal-btn');
-        importExportBtn.addEventListener('click', () => {
-            ioModal.style.display = 'flex';
-        });
-        closeIoModalBtn.addEventListener('click', () => {
-            ioModal.style.display = 'none';
-        });
-        exportBtn.addEventListener('click', () => {
-            const notes = localStorage.getItem('afsnote_notes');
-            if (!notes || notes === '[]') {
-                alert("No notes to export.");
-                return;
-            }
-            const now = new Date();
-            const timestamp = `${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}${now.getSeconds().toString().padStart(2,'0')}`;
-            const filename = `afsnote_export_${timestamp}.json`;
-            const blob = new Blob([notes], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        });
-        importBtn.addEventListener('click', () => {
-            importFileOpener.click();
-        });
-        importFileOpener.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const importedNotes = JSON.parse(e.target.result);
-                    if (!Array.isArray(importedNotes)) {
-                        throw new Error("Invalid JSON file: Not an array.");
+                URL.revokeObjectURL(url);
+            },
+            
+            importNotes(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedNotes = JSON.parse(e.target.result);
+                        if (!Array.isArray(importedNotes)) {
+                            throw new Error('Invalid file format');
+                        }
+                        
+                        const existingNotes = noteStorage.getAll();
+                        const existingIds = new Set(existingNotes.map(n => n.id));
+                        let count = 0;
+                        
+                        importedNotes.forEach(note => {
+                            if (note.id && note.name && note.content && !existingIds.has(note.id)) {
+                                noteStorage.add(note);
+                                count++;
+                            }
+                        });
+                        
+                        alert(`Imported ${count} notes successfully!`);
+                    } catch (err) {
+                        alert(`Error importing notes: ${err.message}`);
                     }
-                    const existingNotes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
-                    const combinedNotes = [...existingNotes];
-                    const existingIds = new Set(existingNotes.map(n => n.id));
-                    let importCount = 0;
-                    importedNotes.forEach(note => {
-                        if (note.id && note.name && note.content && note.createdAt && !existingIds.has(note.id)) {
-                            combinedNotes.push(note);
-                            importCount++;
+                };
+                reader.readAsText(file);
+            },
+            
+            exportNotes() {
+                const notes = noteStorage.getAll();
+                if (notes.length === 0) {
+                    alert('No notes to export!');
+                    return;
+                }
+                
+                const now = new Date();
+                const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, -5);
+                const filename = `afsnote_export_${timestamp}.json`;
+                
+                const blob = new Blob([JSON.stringify(notes, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        };
+
+        // File Manager
+        const fileManager = {
+            show() {
+                this.render();
+                elements.fileManager.classList.add('show');
+            },
+            
+            hide() {
+                elements.fileManager.classList.remove('show');
+            },
+            
+            render(sortOrder = 'date-desc') {
+                let notes = noteStorage.getAll();
+                
+                // Sort notes
+                switch(sortOrder) {
+                    case 'name-asc':
+                        notes.sort((a, b) => a.name.localeCompare(b.name));
+                        break;
+                    case 'name-desc':
+                        notes.sort((a, b) => b.name.localeCompare(a.name));
+                        break;
+                    case 'date-asc':
+                        notes.sort((a, b) => a.createdAt - b.createdAt);
+                        break;
+                    case 'date-desc':
+                        notes.sort((a, b) => b.createdAt - a.createdAt);
+                        break;
+                }
+                
+                elements.notesList.innerHTML = '';
+                
+                notes.forEach(note => {
+                    const div = document.createElement('div');
+                    div.className = 'note-item';
+                    div.dataset.noteId = note.id;
+                    
+                    const title = document.createElement('div');
+                    title.className = 'note-item-title';
+                    // Add checklist icon if it's a checklist
+                    const icon = note.isChecklist ? '☑ ' : '';
+                    title.textContent = icon + note.name;
+                    
+                    const date = document.createElement('div');
+                    date.className = 'note-item-date';
+                    date.textContent = new Date(note.createdAt).toLocaleString();
+                    
+                    div.appendChild(title);
+                    div.appendChild(date);
+                    elements.notesList.appendChild(div);
+                });
+            },
+            
+            selectNote(id) {
+                const note = noteStorage.getById(id);
+                if (!note) return;
+                
+                $$('.note-item').forEach(item => item.classList.remove('active'));
+                const selectedItem = document.querySelector(`[data-note-id="${id}"]`);
+                if (selectedItem) selectedItem.classList.add('active');
+                
+                state.selectedNoteId = id;
+                elements.previewTitle.textContent = note.name;
+                elements.previewDate.textContent = new Date(note.createdAt).toLocaleString();
+                
+                // Check if it's a stored checklist
+                if (note.isChecklist && note.checklistItems) {
+                    let html = '<div>';
+                    note.checklistItems.forEach(item => {
+                        if (item.completed) {
+                            html += `<div style="margin: 8px 0; text-decoration: line-through; opacity: 0.7;">☑ ${item.text}</div>`;
+                        } else {
+                            html += `<div style="margin: 8px 0;">☐ ${item.text}</div>`;
                         }
                     });
-                    localStorage.setItem('afsnote_notes', JSON.stringify(combinedNotes));
-                    alert(`${importCount} notes imported successfully.`);
-                    ioModal.style.display = 'none';
-                } catch (err) {
-                    alert(`Error importing notes: ${err.message}`);
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = null;
-        });
-
-        // --- File Manager Logic ---
-        const fileManagerWindow = getEl('file-manager-window');
-        const fileManagerCloseBtn = getEl('file-manager-close-btn');
-        const fileManagerBackBtn = getEl('file-manager-back-btn');
-        const notesList = getEl('notes-list');
-        const notePreview = getEl('note-preview');
-        const notePreviewTitle = getEl('note-preview-title');
-        const notePreviewDate = getEl('note-preview-date');
-        const previewOpenBtn = getEl('preview-open-btn');
-        const previewDeleteBtn = getEl('preview-delete-btn');
-        const deleteConfirmModal = getEl('delete-confirm-modal');
-        const confirmDeleteBtn = getEl('confirm-delete-btn');
-        const cancelDeleteBtn = getEl('cancel-delete-btn');
-
-        const renderNotes = (sortOrder = 'date-desc') => {
-            let notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
-            switch(sortOrder) {
-                case 'name-asc': notes.sort((a, b) => a.name.localeCompare(b.name)); break;
-                case 'name-desc': notes.sort((a, b) => b.name.localeCompare(a.name)); break;
-                case 'date-asc': notes.sort((a, b) => a.createdAt - b.createdAt); break;
-                case 'date-desc': notes.sort((a, b) => b.createdAt - a.createdAt); break;
-            }
-            notesList.innerHTML = '';
-            notes.forEach(note => {
-                const item = document.createElement('div');
-                item.className = 'note-item';
-                item.dataset.noteId = note.id;
-                
-                const displayName = note.name.length > 15 ? note.name.substring(0, 15) + '...' : note.name;
-
-                item.innerHTML = '<svg class="file-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M4 0h8l4 4v12H0V0h4zm8 2H2v12h12V4.5L12 2zM5 8h6v1H5V8zm0 2h6v1H5v-1zm0 2h4v1H5v-1z"/></svg>' +
-                    '<div class="note-item-details">' +
-                        '<span class="note-item-title">' + displayName + '</span>' +
-                        '<span class="note-item-date">' + new Date(note.createdAt).toLocaleString() + '</span>' +
-                    '</div>';
-                notesList.appendChild(item);
-            });
-        };
-        notesList.addEventListener('click', e => {
-            const noteItem = e.target.closest('.note-item');
-            if (!noteItem) return;
-            const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
-            const noteId = Number(noteItem.dataset.noteId);
-            const note = notes.find(n => n.id === noteId);
-            document.querySelectorAll('.note-item').forEach(item => item.classList.remove('active'));
-            noteItem.classList.add('active');
-            
-            notePreviewTitle.textContent = note.name.length > 15 ? note.name.substring(0, 15) + '...' : note.name;
-            notePreviewDate.textContent = new Date(note.createdAt).toLocaleString();
-            
-            // Check if the note content is a checklist
-            const lines = note.content.split('\n');
-            const isChecklist = lines.some(line => line.trim().startsWith('[ ]') || line.trim().startsWith('[x]'));
-            
-            if (isChecklist) {
-                // Render as HTML checklist for preview
-                let htmlContent = '<div style="font-family: inherit; padding: 10px;">';
-                lines.forEach(line => {
-                    const trimmedLine = line.trim();
-                    if (trimmedLine.startsWith('[ ]')) {
-                        const text = trimmedLine.substring(3).trim();
-                        htmlContent += `<div style="margin: 8px 0;">☐ ${text}</div>`;
-                    } else if (trimmedLine.startsWith('[x]')) {
-                        const text = trimmedLine.substring(3).trim();
-                        htmlContent += `<div style="margin: 8px 0; text-decoration: line-through; opacity: 0.7;">☑ ${text}</div>`;
-                    } else if (trimmedLine) {
-                        htmlContent += `<div style="margin: 8px 0;">${trimmedLine}</div>`;
+                    html += '</div>';
+                    elements.previewContent.innerHTML = html;
+                } else if (note.content) {
+                    // Check if old format checklist (text-based)
+                    const isChecklist = note.content.includes('[ ]') || note.content.includes('[x]');
+                    
+                    if (isChecklist) {
+                        let html = '<div>';
+                        note.content.split('\n').forEach(line => {
+                            const trimmed = line.trim();
+                            if (trimmed.startsWith('[ ]')) {
+                                html += `<div style="margin: 8px 0;">☐ ${trimmed.substring(3).trim()}</div>`;
+                            } else if (trimmed.startsWith('[x]')) {
+                                html += `<div style="margin: 8px 0; text-decoration: line-through; opacity: 0.7;">☑ ${trimmed.substring(3).trim()}</div>`;
+                            } else if (trimmed) {
+                                html += `<div style="margin: 8px 0;">${trimmed}</div>`;
+                            }
+                        });
+                        html += '</div>';
+                        elements.previewContent.innerHTML = html;
+                    } else {
+                        elements.previewContent.textContent = note.content;
                     }
-                });
-                htmlContent += '</div>';
-                notePreview.innerHTML = htmlContent;
-            } else {
-                // Regular text content
-                notePreview.textContent = note.content;
-            }
+                } else {
+                    elements.previewContent.textContent = '';
+                }
+            },
             
-            selectedPreviewId = note.id;
-        });
-        previewOpenBtn.addEventListener('click', () => {
-            if (!selectedPreviewId) return;
-            const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
-            const note = notes.find(n => n.id === selectedPreviewId);
-            
-            // Check if the note is a checklist
-            const lines = note.content.split('\n');
-            const isChecklist = lines.some(line => line.trim().startsWith('[ ]') || line.trim().startsWith('[x]'));
-            
-            if (isChecklist) {
-                // Parse the checklist and enter checklist mode
-                checklistItems = [];
-                lines.forEach(line => {
-                    const trimmedLine = line.trim();
-                    if (trimmedLine.startsWith('[ ]')) {
-                        const text = trimmedLine.substring(3).trim();
-                        if (text) {
-                            checklistItems.push({
-                                id: Date.now() + Math.random(),
-                                text: text,
-                                completed: false
-                            });
-                        }
-                    } else if (trimmedLine.startsWith('[x]')) {
-                        const text = trimmedLine.substring(3).trim();
-                        if (text) {
-                            checklistItems.push({
-                                id: Date.now() + Math.random(),
-                                text: text,
-                                completed: true
-                            });
+            openNote() {
+                if (!state.selectedNoteId) return;
+                
+                const note = noteStorage.getById(state.selectedNoteId);
+                if (!note) return;
+                
+                // Check if it's a stored checklist
+                if (note.isChecklist && note.checklistItems) {
+                    checklistManager.loadFromItems(note.checklistItems);
+                    checklistManager.enter();
+                } else if (note.content) {
+                    // Check if old format checklist
+                    const isChecklist = note.content.includes('[ ]') || note.content.includes('[x]');
+                    
+                    if (isChecklist) {
+                        // Convert old format to new format
+                        checklistManager.loadFromText(note.content);
+                        checklistManager.enter();
+                    } else {
+                        elements.editor.value = note.content;
+                        if (state.isChecklistMode) {
+                            checklistManager.exit();
                         }
                     }
-                });
-                
-                // Set the editor content without the checklist items (they'll be in the checklist UI)
-                editor.value = lines.filter(line => {
-                    const trimmed = line.trim();
-                    return !trimmed.startsWith('[ ]') && !trimmed.startsWith('[x]');
-                }).join('\n');
-                
-                // Enter checklist mode
-                checklistMode = true;
-                editor.style.display = 'none';
-                checklistContainer.style.display = 'flex';
-                renderChecklistItems();
-                checklistInput.style.display = 'block';
-                checklistClose.style.display = 'block';
-                checklistEdit.style.display = 'none';
-            } else {
-                // Regular note - just load the content
-                editor.value = note.content;
-                editor.style.display = 'block';
-                checklistContainer.style.display = 'none';
-                checklistMode = false;
-            }
-            
-            currentNoteId = note.id;
-            isDirty = false;
-            updateTitleBar(note.name);
-            fileManagerWindow.style.display = 'none';
-        });
-
-        previewDeleteBtn.addEventListener('click', () => {
-            if (!selectedPreviewId) return;
-            deleteConfirmModal.style.display = 'flex';
-        });
-
-        cancelDeleteBtn.addEventListener('click', () => {
-            deleteConfirmModal.style.display = 'none';
-        });
-
-        confirmDeleteBtn.addEventListener('click', () => {
-            if (!selectedPreviewId) return;
-            const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
-            const remainingNotes = notes.filter(n => n.id !== selectedPreviewId);
-            localStorage.setItem('afsnote_notes', JSON.stringify(remainingNotes));
-            renderNotes();
-            notePreviewTitle.textContent = '';
-            notePreviewDate.textContent = '';
-            notePreview.textContent = 'Select a note to preview...';
-            selectedPreviewId = null;
-            deleteConfirmModal.style.display = 'none';
-        });
-
-        savedNotesBtn.addEventListener('click', () => {
-            // Exit checklist mode if active before opening saved notes
-            if (checklistMode) {
-                exitChecklistMode();
-            }
-            renderNotes();
-            notePreviewTitle.textContent = '';
-            notePreviewDate.textContent = '';
-            notePreview.textContent = 'Select a note to preview...';
-            fileManagerWindow.style.display = 'flex';
-            // Show back button for mobile themes AND Git theme
-            const isMobileTheme = document.body.classList.contains('theme-ios') || 
-                                  document.body.classList.contains('theme-android') || 
-                                  document.body.classList.contains('theme-git');
-            fileManagerBackBtn.style.display = isMobileTheme ? 'block' : 'none';
-        });
-        const closeFileManager = () => {
-            fileManagerWindow.style.display = 'none';
-        };
-        fileManagerCloseBtn.addEventListener('click', closeFileManager);
-        fileManagerBackBtn.addEventListener('click', closeFileManager);
-        document.querySelector('#filter-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            const dropdown = document.querySelector('#filter-btn').nextElementSibling;
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        });
-        document.querySelectorAll('#filter-btn + .dropdown-content li').forEach(item => {
-            item.addEventListener('click', (e) => {
-                renderNotes(e.target.dataset.sort);
-            });
-        });
-
-        // --- Autosave & Dirty Flag Logic ---
-        editor.addEventListener('input', () => {
-            isDirty = true;
-            clearTimeout(autosaveTimeout);
-            autosaveTimeout = setTimeout(() => {
-                if (currentNoteId) { // Only autosave if it's an existing note
-                    const notes = JSON.parse(localStorage.getItem('afsnote_notes') || '[]');
-                    const note = notes.find(n => n.id === currentNoteId);
-                    if (note) {
-                        saveNoteToLocalStorage(note.name, true);
+                } else {
+                    elements.editor.value = '';
+                    if (state.isChecklistMode) {
+                        checklistManager.exit();
                     }
                 }
-            }, 1500); // Wait 1.5 seconds after user stops typing
-        });
+                
+                state.currentNoteId = note.id;
+                state.isDirty = false;
+                updateTitle(note.name);
+                this.hide();
+            },
+            
+            deleteNote() {
+                if (!state.selectedNoteId) return;
+                modalManager.show('delete-modal');
+            },
+            
+            confirmDelete() {
+                if (!state.selectedNoteId) return;
+                
+                noteStorage.delete(state.selectedNoteId);
+                state.selectedNoteId = null;
+                
+                elements.previewTitle.textContent = 'Select a note';
+                elements.previewDate.textContent = '';
+                elements.previewContent.textContent = 'Select a note to preview...';
+                
+                this.render();
+                modalManager.hide('delete-modal');
+            }
+        };
 
-        // Initialize with default title
-        updateTitleBar('Untitled');
-    });
-
-    // --- Prevent Refresh on Unsaved Changes ---
-    window.addEventListener('beforeunload', (e) => {
-        const editor = document.getElementById('editor');
-        const isDirty = editor.value && (!editor.dataset.saved || editor.dataset.saved === 'false');
-        if (isDirty) {
-            e.preventDefault();
-            e.returnValue = '';
+        // Replace functionality
+        function replaceAll() {
+            const findText = $('find-input').value;
+            const replaceText = $('replace-input').value;
+            
+            if (!findText) {
+                alert('Please enter text to find');
+                return;
+            }
+            
+            const regex = new RegExp(findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+            const currentText = elements.editor.value;
+            
+            if (regex.test(currentText)) {
+                elements.editor.value = currentText.replace(regex, replaceText);
+                alert('All occurrences replaced!');
+            } else {
+                alert('Text not found');
+            }
         }
-    });
 
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js').catch(err => {
-                console.error('ServiceWorker registration failed: ', err);
+        // Autosave
+        function setupAutosave() {
+            elements.editor.addEventListener('input', () => {
+                state.isDirty = true;
+                clearTimeout(state.autosaveTimer);
+                
+                state.autosaveTimer = setTimeout(() => {
+                    if (state.currentNoteId && state.isDirty) {
+                        const note = noteStorage.getById(state.currentNoteId);
+                        if (note) {
+                            fileOperations.saveNote(note.name, true);
+                        }
+                    }
+                }, 1500);
             });
-        });
-    }
-</script>
+        }
 
+        // Event Listeners
+        function setupEventListeners() {
+            // File Menu
+            $('new-note-btn').addEventListener('click', () => {
+                fileOperations.newNote();
+                closeAllDropdowns();
+            });
+            
+            $('new-list-btn').addEventListener('click', () => {
+                fileOperations.newList();
+                closeAllDropdowns();
+            });
+            
+            $('open-file-btn').addEventListener('click', () => {
+                fileOperations.openFromDevice();
+                closeAllDropdowns();
+            });
+            
+            $('save-note-btn').addEventListener('click', () => {
+                if (state.currentNoteId) {
+                    const note = noteStorage.getById(state.currentNoteId);
+                    fileOperations.saveNote(note.name);
+                    alert('Note saved!');
+                } else {
+                    modalManager.show('save-modal');
+                }
+                closeAllDropdowns();
+            });
+            
+            $('save-device-btn').addEventListener('click', () => {
+                modalManager.show('save-device-modal');
+                closeAllDropdowns();
+            });
+            
+            // Saved Notes
+            $('saved-notes-btn').addEventListener('click', () => {
+                // Don't exit checklist mode, just show file manager
+                fileManager.show();
+            });
+            
+            // Tools Menu
+            $('font-size-btn').addEventListener('click', () => {
+                const currentSize = parseInt(elements.editor.style.fontSize) || 16;
+                $('font-size-slider').value = currentSize;
+                $('font-size-value').textContent = `${currentSize}px`;
+                modalManager.show('font-size-modal');
+                closeAllDropdowns();
+            });
+            
+            $('replace-btn').addEventListener('click', () => {
+                modalManager.show('replace-modal');
+                closeAllDropdowns();
+            });
+            
+            $('import-export-btn').addEventListener('click', () => {
+                modalManager.show('import-export-modal');
+                closeAllDropdowns();
+            });
+            
+            $('about-btn').addEventListener('click', () => {
+                modalManager.show('about-modal');
+                closeAllDropdowns();
+            });
+            
+            // Checklist
+            elements.checklistInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    checklistManager.addItem(elements.checklistInput.value);
+                    elements.checklistInput.value = '';
+                }
+            });
+            
+            $('exit-checklist-btn').addEventListener('click', () => {
+                checklistManager.exit();
+            });
+            
+            // File Manager
+            $('close-file-manager').addEventListener('click', () => {
+                fileManager.hide();
+            });
+            
+            elements.notesList.addEventListener('click', (e) => {
+                const noteItem = e.target.closest('.note-item');
+                if (noteItem) {
+                    fileManager.selectNote(Number(noteItem.dataset.noteId));
+                }
+            });
+            
+            $('open-note-btn').addEventListener('click', () => {
+                fileManager.openNote();
+            });
+            
+            $('delete-note-btn').addEventListener('click', () => {
+                fileManager.deleteNote();
+            });
+            
+            // Sort
+            $$('#sort-dropdown .dropdown-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    fileManager.render(item.dataset.sort);
+                });
+            });
+            
+            // Save Modal
+            $('cancel-save-btn').addEventListener('click', () => {
+                modalManager.hide('save-modal');
+            });
+            
+            $('confirm-save-btn').addEventListener('click', () => {
+                const name = $('note-name-input').value;
+                fileOperations.saveNote(name);
+                modalManager.hide('save-modal');
+                $('note-name-input').value = '';
+            });
+            
+            // Save to Device Modal
+            $('cancel-device-save-btn').addEventListener('click', () => {
+                modalManager.hide('save-device-modal');
+            });
+            
+            $('confirm-device-save-btn').addEventListener('click', () => {
+                const filename = $('filename-input').value;
+                const type = $('file-type-select').value;
+                fileOperations.saveToDevice(filename, type);
+                modalManager.hide('save-device-modal');
+                $('filename-input').value = '';
+            });
+            
+            // Font Size Modal
+            $('font-size-slider').addEventListener('input', (e) => {
+                const size = e.target.value;
+                elements.editor.style.fontSize = `${size}px`;
+                $('font-size-value').textContent = `${size}px`;
+            });
+            
+            $('close-font-modal').addEventListener('click', () => {
+                modalManager.hide('font-size-modal');
+            });
+            
+            // Replace Modal
+            $('confirm-replace-btn').addEventListener('click', () => {
+                replaceAll();
+            });
+            
+            $('close-replace-modal').addEventListener('click', () => {
+                modalManager.hide('replace-modal');
+            });
+            
+            // Import/Export Modal
+            $('import-notes-btn').addEventListener('click', () => {
+                $('import-file-input').click();
+            });
+            
+            $('export-notes-btn').addEventListener('click', () => {
+                fileOperations.exportNotes();
+            });
+            
+            $('close-io-modal').addEventListener('click', () => {
+                modalManager.hide('import-export-modal');
+            });
+            
+            // About Modal
+            $('close-about-modal').addEventListener('click', () => {
+                modalManager.hide('about-modal');
+            });
+            
+            // Delete Modal
+            $('cancel-delete-btn').addEventListener('click', () => {
+                modalManager.hide('delete-modal');
+            });
+            
+            $('confirm-delete-btn').addEventListener('click', () => {
+                fileManager.confirmDelete();
+            });
+            
+            // File Inputs
+            $('file-input').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    elements.editor.value = e.target.result;
+                    state.currentNoteId = null;
+                    state.isDirty = false;
+                    updateTitle(file.name.replace(/\.[^/.]+$/, ''));
+                };
+                reader.readAsText(file);
+                e.target.value = '';
+            });
+            
+            $('import-file-input').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                fileOperations.importNotes(file);
+                e.target.value = '';
+            });
+        }
+
+        // Initialize Application
+        function init() {
+            themeManager.init();
+            setupDropdowns();
+            setupAutosave();
+            setupEventListeners();
+            
+            // Create an initial note so autosave works from the start
+            const initialNote = {
+                id: Date.now(),
+                name: 'Untitled',
+                content: '',
+                isChecklist: false,
+                createdAt: Date.now()
+            };
+            noteStorage.add(initialNote);
+            state.currentNoteId = initialNote.id;
+            
+            updateTitle('Untitled');
+        }
+
+        // Start the app when DOM is ready
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // Prevent data loss on page refresh
+        window.addEventListener('beforeunload', (e) => {
+            if (state.isDirty && (elements.editor.value || state.checklistItems.length > 0)) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
 </body>
 </html>
