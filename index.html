@@ -6,6 +6,9 @@
     <title>AFSNote</title>
     <link rel="icon" type="image/x-icon" href="https://busland.neocities.org/hobopad.ico">
     <link rel="manifest" href="manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -52,7 +55,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Atkinson Hyperlegible', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: var(--bg);
             color: var(--text);
             height: 100vh;
@@ -222,8 +225,8 @@
             outline: none;
             resize: none;
             font-size: 16px;
-            line-height: 1.6;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.7;
+            font-family: 'Atkinson Hyperlegible', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
 
         /* Checklist Container */
@@ -280,6 +283,7 @@
             color: var(--text);
             word-break: break-word;
             cursor: text;
+            line-height: 1.6;
         }
 
         .checklist-item.completed .checklist-text {
@@ -594,6 +598,15 @@
             padding: 16px;
             border-bottom: 1px solid var(--border);
             background: var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .preview-info {
+            flex: 1;
+            min-width: 0;
         }
 
         .preview-title {
@@ -601,6 +614,11 @@
             font-size: 18px;
             margin-bottom: 4px;
             color: var(--text);
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 8px;
         }
 
         .preview-date {
@@ -620,6 +638,7 @@
             overflow-y: auto;
             white-space: pre-wrap;
             color: var(--text);
+            line-height: 1.7;
         }
 
         /* IO Section */
@@ -684,26 +703,192 @@
             background: var(--secondary);
         }
 
+        /* Resize Handle */
+        .resize-handle {
+            display: none;
+            height: 8px;
+            background: var(--border);
+            cursor: row-resize;
+            position: relative;
+            z-index: 10;
+            flex-shrink: 0;
+            touch-action: none;
+            transition: background 0.2s;
+        }
+
+        .resize-handle:hover {
+            background: var(--accent);
+            opacity: 0.7;
+        }
+
+        .resize-handle:active {
+            background: var(--accent);
+            opacity: 1;
+        }
+
+        .resize-handle.dragging {
+            background: var(--accent);
+            opacity: 1;
+        }
+
+        .resize-handle::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 0;
+            right: 0;
+            height: 24px;
+        }
+
+        .resize-handle::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 4px;
+            background: currentColor;
+            opacity: 0.5;
+            border-radius: 2px;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
+            .menu-bar {
+                gap: 4px;
+                padding: 6px 12px;
+            }
+
+            .menu-button {
+                padding: 4px 12px;
+                font-size: 13px;
+            }
+
+            .file-manager-content {
+                flex-direction: column;
+            }
+
             .notes-list-panel {
                 width: 100%;
+                height: 40%;
+                min-height: 100px;
                 border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .resize-handle {
+                display: block;
             }
 
             .preview-panel {
-                display: none;
+                width: 100%;
+                height: 60%;
+                min-height: 100px;
+                display: flex;
             }
 
-            .preview-panel.mobile-show {
+            .preview-header {
+                padding: 12px 16px;
+                flex-wrap: nowrap;
+            }
+
+            .preview-info {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .preview-title {
+                font-size: 16px;
+                font-weight: 600;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                margin-bottom: 2px;
+            }
+
+            .preview-date {
+                font-size: 12px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .preview-actions {
                 display: flex;
+                gap: 8px;
+                flex-shrink: 0;
+            }
+
+            .preview-actions button {
+                padding: 8px 16px;
+                font-size: 14px;
+                white-space: nowrap;
+            }
+
+            #delete-note-btn {
+                background: transparent;
+                color: var(--text);
+                border: 1px solid var(--border);
+            }
+
+            .notes-list-header {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .note-item {
+                padding: 12px 16px;
+            }
+
+            .note-item-title {
+                font-size: 15px;
+            }
+
+            .note-item-date {
+                font-size: 12px;
+            }
+
+            /* Mobile checklist styles */
+            #checklist-input {
+                font-size: 16px;
+                padding: 10px;
+            }
+
+            .checklist-item {
+                padding: 10px;
+            }
+
+            .checklist-controls {
                 width: 100%;
-                position: absolute;
-                top: 0;
-                left: 0;
-                height: 100%;
-                background: var(--bg);
-                z-index: 10;
+            }
+
+            .checklist-controls button {
+                width: 100%;
+            }
+
+            .btn-primary, .btn-secondary {
+                padding: 12px 20px;
+                font-size: 15px;
+            }
+
+            .preview-content {
+                padding: 16px;
+            }
+        }
+            
+            .mobile-back-btn {
+                display: flex !important;
+            }
+            
+            .menu-bar {
+                padding: 4px 8px;
+                gap: 4px;
+            }
+            
+            .menu-button {
+                font-size: 12px;
+                padding: 4px 12px;
             }
         }
     </style>
@@ -761,8 +946,8 @@
                 <div class="checklist-input-container">
                     <input type="text" id="checklist-input" placeholder="Add item...">
                 </div>
-                <div class="checklist-controls">
-                    <button class="btn-primary" id="exit-checklist-btn">Convert to Text Note</button>
+                <div class="checklist-controls" style="display: none;">
+                    <!-- Controls removed - auto-save handles everything -->
                 </div>
             </div>
         </div>
@@ -795,10 +980,13 @@
                 </div>
                 <div class="notes-list" id="notes-list"></div>
             </div>
+            <div class="resize-handle" id="resize-handle"></div>
             <div class="preview-panel" id="preview-panel">
                 <div class="preview-header">
-                    <div class="preview-title" id="preview-title">Select a note</div>
-                    <div class="preview-date" id="preview-date"></div>
+                    <div class="preview-info">
+                        <div class="preview-title" id="preview-title">Select a note</div>
+                        <div class="preview-date" id="preview-date"></div>
+                    </div>
                     <div class="preview-actions">
                         <button class="btn-primary" id="open-note-btn">Edit</button>
                         <button class="btn-secondary" id="delete-note-btn">Delete</button>
@@ -1094,6 +1282,7 @@
                 state.isChecklistMode = true;
                 elements.editor.style.display = 'none';
                 elements.checklistContainer.classList.add('active');
+                this.render(); // Render to show current state (empty or with items)
                 elements.checklistInput.focus();
             },
             
@@ -1101,24 +1290,6 @@
                 state.isChecklistMode = false;
                 elements.checklistContainer.classList.remove('active');
                 elements.editor.style.display = 'block';
-                
-                // Convert checklist to text format
-                const text = state.checklistItems.map(item => {
-                    const checkbox = item.completed ? '[x]' : '[ ]';
-                    return `${checkbox} ${item.text}`;
-                }).join('\n');
-                
-                elements.editor.value = text;
-                
-                // Update the note to be a text note instead of checklist
-                if (state.currentNoteId) {
-                    noteStorage.update(state.currentNoteId, {
-                        content: text,
-                        isChecklist: false,
-                        checklistItems: null
-                    });
-                }
-                
                 state.checklistItems = [];
             },
             
@@ -1245,6 +1416,7 @@
             },
             
             autosave() {
+                // Only autosave if the note has been manually saved at least once
                 if (state.currentNoteId) {
                     this.saveChecklist();
                 }
@@ -1256,6 +1428,12 @@
                     isChecklist: true,
                     createdAt: Date.now()
                 });
+                
+                // Show saved message
+                const note = noteStorage.getById(state.currentNoteId);
+                if (note) {
+                    updateTitle(note.name, true);
+                }
             },
             
             loadFromText(text) {
@@ -1291,18 +1469,9 @@
         // File Operations
         const fileOperations = {
             newNote() {
-                // Create a new note immediately so autosave works from the start
-                const note = {
-                    id: Date.now(),
-                    name: 'Untitled',
-                    content: '',
-                    isChecklist: false,
-                    createdAt: Date.now()
-                };
-                noteStorage.add(note);
-                
+                // Don't create note immediately - wait for user to save and name it
                 elements.editor.value = '';
-                state.currentNoteId = note.id;
+                state.currentNoteId = null;
                 state.isDirty = false;
                 state.checklistItems = [];
                 updateTitle('Untitled');
@@ -1313,19 +1482,12 @@
             },
             
             newList() {
-                // Create a new checklist note immediately
-                const note = {
-                    id: Date.now(),
-                    name: 'Untitled List',
-                    checklistItems: [],
-                    isChecklist: true,
-                    createdAt: Date.now()
-                };
-                noteStorage.add(note);
-                
-                state.currentNoteId = note.id;
+                // Don't create note immediately - wait for user to save and name it
+                state.currentNoteId = null;
                 state.isDirty = false;
                 state.checklistItems = [];
+                
+                // Enter checklist mode with empty list
                 checklistManager.enter();
                 updateTitle('Untitled List');
             },
@@ -1750,9 +1912,6 @@ ${content}
                 }
             });
             
-            $('exit-checklist-btn').addEventListener('click', () => {
-                checklistManager.exit();
-            });
             
             // File Manager
             $('close-file-manager').addEventListener('click', () => {
@@ -1773,6 +1932,87 @@ ${content}
             $('delete-note-btn').addEventListener('click', () => {
                 fileManager.deleteNote();
             });
+            
+            // Resize handle functionality for mobile
+            const resizeHandle = $('resize-handle');
+            const notesListPanel = document.querySelector('.notes-list-panel');
+            const previewPanel = elements.previewPanel;
+            
+            if (resizeHandle && notesListPanel && previewPanel) {
+                let isResizing = false;
+                let startY = 0;
+                let startListHeight = 0;
+                
+                resizeHandle.addEventListener('mousedown', (e) => {
+                    isResizing = true;
+                    startY = e.clientY;
+                    startListHeight = notesListPanel.offsetHeight;
+                    document.body.style.cursor = 'row-resize';
+                    resizeHandle.classList.add('dragging');
+                    e.preventDefault();
+                });
+                
+                resizeHandle.addEventListener('touchstart', (e) => {
+                    isResizing = true;
+                    startY = e.touches[0].clientY;
+                    startListHeight = notesListPanel.offsetHeight;
+                    resizeHandle.classList.add('dragging');
+                    e.preventDefault();
+                }, { passive: false });
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (!isResizing) return;
+                    
+                    const deltaY = e.clientY - startY;
+                    const fileManagerContent = document.querySelector('.file-manager-content');
+                    const totalHeight = fileManagerContent.offsetHeight;
+                    const newListHeight = startListHeight + deltaY;
+                    const minHeight = 100;
+                    const maxHeight = totalHeight - minHeight - 8; // 8px for handle
+                    
+                    if (newListHeight >= minHeight && newListHeight <= maxHeight) {
+                        const listPercent = (newListHeight / totalHeight) * 100;
+                        const previewPercent = 100 - listPercent - (8 / totalHeight * 100);
+                        
+                        notesListPanel.style.height = `${listPercent}%`;
+                        previewPanel.style.height = `${previewPercent}%`;
+                    }
+                });
+                
+                document.addEventListener('touchmove', (e) => {
+                    if (!isResizing) return;
+                    
+                    const deltaY = e.touches[0].clientY - startY;
+                    const fileManagerContent = document.querySelector('.file-manager-content');
+                    const totalHeight = fileManagerContent.offsetHeight;
+                    const newListHeight = startListHeight + deltaY;
+                    const minHeight = 100;
+                    const maxHeight = totalHeight - minHeight - 8;
+                    
+                    if (newListHeight >= minHeight && newListHeight <= maxHeight) {
+                        const listPercent = (newListHeight / totalHeight) * 100;
+                        const previewPercent = 100 - listPercent - (8 / totalHeight * 100);
+                        
+                        notesListPanel.style.height = `${listPercent}%`;
+                        previewPanel.style.height = `${previewPercent}%`;
+                    }
+                }, { passive: false });
+                
+                document.addEventListener('mouseup', () => {
+                    if (isResizing) {
+                        isResizing = false;
+                        document.body.style.cursor = '';
+                        resizeHandle.classList.remove('dragging');
+                    }
+                });
+                
+                document.addEventListener('touchend', () => {
+                    if (isResizing) {
+                        isResizing = false;
+                        resizeHandle.classList.remove('dragging');
+                    }
+                });
+            }
             
             // Sort
             $$('#sort-dropdown .dropdown-item').forEach(item => {
@@ -1884,18 +2124,6 @@ ${content}
             setupDropdowns();
             setupAutosave();
             setupEventListeners();
-            
-            // Create an initial note so autosave works from the start
-            const initialNote = {
-                id: Date.now(),
-                name: 'Untitled',
-                content: '',
-                isChecklist: false,
-                createdAt: Date.now()
-            };
-            noteStorage.add(initialNote);
-            state.currentNoteId = initialNote.id;
-            
             updateTitle('Untitled');
         }
 
